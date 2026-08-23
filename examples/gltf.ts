@@ -9,7 +9,6 @@ import {
   Quaternion,
   Renderer,
   Transform3D,
-  Uniform,
   VertexBuffer,
   fetchBytes,
   requestAnimationFrameLoop,
@@ -72,6 +71,6 @@ requestAnimationFrameLoop(() => {
   renderer.clear();
   transform.rotation.multiply(Quaternion.fromRotationX(0.003));
   transform.rotation.multiply(Quaternion.fromRotationY(0.002));
-  mesh.material.setUniform("transform", Uniform.matrix4(transform));
+  mesh.material.setUniform("transform", { kind: "matrix4", value: transform.toArray() });
   renderer.render(mesh);
 });

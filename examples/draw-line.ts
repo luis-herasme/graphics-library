@@ -11,7 +11,6 @@ import {
   Quaternion,
   RenderPrimitive,
   Renderer,
-  Uniform,
   VertexBuffer,
   fetchBytes,
   requestAnimationFrameLoop,
@@ -91,10 +90,10 @@ const camera = PerspectiveCamera.default();
 
 requestAnimationFrameLoop(() => {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
-  mesh.material.setUniform("color", Uniform.vector4([0.5, 0.5, 0.5, 1]));
+  mesh.material.setUniform("color", { kind: "vector4", value: [0.5, 0.5, 0.5, 1] });
 
   skeletonMesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
-  skeletonMesh.material.setUniform("color", Uniform.vector4([0.25, 1, 0.25, 1]));
+  skeletonMesh.material.setUniform("color", { kind: "vector4", value: [0.25, 1, 0.25, 1] });
 
   renderer.renderScene(scene, camera);
 });

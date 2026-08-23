@@ -7,7 +7,6 @@ import {
   Renderer,
   Texture,
   Transform3D,
-  Uniform,
   fetchText,
   requestAnimationFrameLoop,
 } from "../src/index";
@@ -55,7 +54,7 @@ const geometry = Geometry.fromObj(obj);
 const mesh = new Mesh(geometry, material);
 
 const texture = await Texture.fromImageUrl("/chair.png");
-mesh.material.setUniform("chair_texture", Uniform.texture(texture));
+mesh.material.setUniform("chair_texture", { kind: "texture", value: texture });
 
 const transform = new Transform3D();
 transform.scale.multiplyScalar(0.005);
@@ -64,6 +63,6 @@ requestAnimationFrameLoop(() => {
   renderer.clear();
   transform.rotation.multiply(Quaternion.fromRotationX(0.01));
   transform.rotation.multiply(Quaternion.fromRotationY(0.02));
-  mesh.material.setUniform("transform", Uniform.matrix4(transform));
+  mesh.material.setUniform("transform", { kind: "matrix4", value: transform.toArray() });
   renderer.render(mesh);
 });

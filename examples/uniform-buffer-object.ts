@@ -3,7 +3,6 @@ import {
   Material,
   Mesh,
   Renderer,
-  Uniform,
   UniformBufferObject,
   requestAnimationFrameLoop,
   toBytes,
@@ -67,28 +66,28 @@ requestAnimationFrameLoop(() => {
   renderer.clear();
 
   uniformBufferObject.setBindingPoint(bindingPoint);
-  mesh.material.setUniform("translation", Uniform.vector2([-0.25, -0.25]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(0));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [-0.25, -0.25] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", Uniform.vector2([0, 0]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(1));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [0, 0] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", Uniform.vector2([0.25, 0.25]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(2));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [0.25, 0.25] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
   renderer.render(mesh);
 
   uniformBufferObject2.setBindingPoint(bindingPoint);
-  mesh.material.setUniform("translation", Uniform.vector2([-0.25, 0.75]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(0));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [-0.25, 0.75] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", Uniform.vector2([0, 1]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(1));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [0, 1] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", Uniform.vector2([0.25, 1.25]));
-  mesh.material.setUniform("color_index", Uniform.unsignedInt(2));
+  mesh.material.setUniform("translation", { kind: "vector2", value: [0.25, 1.25] });
+  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
   renderer.render(mesh);
 });
