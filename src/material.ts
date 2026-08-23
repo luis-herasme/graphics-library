@@ -345,8 +345,4 @@ export class ShaderProgram {
 
     this.gl.uniformBlockBinding(this.webglProgram, blockLocation, bindingPoint);
   }
-
-  dispose(): void {
-    this.gl.deleteProgram(this.webglProgram);
-  }
 }
