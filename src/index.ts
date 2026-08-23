@@ -31,7 +31,15 @@ export type {
   SamplerValues,
 } from "./loaders/animation";
 export { GLTF, GLTFParseError } from "./loaders/gltf";
-export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./loaders/gltf";
+export type {
+  GLTFAnimation,
+  GLTFAnimationChannel,
+  GLTFAnimationSampler,
+  GLTFAnimationTarget,
+  GLTFJson,
+  GLTFNode,
+  GLTFPrimitive,
+} from "./loaders/gltf";
 export { OBJ, OBJParseError } from "./loaders/obj";
 
 export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";

@@ -1,5 +1,6 @@
 import {
   Animation,
+  BufferUsage,
   Geometry,
   GLTF,
   IndexBuffer,
@@ -91,6 +92,7 @@ const skeletonVertexBuffer = new VertexBuffer({
       componentCount: 3,
     },
   ],
+  usage: BufferUsage.DynamicDraw,
 });
 const skeletonGeometry = new Geometry({
   vertexCount: skeletonVertexBuffer.vertexCount,
@@ -110,7 +112,20 @@ skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
 const scene = [mesh, skeletonMesh];
 const camera = new PerspectiveCamera();
 
-function frame() {
+let previousTime = performance.now();
+
+function frame(time: DOMHighResTimeStamp) {
+  const deltaTime = (time - previousTime) / 1000;
+  previousTime = time;
+
+  animation.update(deltaTime);
+
+  // The joint hierarchy never changes, so the skeleton keeps the same number of
+  // points and every one of them can be written back where it already sits.
+  animation.getLines().forEach((point, vertexIndex) => {
+    skeletonGeometry.setVertex("position", vertexIndex, point.toArray());
+  });
+
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
   mesh.material.setUniform("color", {
     kind: "vector4",

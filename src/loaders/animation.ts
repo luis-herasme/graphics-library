@@ -1,4 +1,4 @@
-import { GLTF } from "./gltf";
+import { GLTF, GLTFAnimationSampler } from "./gltf";
 import { Matrix4, Quaternion, Vector3 } from "../math";
 import { Transform3D } from "../scene/transform";
 
@@ -43,6 +43,71 @@ function samplerTimeIndex(sampler: Sampler, time: number): number | null {
   return index;
 }
 
+function readNodeProperty(path: string): NodeProperty {
+  if (path !== "translation" && path !== "rotation" && path !== "scale") {
+    throw new Error(`Unsupported animation target path: ${path}`);
+  }
+
+  return path;
+}
+
+/** Reads one sampler's keyframe times and the values it interpolates between. */
+function readSampler(gltf: GLTF, gltfSampler: GLTFAnimationSampler): Sampler {
+  // glTF names its interpolation modes in uppercase, and leaves the field out
+  // when the mode is the default one.
+  const { interpolation = "LINEAR" } = gltfSampler;
+
+  if (interpolation !== "LINEAR") {
+    throw new Error(`Unsupported animation interpolation: ${interpolation}`);
+  }
+
+  const times = Array.from(gltf.readAccessor(gltfSampler.input));
+  const components = Array.from(gltf.readAccessor(gltfSampler.output));
+  const componentCount = components.length / times.length;
+
+  // A rotation keyframe is a four component quaternion, while a translation or
+  // a scale keyframe is a three component vector.
+  if (componentCount === 4) {
+    const values: Quaternion[] = [];
+
+    for (let index = 0; index < times.length; index++) {
+      const start = index * 4;
+      values.push(Quaternion.fromArray(components.slice(start, start + 4)));
+    }
+
+    return {
+      times,
+      values: { kind: "quaternion", values },
+      interpolation: "linear",
+    };
+  }
+
+  if (componentCount === 3) {
+    const values: Vector3[] = [];
+
+    for (let index = 0; index < times.length; index++) {
+      const start = index * 3;
+      values.push(
+        new Vector3(
+          components[start],
+          components[start + 1],
+          components[start + 2],
+        ),
+      );
+    }
+
+    return {
+      times,
+      values: { kind: "vector3", values },
+      interpolation: "linear",
+    };
+  }
+
+  throw new Error(
+    `Unsupported animation sampler with ${componentCount} components per keyframe`,
+  );
+}
+
 function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   const node = gltf.json.nodes?.[nodeIndex];
 
@@ -82,12 +147,21 @@ export class Animation {
   private samplers: Sampler[] = [];
   private channels: Channel[] = [];
 
-  /** Builds the joint hierarchy from the first skin of a glTF file. */
-  static fromGLTF(gltf: GLTF): Animation {
+  /**
+   * Builds the joint hierarchy from the first skin of a glTF file, and loads
+   * one of the animations the file stores, by default the first.
+   */
+  static fromGLTF(gltf: GLTF, animationIndex = 0): Animation {
     const skin = gltf.json.skins?.[0];
 
     if (skin === undefined) {
       throw new Error("glTF file has no skins");
+    }
+
+    const clip = gltf.json.animations?.[animationIndex];
+
+    if (clip === undefined) {
+      throw new Error(`glTF file has no animation ${animationIndex}`);
     }
 
     const { nodes = [] } = gltf.json;
@@ -115,6 +189,32 @@ export class Animation {
       }
     }
 
+    animation.samplers = clip.samplers.map((gltfSampler) =>
+      readSampler(gltf, gltfSampler),
+    );
+
+    for (const gltfChannel of clip.channels) {
+      const { node: targetNodeIndex, path } = gltfChannel.target;
+
+      if (targetNodeIndex === undefined) {
+        continue;
+      }
+
+      animation.channels.push({
+        samplerIndex: gltfChannel.sampler,
+        targetNodeIndex,
+        targetNodeProperty: readNodeProperty(path),
+      });
+    }
+
+    // glTF keeps a sampler's keyframe times in ascending order, so the last one
+    // is where that sampler stops contributing to the animation.
+    animation.animationDuration = Math.max(
+      ...animation.samplers.map(
+        (sampler) => sampler.times[sampler.times.length - 1],
+      ),
+    );
+
     return animation;
   }
 
@@ -136,7 +236,7 @@ export class Animation {
       const index = samplerTimeIndex(sampler, this.currentTime);
 
       if (index === null) {
-        return;
+        continue;
       }
 
       const prevTime = sampler.times[index];
