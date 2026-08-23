@@ -12,7 +12,11 @@ export class IndexBuffer {
     data: Uint8Array | Uint16Array | Uint32Array | number[],
     usage: BufferUsage = BufferUsage.StaticDraw,
   ) {
-    const values = Array.isArray(data) ? new Uint32Array(data) : data;
+    let values = data;
+
+    if (Array.isArray(values)) {
+      values = new Uint32Array(values);
+    }
 
     if (values instanceof Uint8Array) {
       this.kind = WebGL2RenderingContext.UNSIGNED_BYTE;
