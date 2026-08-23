@@ -16,11 +16,8 @@ export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 export type { GpuBufferDescriptor } from "./gpu-buffer";
 export { IndexBuffer } from "./index-buffer";
 export type { IndexBufferDescriptor } from "./index-buffer";
-export { Material, MaterialResources } from "./material";
-export type {
-  MaterialDescriptor,
-  MaterialResourcesDescriptor,
-} from "./material";
+export { Material, ShaderProgram } from "./material";
+export type { MaterialDescriptor, ShaderProgramDescriptor } from "./material";
 export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
 export { Mesh, RenderPrimitive } from "./mesh";
 export type { MeshDescriptor } from "./mesh";
