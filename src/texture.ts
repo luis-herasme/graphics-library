@@ -46,9 +46,7 @@ export interface ImagePixelData {
   bytes: Uint8Array;
 }
 
-export type TextureData =
-  | { kind: "image"; image: HTMLImageElement }
-  | { kind: "pixels"; pixels: ImagePixelData };
+export type TextureData = HTMLImageElement | ImagePixelData;
 
 /**
  * Texture parameters are documented at:
@@ -69,16 +67,8 @@ export class Texture {
     this.textureData = textureData;
   }
 
-  static fromImage(image: HTMLImageElement): Texture {
-    return new Texture({ kind: "image", image });
-  }
-
-  static fromPixels(pixels: ImagePixelData): Texture {
-    return new Texture({ kind: "pixels", pixels });
-  }
-
   static async fromImageUrl(url: string): Promise<Texture> {
-    return Texture.fromImage(await fetchImage(url));
+    return new Texture(await fetchImage(url));
   }
 
   getWebglTexture(gl: WebGL2RenderingContext): WebGLTexture {
@@ -98,10 +88,10 @@ export class Texture {
 
     gl.bindTexture(TEXTURE_2D, webglTexture);
 
-    if (this.textureData.kind === "image") {
-      gl.texImage2D(TEXTURE_2D, 0, this.internalFormat, this.format, this.dataType, this.textureData.image);
+    if (this.textureData instanceof HTMLImageElement) {
+      gl.texImage2D(TEXTURE_2D, 0, this.internalFormat, this.format, this.dataType, this.textureData);
     } else {
-      const { width, height, bytes } = this.textureData.pixels;
+      const { width, height, bytes } = this.textureData;
       gl.texImage2D(TEXTURE_2D, 0, this.internalFormat, width, height, 0, this.format, this.dataType, bytes);
     }
 

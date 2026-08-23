@@ -4,23 +4,10 @@ export function toBytes(data: ArrayBufferView): Uint8Array {
 }
 
 export async function fetchImage(url: string): Promise<HTMLImageElement> {
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image "${url}": ${response.status} ${response.statusText}`);
-  }
-
-  const blob = await response.blob();
-  const objectUrl = URL.createObjectURL(blob);
-
-  try {
-    const image = new Image();
-    image.src = objectUrl;
-    await image.decode();
-    return image;
-  } finally {
-    URL.revokeObjectURL(objectUrl);
-  }
+  const image = new Image();
+  image.src = url;
+  await image.decode();
+  return image;
 }
 
 export async function fetchBytes(url: string): Promise<Uint8Array> {
