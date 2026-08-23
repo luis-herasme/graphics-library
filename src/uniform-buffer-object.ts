@@ -18,7 +18,7 @@ export class UniformBufferObject {
       usage: BufferUsage.DynamicDraw,
       bytes: descriptor.bytes.slice(),
     });
-    this.buffer.onBeforeRender(this.gl);
+    this.buffer.upload(this.gl);
   }
 
   setBindingPoint(bindingPoint: number): void {
@@ -32,6 +32,6 @@ export class UniformBufferObject {
 
   setBytes(byteOffset: number, data: ArrayBufferView): void {
     this.buffer.setBytes(byteOffset, data);
-    this.buffer.onBeforeRender(this.gl);
+    this.buffer.upload(this.gl);
   }
 }
