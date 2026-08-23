@@ -119,6 +119,8 @@ export class Texture {
       gl.TEXTURE_MAG_FILTER,
       this.magnificationFilter,
     );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, this.wrapHorizontal);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapVertical);
 
     return webglTexture;
   }
