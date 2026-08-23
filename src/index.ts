@@ -39,15 +39,14 @@ export {
 } from "./utils";
 export {
   AttributeData,
-  InterleavedVertexBuffer,
-  VertexBuffer,
   VertexComponentType,
-  VertexLayout,
   componentTypeSizeInBytes,
-} from "./vertex-buffer";
+} from "./attribute-data";
 export type {
   AttributeDataInput,
   AttributeDataDescriptor,
-  VertexAttribute,
-  VertexBufferOptions,
-} from "./vertex-buffer";
+} from "./attribute-data";
+export { VertexLayout } from "./vertex-layout";
+export type { VertexAttribute } from "./vertex-layout";
+export { InterleavedVertexBuffer, VertexBuffer } from "./vertex-buffer";
+export type { VertexBufferOptions } from "./vertex-buffer";

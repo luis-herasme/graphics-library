@@ -1,5 +1,6 @@
 import { Uniform } from "./uniforms";
-import { VertexLayout, componentTypeSizeInBytes } from "./vertex-buffer";
+import { componentTypeSizeInBytes } from "./attribute-data";
+import { VertexLayout } from "./vertex-layout";
 
 const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
 const TEXTURE0 = WebGL2RenderingContext.TEXTURE0;

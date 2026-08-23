@@ -2,13 +2,9 @@ import { BufferUsage } from "./buffer-gpu";
 import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "./obj-parser";
 import { Transform2D } from "./transform";
-import {
-  AttributeData,
-  VertexComponentType,
-  InterleavedVertexBuffer,
-  VertexAttribute,
-  VertexBuffer,
-} from "./vertex-buffer";
+import { AttributeData, VertexComponentType } from "./attribute-data";
+import { VertexAttribute } from "./vertex-layout";
+import { InterleavedVertexBuffer, VertexBuffer } from "./vertex-buffer";
 
 // prettier-ignore
 const QUAD_POSITIONS = [
