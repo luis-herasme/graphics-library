@@ -1,7 +1,7 @@
 import {
   AttributeData,
   Geometry,
-  Gltf,
+  GLTF,
   IndexBuffer,
   Material,
   Mesh,
@@ -41,7 +41,7 @@ void main() {
 
 const response = await fetch("/test.glb");
 const data = new Uint8Array(await response.arrayBuffer());
-const gltf = Gltf.fromBytes(data);
+const gltf = GLTF.fromBytes(data);
 
 const positions = gltf.readPositions();
 const normals = gltf.readNormals();

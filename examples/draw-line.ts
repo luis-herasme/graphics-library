@@ -2,7 +2,7 @@ import {
   Animation,
   AttributeData,
   Geometry,
-  Gltf,
+  GLTF,
   IndexBuffer,
   Material,
   Mesh,
@@ -46,7 +46,7 @@ const material = new Material({
 
 const response = await fetch("/fox.glb");
 const data = new Uint8Array(await response.arrayBuffer());
-const gltf = Gltf.fromBytes(data);
+const gltf = GLTF.fromBytes(data);
 
 const positions = gltf.readPositions();
 const vertexCount = positions.length / 3;
@@ -81,7 +81,7 @@ mesh.transform.translation.y = -3.5;
 mesh.renderPrimitive = RenderPrimitive.Lines;
 
 // Skeleton
-const animation = Animation.fromGltf(gltf);
+const animation = Animation.fromGLTF(gltf);
 animation.updateGlobalTransform();
 const lines = animation.getLines();
 

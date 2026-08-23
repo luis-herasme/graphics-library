@@ -10,8 +10,8 @@ export { PerspectiveCamera } from "./camera";
 export type { PerspectiveCameraDescriptor } from "./camera";
 export { Geometry } from "./geometry";
 export type { GeometryDescriptor } from "./geometry";
-export { Gltf, GltfParseError } from "./gltf";
-export type { GltfJson, GltfNode, GltfPrimitive } from "./gltf";
+export { GLTF, GLTFParseError } from "./gltf";
+export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./gltf";
 export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 export type { GpuBufferDescriptor } from "./gpu-buffer";
 export { IndexBuffer } from "./index-buffer";
@@ -21,7 +21,7 @@ export type { MaterialDescriptor, ShaderProgramDescriptor } from "./material";
 export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
 export { Mesh, RenderPrimitive } from "./mesh";
 export type { MeshDescriptor } from "./mesh";
-export { OBJ, OBJParseError } from "./obj-parser";
+export { OBJ, OBJParseError } from "./obj";
 export { Renderer } from "./renderer";
 export {
   MagnificationFilter,
