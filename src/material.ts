@@ -12,8 +12,8 @@ export class Material {
   readonly vertexShaderSource: string;
   readonly fragmentShaderSource: string;
 
-  /** WebGL resources, created lazily on first render. */
-  resources: MaterialResources | null = null;
+  /** Created lazily on first render. */
+  shaderProgram: ShaderProgram | null = null;
 
   constructor(descriptor: MaterialDescriptor) {
     this.vertexShaderSource = descriptor.vertexShaderSource;
@@ -28,73 +28,73 @@ export class Material {
    * Compiles and links the shader program if that has not happened yet.
    * Runs the expensive work once; safe to call on every draw.
    */
-  prepare(gl: WebGL2RenderingContext): MaterialResources {
-    if (this.resources === null) {
-      this.resources = new MaterialResources({ gl, material: this });
+  prepare(gl: WebGL2RenderingContext): ShaderProgram {
+    if (this.shaderProgram === null) {
+      this.shaderProgram = new ShaderProgram({ gl, material: this });
     }
 
-    return this.resources;
+    return this.shaderProgram;
   }
 
   /** Activates the shader program and uploads every uniform value. Runs on every draw. */
   applyUniforms(gl: WebGL2RenderingContext): void {
-    const resources = this.prepare(gl);
+    const shaderProgram = this.prepare(gl);
 
-    gl.useProgram(resources.program);
+    gl.useProgram(shaderProgram.webglProgram);
 
     let currentTextureUnit = 0;
     for (const [name, uniform] of this.uniforms) {
       if (uniform.kind === "texture") {
         gl.activeTexture(gl.TEXTURE0 + currentTextureUnit);
         gl.bindTexture(gl.TEXTURE_2D, uniform.value.getWebglTexture(gl));
-        resources.setUniform(name, uniform, currentTextureUnit);
+        shaderProgram.setUniform(name, uniform, currentTextureUnit);
         currentTextureUnit += 1;
         continue;
       }
 
-      resources.setUniform(name, uniform, currentTextureUnit);
+      shaderProgram.setUniform(name, uniform, currentTextureUnit);
     }
   }
 }
 
-export type MaterialResourcesDescriptor = {
+export type ShaderProgramDescriptor = {
   gl: WebGL2RenderingContext;
   material: Material;
 };
 
-export class MaterialResources {
+export class ShaderProgram {
   readonly gl: WebGL2RenderingContext;
-  readonly program: WebGLProgram;
+  readonly webglProgram: WebGLProgram;
 
   private readonly uniformLocations = new Map<string, WebGLUniformLocation>();
   private readonly attributeLocations = new Map<string, number>();
   private readonly uniformBlockLocations = new Map<string, number>();
 
-  constructor(descriptor: MaterialResourcesDescriptor) {
+  constructor(descriptor: ShaderProgramDescriptor) {
     const { gl, material } = descriptor;
-    const program = gl.createProgram();
+    const webglProgram = gl.createProgram();
 
-    if (program === null) {
+    if (webglProgram === null) {
       throw new Error("Failed to create WebGL program");
     }
 
-    const vertexShader = MaterialResources.compileShader(
+    const vertexShader = ShaderProgram.compileShader(
       gl,
       material.vertexShaderSource,
       gl.VERTEX_SHADER,
     );
-    const fragmentShader = MaterialResources.compileShader(
+    const fragmentShader = ShaderProgram.compileShader(
       gl,
       material.fragmentShaderSource,
       gl.FRAGMENT_SHADER,
     );
 
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
+    gl.attachShader(webglProgram, vertexShader);
+    gl.attachShader(webglProgram, fragmentShader);
+    gl.linkProgram(webglProgram);
 
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      let log = gl.getProgramInfoLog(program);
+    if (!gl.getProgramParameter(webglProgram, gl.LINK_STATUS)) {
+      let log = gl.getProgramInfoLog(webglProgram);
 
       if (log === null) {
         log = "unknown error";
@@ -104,7 +104,7 @@ export class MaterialResources {
     }
 
     this.gl = gl;
-    this.program = program;
+    this.webglProgram = webglProgram;
     this.collectUniformLocations();
     this.collectAttributeLocations();
     this.collectUniformBlockLocations();
@@ -212,19 +212,19 @@ export class MaterialResources {
   private collectUniformLocations(): void {
     const gl = this.gl;
     const numberOfUniforms = gl.getProgramParameter(
-      this.program,
+      this.webglProgram,
       gl.ACTIVE_UNIFORMS,
     ) as number;
 
     for (let i = 0; i < numberOfUniforms; i++) {
-      const uniform = gl.getActiveUniform(this.program, i);
+      const uniform = gl.getActiveUniform(this.webglProgram, i);
 
       if (uniform === null) {
         continue;
       }
 
       // Uniforms inside uniform blocks do not have locations
-      const location = gl.getUniformLocation(this.program, uniform.name);
+      const location = gl.getUniformLocation(this.webglProgram, uniform.name);
 
       if (location !== null) {
         this.uniformLocations.set(uniform.name, location);
@@ -293,12 +293,12 @@ export class MaterialResources {
   private collectAttributeLocations(): void {
     const gl = this.gl;
     const numberOfAttributes = gl.getProgramParameter(
-      this.program,
+      this.webglProgram,
       gl.ACTIVE_ATTRIBUTES,
     ) as number;
 
     for (let i = 0; i < numberOfAttributes; i++) {
-      const attribute = gl.getActiveAttrib(this.program, i);
+      const attribute = gl.getActiveAttrib(this.webglProgram, i);
 
       if (attribute === null) {
         continue;
@@ -306,7 +306,7 @@ export class MaterialResources {
 
       this.attributeLocations.set(
         attribute.name,
-        gl.getAttribLocation(this.program, attribute.name),
+        gl.getAttribLocation(this.webglProgram, attribute.name),
       );
     }
   }
@@ -316,7 +316,7 @@ export class MaterialResources {
   private collectUniformBlockLocations(): void {
     const gl = this.gl;
     const numberOfUniformBlocks = gl.getProgramParameter(
-      this.program,
+      this.webglProgram,
       gl.ACTIVE_UNIFORM_BLOCKS,
     ) as number;
 
@@ -325,7 +325,10 @@ export class MaterialResources {
       blockLocation < numberOfUniformBlocks;
       blockLocation++
     ) {
-      const name = gl.getActiveUniformBlockName(this.program, blockLocation);
+      const name = gl.getActiveUniformBlockName(
+        this.webglProgram,
+        blockLocation,
+      );
 
       if (name !== null) {
         this.uniformBlockLocations.set(name, blockLocation);
@@ -340,10 +343,10 @@ export class MaterialResources {
       return;
     }
 
-    this.gl.uniformBlockBinding(this.program, blockLocation, bindingPoint);
+    this.gl.uniformBlockBinding(this.webglProgram, blockLocation, bindingPoint);
   }
 
   dispose(): void {
-    this.gl.deleteProgram(this.program);
+    this.gl.deleteProgram(this.webglProgram);
   }
 }

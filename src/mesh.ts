@@ -65,13 +65,13 @@ export class Mesh {
       throw new Error("Failed to create WebGL vertex array object");
     }
 
-    const resources = this.material.prepare(gl);
+    const shaderProgram = this.material.prepare(gl);
 
     gl.bindVertexArray(vao);
 
     for (const vertexBuffer of this.geometry.vertexBuffers) {
       vertexBuffer.buffer.bind(gl);
-      resources.setAttributeBuffer(vertexBuffer.layout);
+      shaderProgram.setAttributeBuffer(vertexBuffer.layout);
     }
 
     for (const interleavedVertexBuffer of this.geometry
@@ -79,7 +79,7 @@ export class Mesh {
       interleavedVertexBuffer.buffer.bind(gl);
 
       for (const vertexLayout of interleavedVertexBuffer.layouts) {
-        resources.setAttributeBuffer(vertexLayout);
+        shaderProgram.setAttributeBuffer(vertexLayout);
       }
     }
 
