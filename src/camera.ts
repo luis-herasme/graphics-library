@@ -12,16 +12,6 @@ export type PerspectiveCameraDescriptor = {
   far?: number;
 };
 
-/** A 45 degree field of view camera that fills the window. */
-function defaultPerspectiveCamera(): Required<PerspectiveCameraDescriptor> {
-  return {
-    fov: (45 * Math.PI) / 180,
-    aspect: window.innerWidth / window.innerHeight,
-    near: 0.1,
-    far: 100,
-  };
-}
-
 export class PerspectiveCamera {
   fov: number;
   aspect: number;
@@ -32,7 +22,13 @@ export class PerspectiveCamera {
   projectionMatrix = Matrix4.zero();
 
   constructor(descriptor: PerspectiveCameraDescriptor = {}) {
-    const settings = { ...defaultPerspectiveCamera(), ...descriptor };
+    const settings = {
+      fov: (45 * Math.PI) / 180,
+      aspect: window.innerWidth / window.innerHeight,
+      near: 0.1,
+      far: 100,
+      ...descriptor,
+    };
 
     this.fov = settings.fov;
     this.aspect = settings.aspect;
