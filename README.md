@@ -68,4 +68,4 @@ is just `new PerspectiveCamera()`. The math types (`Vector3`, `Quaternion`,
 `Matrix4`) take positional arguments instead, since their components are
 already ordered.
 
-GPU resources (buffers, programs, textures, VAOs) are created lazily on first render, so everything can be constructed before a context exists, and CPU-side buffer edits (e.g. `AttributeBuffer.setVertex`) are uploaded automatically before the next draw.
+GPU resources (buffers, programs, textures, VAOs) are created lazily on first render, so everything can be constructed before a context exists, and CPU-side buffer edits (e.g. `Geometry.setVertex`) are uploaded automatically before the next draw.

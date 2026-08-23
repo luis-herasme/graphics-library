@@ -1,6 +1,4 @@
 import {
-  AttributeBuffer,
-  AttributeData,
   Geometry,
   GLTF,
   IndexBuffer,
@@ -9,6 +7,7 @@ import {
   Quaternion,
   Renderer,
   Transform3D,
+  VertexBuffer,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -56,14 +55,12 @@ const material = new Material({
 const geometry = new Geometry({
   vertexCount: positions.length / 3,
   indices: new IndexBuffer({ data: indices }),
-  attributeBuffers: [
-    new AttributeBuffer({
-      name: "position",
-      data: new AttributeData({ data: positions, componentCount: 3 }),
+  vertexBuffers: [
+    new VertexBuffer({
+      attributes: [{ name: "position", values: positions, componentCount: 3 }],
     }),
-    new AttributeBuffer({
-      name: "normal",
-      data: new AttributeData({ data: normals, componentCount: 3 }),
+    new VertexBuffer({
+      attributes: [{ name: "normal", values: normals, componentCount: 3 }],
     }),
   ],
 });

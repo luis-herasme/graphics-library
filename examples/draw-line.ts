@@ -1,7 +1,5 @@
 import {
   Animation,
-  AttributeBuffer,
-  AttributeData,
   Geometry,
   GLTF,
   IndexBuffer,
@@ -11,6 +9,7 @@ import {
   Quaternion,
   RenderPrimitive,
   Renderer,
+  VertexBuffer,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -66,10 +65,9 @@ for (let i = 0; i < vertexCount; i += 3) {
 const geometry = new Geometry({
   vertexCount,
   indices: new IndexBuffer({ data: indices }),
-  attributeBuffers: [
-    new AttributeBuffer({
-      name: "position",
-      data: new AttributeData({ data: positions, componentCount: 3 }),
+  vertexBuffers: [
+    new VertexBuffer({
+      attributes: [{ name: "position", values: positions, componentCount: 3 }],
     }),
   ],
 });
@@ -85,16 +83,18 @@ const animation = Animation.fromGLTF(gltf);
 animation.updateGlobalTransform();
 const lines = animation.getLines();
 
-const skeletonAttributeBuffer = new AttributeBuffer({
-  name: "position",
-  data: new AttributeData({
-    data: lines.map((line) => line.toArray()),
-    componentCount: 3,
-  }),
+const skeletonVertexBuffer = new VertexBuffer({
+  attributes: [
+    {
+      name: "position",
+      values: lines.map((line) => line.toArray()),
+      componentCount: 3,
+    },
+  ],
 });
 const skeletonGeometry = new Geometry({
-  vertexCount: skeletonAttributeBuffer.vertexCount,
-  attributeBuffers: [skeletonAttributeBuffer],
+  vertexCount: skeletonVertexBuffer.vertexCount,
+  vertexBuffers: [skeletonVertexBuffer],
 });
 const skeletonMaterial = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,

@@ -1,6 +1,8 @@
 import { Uniform } from "./uniforms";
-import { TYPED_ARRAY_FOR_COMPONENT_TYPE } from "../geometry/attribute-data";
-import { AttributeLayout } from "../geometry/attribute-layout";
+import {
+  TYPED_ARRAY_FOR_COMPONENT_TYPE,
+  VertexAttribute,
+} from "../geometry/vertex-buffer";
 
 export type MaterialDescriptor = {
   vertexShaderSource: string;
@@ -234,8 +236,9 @@ export class ShaderProgram {
 
   // ATTRIBUTES
 
-  setAttributeBuffer(attributeLayout: AttributeLayout): void {
-    const location = this.attributeLocations.get(attributeLayout.name);
+  /** Points one attribute at the currently bound vertex buffer. */
+  setVertexAttribute(attribute: VertexAttribute, stride: number): void {
+    const location = this.attributeLocations.get(attribute.name);
 
     if (location === undefined) {
       return;
@@ -243,49 +246,29 @@ export class ShaderProgram {
 
     const gl = this.gl;
 
-    if (attributeLayout.numberOfColumns === 1) {
-      gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(
-        location,
-        attributeLayout.componentCount,
-        attributeLayout.componentType,
-        attributeLayout.normalize,
-        attributeLayout.stride,
-        attributeLayout.offset,
-      );
-
-      if (attributeLayout.divisor !== 0) {
-        gl.vertexAttribDivisor(location, attributeLayout.divisor);
-      }
-
-      return;
-    }
-
-    // Only matrices have more than one column. Each column occupies its own
-    // attribute location.
+    // Only matrices have more than one column, and each column occupies its own
+    // attribute location. A single column is just the ordinary case of this loop.
     const componentsPerColumn =
-      attributeLayout.componentCount / attributeLayout.numberOfColumns;
-    const componentSize =
-      TYPED_ARRAY_FOR_COMPONENT_TYPE[attributeLayout.componentType]
-        .BYTES_PER_ELEMENT;
+      attribute.componentCount / attribute.numberOfColumns;
+    const columnSize =
+      componentsPerColumn *
+      TYPED_ARRAY_FOR_COMPONENT_TYPE[attribute.componentType].BYTES_PER_ELEMENT;
 
-    for (let i = 0; i < attributeLayout.numberOfColumns; i++) {
-      const columnLocation = location + i;
-      const offset =
-        attributeLayout.offset + i * componentsPerColumn * componentSize;
+    for (let column = 0; column < attribute.numberOfColumns; column++) {
+      const columnLocation = location + column;
 
       gl.enableVertexAttribArray(columnLocation);
       gl.vertexAttribPointer(
         columnLocation,
         componentsPerColumn,
-        attributeLayout.componentType,
-        attributeLayout.normalize,
-        attributeLayout.stride,
-        offset,
+        attribute.componentType,
+        attribute.normalize,
+        stride,
+        attribute.offset + column * columnSize,
       );
 
-      if (attributeLayout.divisor !== 0) {
-        gl.vertexAttribDivisor(columnLocation, attributeLayout.divisor);
+      if (attribute.divisor !== 0) {
+        gl.vertexAttribDivisor(columnLocation, attribute.divisor);
       }
     }
   }

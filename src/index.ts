@@ -1,18 +1,10 @@
-export {
-  AttributeBuffer,
-  InterleavedVertexBuffer,
-} from "./geometry/attribute-buffer";
+export { VertexBuffer, VertexComponentType } from "./geometry/vertex-buffer";
 export type {
-  AttributeBufferDescriptor,
-  InterleavedVertexBufferDescriptor,
-} from "./geometry/attribute-buffer";
-export { AttributeData, VertexComponentType } from "./geometry/attribute-data";
-export type {
-  AttributeDataDescriptor,
-  AttributeDataInput,
   VertexAttribute,
-} from "./geometry/attribute-data";
-export { AttributeLayout } from "./geometry/attribute-layout";
+  VertexAttributeDescriptor,
+  VertexAttributeValues,
+  VertexBufferDescriptor,
+} from "./geometry/vertex-buffer";
 export { Geometry } from "./geometry/geometry";
 export type { GeometryDescriptor } from "./geometry/geometry";
 export { IndexBuffer, IndexElementType } from "./geometry/index-buffer";
