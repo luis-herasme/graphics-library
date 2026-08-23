@@ -53,13 +53,20 @@ import {
 } from "./src/index";
 
 const renderer = new Renderer(); // Creates a full-window canvas
-const material = new Material(vertexShaderSource, fragmentShaderSource);
-const mesh = new Mesh(Geometry.quad(), material);
+const material = new Material({ vertexShaderSource, fragmentShaderSource });
+const mesh = new Mesh({ geometry: Geometry.quad(), material });
 
 requestAnimationFrameLoop(() => {
   renderer.clear();
   renderer.render(mesh);
 });
 ```
+
+Every class with more than one setting takes a single descriptor object, and
+each one has a matching exported type (`MaterialDescriptor`, `MeshDescriptor`,
+and so on). Optional settings have defaults, so a camera that fills the window
+is just `new PerspectiveCamera()`. The math types (`Vector3`, `Quaternion`,
+`Matrix4`) take positional arguments instead, since their components are
+already ordered.
 
 GPU resources (buffers, programs, textures, VAOs) are created lazily on first render, so everything can be constructed before a context exists, and CPU-side buffer edits (e.g. `VertexBuffer.setVertex`) are uploaded automatically before the next draw.
