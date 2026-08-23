@@ -26,7 +26,7 @@ export class UniformBufferObject {
     this.gl.bindBufferBase(
       this.gl.UNIFORM_BUFFER,
       bindingPoint,
-      this.buffer.getWebglBuffer(this.gl),
+      this.buffer.getWebGLBuffer(this.gl),
     );
   }
 

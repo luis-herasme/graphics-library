@@ -78,7 +78,7 @@ export class Renderer {
     mesh.prepare(gl);
     mesh.material.applyUniforms(gl);
 
-    gl.bindVertexArray(mesh.getWebglVertexArrayObject(gl));
+    gl.bindVertexArray(mesh.getWebGLVertexArrayObject(gl));
 
     const indices = mesh.geometry.indices;
 

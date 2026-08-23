@@ -33,7 +33,7 @@ export class Mesh {
   /**
    * Creates and updates every GPU resource this mesh needs, in the required
    * order: vertex data first, then the material's shader program (the vertex
-   * bindings created later in createWebglVertexArrayObject depend on it), then
+   * bindings created later in createWebGLVertexArrayObject depend on it), then
    * index data.
    */
   prepare(gl: WebGL2RenderingContext): void {
@@ -51,17 +51,17 @@ export class Mesh {
     this.geometry.indices?.buffer.upload(gl);
   }
 
-  getWebglVertexArrayObject(
+  getWebGLVertexArrayObject(
     gl: WebGL2RenderingContext,
   ): WebGLVertexArrayObject {
     if (this.webglVertexArrayObject === null) {
-      this.webglVertexArrayObject = this.createWebglVertexArrayObject(gl);
+      this.webglVertexArrayObject = this.createWebGLVertexArrayObject(gl);
     }
 
     return this.webglVertexArrayObject;
   }
 
-  private createWebglVertexArrayObject(
+  private createWebGLVertexArrayObject(
     gl: WebGL2RenderingContext,
   ): WebGLVertexArrayObject {
     const webglVertexArrayObject = gl.createVertexArray();
