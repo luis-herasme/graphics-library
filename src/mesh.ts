@@ -26,6 +26,25 @@ export class Mesh {
     this.material = material;
   }
 
+  /**
+   * Creates and updates every GPU resource this mesh needs, in the required
+   * order: vertex data first, then the material's shader program (the vertex
+   * bindings created later in getOrCreateVao depend on it), then index data.
+   */
+  prepare(gl: WebGL2RenderingContext): void {
+    for (const vertexBuffer of this.geometry.vertexBuffers) {
+      vertexBuffer.buffer.onBeforeRender(gl);
+    }
+
+    for (const interleavedVertexBuffer of this.geometry.interleavedVertexBuffers) {
+      interleavedVertexBuffer.buffer.onBeforeRender(gl);
+    }
+
+    this.material.onBeforeRender(gl);
+
+    this.geometry.indices?.buffer.onBeforeRender(gl);
+  }
+
   getOrCreateVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
     if (this.vao === null) {
       this.vao = this.createVao(gl);

@@ -67,22 +67,13 @@ export class Renderer {
   render(mesh: Mesh): void {
     const gl = this.gl;
 
-    for (const vertexBuffer of mesh.geometry.vertexBuffers) {
-      vertexBuffer.buffer.onBeforeRender(gl);
-    }
-
-    for (const interleavedVertexBuffer of mesh.geometry.interleavedVertexBuffers) {
-      interleavedVertexBuffer.buffer.onBeforeRender(gl);
-    }
-
-    mesh.material.onBeforeRender(gl);
+    mesh.prepare(gl);
 
     gl.bindVertexArray(mesh.getOrCreateVao(gl));
 
     const indices = mesh.geometry.indices;
 
     if (indices !== null) {
-      indices.buffer.onBeforeRender(gl);
       indices.buffer.bind(gl);
 
       if (mesh.geometry.instanceCount !== null) {
