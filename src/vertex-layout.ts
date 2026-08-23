@@ -1,7 +1,7 @@
 import {
   AttributeData,
+  TYPED_ARRAY_FOR_COMPONENT_TYPE,
   VertexComponentType,
-  componentTypeSizeInBytes,
 } from "./attribute-data";
 
 /** One vertex attribute: the name the shader sees, its raw data, and optional settings. */
@@ -46,7 +46,9 @@ export class VertexLayout {
     let currentOffset = 0;
 
     for (const attribute of attributes) {
-      const alignment = componentTypeSizeInBytes(attribute.data.componentType);
+      const alignment =
+        TYPED_ARRAY_FOR_COMPONENT_TYPE[attribute.data.componentType]
+          .BYTES_PER_ELEMENT;
 
       maxAlignment = Math.max(maxAlignment, alignment);
       currentOffset = VertexLayout.alignTo(currentOffset, alignment);

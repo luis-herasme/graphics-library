@@ -45,11 +45,7 @@ export {
   fetchText,
   requestAnimationFrameLoop,
 } from "./utils";
-export {
-  AttributeData,
-  VertexComponentType,
-  componentTypeSizeInBytes,
-} from "./attribute-data";
+export { AttributeData, VertexComponentType } from "./attribute-data";
 export type {
   AttributeDataInput,
   AttributeDataDescriptor,

@@ -62,7 +62,7 @@ mesh.material.setUniform("texture_sampler", {
 });
 
 const scene = [mesh];
-const camera = PerspectiveCamera.default();
+const camera = new PerspectiveCamera();
 
 requestAnimationFrameLoop(() => {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));

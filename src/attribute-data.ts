@@ -8,23 +8,6 @@ export enum VertexComponentType {
   Float = WebGL2RenderingContext.FLOAT,
 }
 
-export function componentTypeSizeInBytes(
-  componentType: VertexComponentType,
-): number {
-  switch (componentType) {
-    case VertexComponentType.Byte:
-    case VertexComponentType.UnsignedByte:
-      return 1;
-    case VertexComponentType.Short:
-    case VertexComponentType.UnsignedShort:
-      return 2;
-    case VertexComponentType.Int:
-    case VertexComponentType.UnsignedInt:
-    case VertexComponentType.Float:
-      return 4;
-  }
-}
-
 type TypedArrayConstructor =
   | Int8ArrayConstructor
   | Uint8ArrayConstructor
@@ -124,6 +107,9 @@ export class AttributeData {
 
   /** The size of one vertex worth of data, in bytes. */
   get sizeInBytes(): number {
-    return this.componentCount * componentTypeSizeInBytes(this.componentType);
+    return (
+      this.componentCount *
+      TYPED_ARRAY_FOR_COMPONENT_TYPE[this.componentType].BYTES_PER_ELEMENT
+    );
   }
 }
