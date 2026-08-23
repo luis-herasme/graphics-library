@@ -1,6 +1,6 @@
 import {
   Animation,
-  Data,
+  AttributeData,
   Geometry,
   Gltf,
   IndexBuffer,
@@ -64,7 +64,12 @@ for (let i = 0; i < vertexCount; i += 3) {
 const geometry = new Geometry({
   vertexCount,
   indices: new IndexBuffer(indices),
-  vertexBuffers: [new VertexBuffer("position", Data.vector3(positions))],
+  vertexBuffers: [
+    new VertexBuffer(
+      "position",
+      new AttributeData({ data: positions, componentCount: 3 }),
+    ),
+  ],
 });
 
 const mesh = new Mesh(geometry, material);
@@ -79,7 +84,10 @@ animation.updateGlobalTransform();
 const lines = animation.getLines();
 
 const skeletonGeometry = Geometry.fromVertexBuffer(
-  new VertexBuffer("position", Data.vector3(lines)),
+  new VertexBuffer(
+    "position",
+    new AttributeData({ data: lines, componentCount: 3 }),
+  ),
 );
 const skeletonMaterial = new Material(
   VERTEX_SHADER_SOURCE,

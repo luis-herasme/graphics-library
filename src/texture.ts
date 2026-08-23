@@ -39,11 +39,11 @@ export enum TextureDataType {
   UnsignedShort5551 = WebGL2RenderingContext.UNSIGNED_SHORT_5_5_5_1,
 }
 
-export interface ImagePixelData {
+export type ImagePixelData = {
   width: number;
   height: number;
   bytes: Uint8Array;
-}
+};
 
 export type TextureData = HTMLImageElement | ImagePixelData;
 

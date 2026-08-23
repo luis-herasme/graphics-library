@@ -38,11 +38,16 @@ export {
   toBytes,
 } from "./utils";
 export {
-  Data,
+  AttributeData,
   InterleavedVertexBuffer,
   VertexBuffer,
   VertexComponentType,
   VertexLayout,
   componentTypeSizeInBytes,
 } from "./vertex-buffer";
-export type { DataInput, VertexAttribute } from "./vertex-buffer";
+export type {
+  AttributeDataInput,
+  AttributeDataDescriptor,
+  VertexAttribute,
+  VertexBufferOptions,
+} from "./vertex-buffer";

@@ -55,7 +55,8 @@ const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
  * nested arrays (one entry per vertex, e.g. `[[x, y, z], ...]`), or objects
  * with a `toArray()` method (e.g. Vector2, Vector3, Matrix3, Transform2D).
  */
-export type DataInput = ArrayLike<number> | readonly DataInputElement[];
+export type AttributeDataInput =
+  ArrayLike<number> | readonly DataInputElement[];
 
 type DataInputElement =
   | number
@@ -65,7 +66,7 @@ type DataInputElement =
 
 function flattenInto(
   output: number[],
-  value: DataInput | DataInputElement,
+  value: AttributeDataInput | DataInputElement,
 ): void {
   if (typeof value === "number") {
     output.push(value);
@@ -88,8 +89,18 @@ function flattenInto(
   }
 }
 
+export type AttributeDataDescriptor = {
+  data: AttributeDataInput;
+  /** Components per vertex (e.g. 3 for a vec3, 9 for a mat3). */
+  componentCount: number;
+  /** Defaults to `VertexComponentType.Float`. */
+  componentType?: VertexComponentType;
+  /** Only matrices have more than one column. Defaults to 1. */
+  numberOfColumns?: number;
+};
+
 /** Raw data for a single vertex attribute, along with how the GPU should interpret it. */
-export class Data {
+export class AttributeData {
   readonly componentType: VertexComponentType;
   /** Components per vertex (e.g. 3 for a vec3, 9 for a mat3). */
   readonly componentCount: number;
@@ -99,14 +110,13 @@ export class Data {
   /** Number of vertices in the data. */
   readonly count: number;
 
-  private constructor(
-    componentType: VertexComponentType,
-    componentCount: number,
-    numberOfColumns: number,
-    input: DataInput,
-  ) {
+  constructor(descriptor: AttributeDataDescriptor) {
+    const componentType = descriptor.componentType ?? VertexComponentType.Float;
+    const componentCount = descriptor.componentCount;
+    const numberOfColumns = descriptor.numberOfColumns ?? 1;
+
     const flattened: number[] = [];
-    flattenInto(flattened, input);
+    flattenInto(flattened, descriptor.data);
 
     if (flattened.length % componentCount !== 0) {
       throw new Error(
@@ -123,107 +133,6 @@ export class Data {
     this.count = flattened.length / componentCount;
   }
 
-  static byte(data: DataInput): Data {
-    return new Data(VertexComponentType.Byte, 1, 1, data);
-  }
-  static byteVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.Byte, 2, 1, data);
-  }
-  static byteVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.Byte, 3, 1, data);
-  }
-  static byteVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.Byte, 4, 1, data);
-  }
-
-  static unsignedByte(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedByte, 1, 1, data);
-  }
-  static unsignedByteVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedByte, 2, 1, data);
-  }
-  static unsignedByteVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedByte, 3, 1, data);
-  }
-  static unsignedByteVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedByte, 4, 1, data);
-  }
-
-  static short(data: DataInput): Data {
-    return new Data(VertexComponentType.Short, 1, 1, data);
-  }
-  static shortVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.Short, 2, 1, data);
-  }
-  static shortVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.Short, 3, 1, data);
-  }
-  static shortVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.Short, 4, 1, data);
-  }
-
-  static unsignedShort(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedShort, 1, 1, data);
-  }
-  static unsignedShortVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedShort, 2, 1, data);
-  }
-  static unsignedShortVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedShort, 3, 1, data);
-  }
-  static unsignedShortVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedShort, 4, 1, data);
-  }
-
-  static int(data: DataInput): Data {
-    return new Data(VertexComponentType.Int, 1, 1, data);
-  }
-  static intVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.Int, 2, 1, data);
-  }
-  static intVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.Int, 3, 1, data);
-  }
-  static intVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.Int, 4, 1, data);
-  }
-
-  static unsignedInt(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedInt, 1, 1, data);
-  }
-  static unsignedIntVector2(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedInt, 2, 1, data);
-  }
-  static unsignedIntVector3(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedInt, 3, 1, data);
-  }
-  static unsignedIntVector4(data: DataInput): Data {
-    return new Data(VertexComponentType.UnsignedInt, 4, 1, data);
-  }
-
-  static float(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 1, 1, data);
-  }
-  static vector2(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 2, 1, data);
-  }
-  static vector3(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 3, 1, data);
-  }
-  static vector4(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 4, 1, data);
-  }
-
-  static matrix2(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 4, 2, data);
-  }
-  static matrix3(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 9, 3, data);
-  }
-  static matrix4(data: DataInput): Data {
-    return new Data(VertexComponentType.Float, 16, 4, data);
-  }
-
   /** The size of one vertex worth of data, in bytes. */
   get sizeInBytes(): number {
     return this.componentCount * componentTypeSizeInBytes(this.componentType);
@@ -231,14 +140,14 @@ export class Data {
 }
 
 /** One vertex attribute: the name the shader sees, its raw data, and optional settings. */
-export interface VertexAttribute {
+export type VertexAttribute = {
   name: string;
-  data: Data;
+  data: AttributeData;
   /** How many instances share one value (0 = a value per vertex). */
   divisor?: number;
   /** Whether integer data is scaled to the [0, 1] range in the shader. */
   normalize?: boolean;
-}
+};
 
 /** Describes how the bytes of a buffer map to a single vertex attribute. */
 export class VertexLayout {
@@ -310,6 +219,14 @@ export class VertexLayout {
   }
 }
 
+export type VertexBufferOptions = {
+  /** How many instances share one value (0 = a value per vertex). */
+  divisor?: number;
+  /** Whether integer data is scaled to the [0, 1] range in the shader. */
+  normalize?: boolean;
+  usage?: BufferUsage;
+};
+
 /**
  * A buffer of vertex data stored on the CPU and the GPU, with metadata about
  * how the data should be uploaded to and interpreted by the GPU.
@@ -320,12 +237,8 @@ export class VertexBuffer {
 
   constructor(
     name: string,
-    data: Data,
-    options: {
-      divisor?: number;
-      normalize?: boolean;
-      usage?: BufferUsage;
-    } = {},
+    data: AttributeData,
+    options: VertexBufferOptions = {},
   ) {
     this.layout = new VertexLayout({ name, data, ...options });
     this.buffer = new BufferGPU(
@@ -391,7 +304,7 @@ export class InterleavedVertexBuffer {
   }
 
   private static interleave(
-    dataArray: Data[],
+    dataArray: AttributeData[],
     layoutArray: VertexLayout[],
   ): Uint8Array {
     const vertexCount = dataArray[0].count;

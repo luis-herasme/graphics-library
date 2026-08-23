@@ -29,7 +29,7 @@ const TYPE_TO_COMPONENT_COUNT: Record<string, number> = {
   MAT4: 16,
 };
 
-export interface GltfNode {
+export type GltfNode = {
   name?: string;
   children?: number[];
   translation?: number[];
@@ -38,15 +38,15 @@ export interface GltfNode {
   matrix?: number[];
   mesh?: number;
   skin?: number;
-}
+};
 
-export interface GltfPrimitive {
+export type GltfPrimitive = {
   attributes: Record<string, number>;
   indices?: number;
   mode?: number;
-}
+};
 
-export interface GltfJson {
+export type GltfJson = {
   accessors?: {
     bufferView?: number;
     byteOffset?: number;
@@ -64,7 +64,7 @@ export interface GltfJson {
   nodes?: GltfNode[];
   skins?: { joints: number[]; skeleton?: number }[];
   [key: string]: unknown;
-}
+};
 
 export class GltfParseError extends Error {}
 

@@ -1,5 +1,5 @@
 import {
-  Data,
+  AttributeData,
   Geometry,
   Gltf,
   IndexBuffer,
@@ -55,8 +55,14 @@ const geometry = new Geometry({
   vertexCount: positions.length / 3,
   indices: new IndexBuffer(indices),
   vertexBuffers: [
-    new VertexBuffer("position", Data.vector3(positions)),
-    new VertexBuffer("normal", Data.vector3(normals)),
+    new VertexBuffer(
+      "position",
+      new AttributeData({ data: positions, componentCount: 3 }),
+    ),
+    new VertexBuffer(
+      "normal",
+      new AttributeData({ data: normals, componentCount: 3 }),
+    ),
   ],
 });
 

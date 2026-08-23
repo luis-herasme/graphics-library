@@ -2,12 +2,12 @@ import { Gltf } from "./gltf";
 import { Matrix4, Quaternion, Vector3 } from "./math";
 import { Transform3D } from "./transform";
 
-interface Node {
+type Node = {
   parentIndex: number | null;
   childrenIndexList: number[];
   localTransform: Transform3D;
   globalTransform: Transform3D;
-}
+};
 
 export type Interpolation = "linear";
 
@@ -15,19 +15,19 @@ export type SamplerValues =
   | { kind: "vector3"; values: Vector3[] }
   | { kind: "quaternion"; values: Quaternion[] };
 
-export interface Sampler {
+export type Sampler = {
   times: number[];
   values: SamplerValues;
   interpolation: Interpolation;
-}
+};
 
 export type NodeProperty = "translation" | "rotation" | "scale";
 
-export interface Channel {
+export type Channel = {
   samplerIndex: number;
   targetNodeIndex: number;
   targetNodeProperty: NodeProperty;
-}
+};
 
 function samplerTimeIndex(sampler: Sampler, time: number): number | null {
   let index = 0;
