@@ -2,7 +2,7 @@ import {
   Geometry,
   Material,
   Mesh,
-  OBJ,
+  Obj,
   Quaternion,
   Renderer,
   Texture,
@@ -45,7 +45,7 @@ void main() {
 
 const response = await fetch("/chair.obj");
 const objData = await response.text();
-const obj = OBJ.parse(objData);
+const obj = Obj.parse(objData);
 
 const renderer = new Renderer();
 const material = new Material({

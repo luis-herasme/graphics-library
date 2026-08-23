@@ -24,7 +24,7 @@ export type {
 export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
 export { Mesh, RenderPrimitive } from "./mesh";
 export type { MeshDescriptor } from "./mesh";
-export { OBJ, OBJParseError } from "./obj-parser";
+export { Obj, ObjParseError } from "./obj";
 export { Renderer } from "./renderer";
 export {
   MagnificationFilter,

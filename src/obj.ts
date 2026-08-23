@@ -1,18 +1,18 @@
-export class OBJParseError extends Error {}
+export class ObjParseError extends Error {}
 
 /**
  * A minimal Wavefront OBJ parser. Supports `v`, `vn`, `vt` and `f` commands;
  * faces must use the `position/uv/normal` index format.
  */
-export class OBJ {
+export class Obj {
   positions: number[][] = [];
   normals: number[][] = [];
   uvs: number[][] = [];
   /** Each entry is a `[positionIndex, uvIndex, normalIndex]` triplet (1-based). */
   faces: number[][] = [];
 
-  static parse(objData: string): OBJ {
-    const obj = new OBJ();
+  static parse(objData: string): Obj {
+    const obj = new Obj();
 
     for (const line of objData.split("\n")) {
       const words = line.trim().split(/\s+/);
@@ -44,7 +44,7 @@ export class OBJ {
               obj.uvs[uvIndex - 1] === undefined ||
               obj.normals[normalIndex - 1] === undefined
             ) {
-              throw new OBJParseError(`Invalid face index in "${faceString}"`);
+              throw new ObjParseError(`Invalid face index in "${faceString}"`);
             }
 
             obj.faces.push(face);
@@ -64,7 +64,7 @@ function parseFace(face: string): number[] {
   const parts = face.split("/");
 
   if (parts.length !== 3) {
-    throw new OBJParseError(
+    throw new ObjParseError(
       `Expected a "position/uv/normal" face, got "${face}"`,
     );
   }
@@ -73,7 +73,7 @@ function parseFace(face: string): number[] {
     const value = Number.parseInt(part, 10);
 
     if (Number.isNaN(value)) {
-      throw new OBJParseError(`Failed to parse face index "${part}"`);
+      throw new ObjParseError(`Failed to parse face index "${part}"`);
     }
 
     return value;
@@ -82,14 +82,14 @@ function parseFace(face: string): number[] {
 
 function parseFloats(parts: string[], count: number): number[] {
   if (parts.length !== count) {
-    throw new OBJParseError(`Expected ${count} values, got ${parts.length}`);
+    throw new ObjParseError(`Expected ${count} values, got ${parts.length}`);
   }
 
   return parts.map((part) => {
     const value = Number.parseFloat(part);
 
     if (Number.isNaN(value)) {
-      throw new OBJParseError(`Failed to parse float value "${part}"`);
+      throw new ObjParseError(`Failed to parse float value "${part}"`);
     }
 
     return value;
