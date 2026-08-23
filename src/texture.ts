@@ -1,6 +1,5 @@
 import { fetchImage } from "./utils";
 
-
 const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
 const TEXTURE_MIN_FILTER = WebGL2RenderingContext.TEXTURE_MIN_FILTER;
 const TEXTURE_MAG_FILTER = WebGL2RenderingContext.TEXTURE_MAG_FILTER;
@@ -89,10 +88,27 @@ export class Texture {
     gl.bindTexture(TEXTURE_2D, webglTexture);
 
     if (this.textureData instanceof HTMLImageElement) {
-      gl.texImage2D(TEXTURE_2D, 0, this.internalFormat, this.format, this.dataType, this.textureData);
+      gl.texImage2D(
+        TEXTURE_2D,
+        0,
+        this.internalFormat,
+        this.format,
+        this.dataType,
+        this.textureData,
+      );
     } else {
       const { width, height, bytes } = this.textureData;
-      gl.texImage2D(TEXTURE_2D, 0, this.internalFormat, width, height, 0, this.format, this.dataType, bytes);
+      gl.texImage2D(
+        TEXTURE_2D,
+        0,
+        this.internalFormat,
+        width,
+        height,
+        0,
+        this.format,
+        this.dataType,
+        bytes,
+      );
     }
 
     gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, this.minificationFilter);

@@ -1,4 +1,3 @@
-
 export enum BufferKind {
   ArrayBuffer = WebGL2RenderingContext.ARRAY_BUFFER,
   ElementArrayBuffer = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER,
@@ -50,7 +49,10 @@ export class BufferGPU {
 
   /** Overwrites part of the CPU buffer. The GPU buffer is updated on the next render. */
   setBytes(byteOffset: number, value: ArrayBufferView): void {
-    this.bufferCPU.set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength), byteOffset);
+    this.bufferCPU.set(
+      new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
+      byteOffset,
+    );
     this.needsUpdate = true;
   }
 

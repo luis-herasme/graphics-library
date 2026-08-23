@@ -6,7 +6,8 @@ export class Transform3D {
   translation: Vector3 = Vector3.zero();
 
   static fromMatrix4(matrix: Matrix4): Transform3D {
-    const { scale, rotation, translation } = matrix.toScaleRotationTranslation();
+    const { scale, rotation, translation } =
+      matrix.toScaleRotationTranslation();
 
     const transform = new Transform3D();
     transform.scale = scale;
@@ -24,7 +25,11 @@ export class Transform3D {
   }
 
   toMatrix4(): Matrix4 {
-    return Matrix4.fromScaleRotationTranslation(this.scale, this.rotation, this.translation);
+    return Matrix4.fromScaleRotationTranslation(
+      this.scale,
+      this.rotation,
+      this.translation,
+    );
   }
 
   /** Returns the transform as a column-major array of 16 elements. */
@@ -47,7 +52,11 @@ export class Transform2D {
   }
 
   toMatrix3(): Matrix3 {
-    return Matrix3.fromScaleAngleTranslation(this.scale, this.rotation, this.translation);
+    return Matrix3.fromScaleAngleTranslation(
+      this.scale,
+      this.rotation,
+      this.translation,
+    );
   }
 
   /** Returns the transform as a column-major array of 9 elements. */

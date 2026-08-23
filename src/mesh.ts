@@ -2,7 +2,6 @@ import { Geometry } from "./geometry";
 import { Material } from "./material";
 import { Transform3D } from "./transform";
 
-
 /** https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawArraysInstanced#mode */
 export enum RenderPrimitive {
   Points = WebGL2RenderingContext.POINTS,
@@ -36,7 +35,8 @@ export class Mesh {
       vertexBuffer.buffer.onBeforeRender(gl);
     }
 
-    for (const interleavedVertexBuffer of this.geometry.interleavedVertexBuffers) {
+    for (const interleavedVertexBuffer of this.geometry
+      .interleavedVertexBuffers) {
       interleavedVertexBuffer.buffer.onBeforeRender(gl);
     }
 
@@ -69,7 +69,8 @@ export class Mesh {
       resources.setAttributeBuffer(vertexBuffer.layout);
     }
 
-    for (const interleavedVertexBuffer of this.geometry.interleavedVertexBuffers) {
+    for (const interleavedVertexBuffer of this.geometry
+      .interleavedVertexBuffers) {
       interleavedVertexBuffer.buffer.bind(gl);
 
       for (const vertexLayout of interleavedVertexBuffer.layouts) {

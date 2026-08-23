@@ -38,7 +38,10 @@ export class Vector2 {
   }
 
   lerp(other: Vector2, t: number): Vector2 {
-    return new Vector2(this.x + (other.x - this.x) * t, this.y + (other.y - this.y) * t);
+    return new Vector2(
+      this.x + (other.x - this.x) * t,
+      this.y + (other.y - this.y) * t,
+    );
   }
 
   toArray(): [number, number] {

@@ -1,4 +1,10 @@
-import { Geometry, Material, Mesh, Renderer, requestAnimationFrameLoop } from "../src/index";
+import {
+  Geometry,
+  Material,
+  Mesh,
+  Renderer,
+  requestAnimationFrameLoop,
+} from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec3 position;

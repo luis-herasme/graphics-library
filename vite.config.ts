@@ -11,9 +11,15 @@ export default defineConfig({
         "hello-world": resolve(root, "examples/hello-world.html"),
         textures: resolve(root, "examples/textures.html"),
         instanced: resolve(root, "examples/instanced.html"),
-        "camera-texture-lighting": resolve(root, "examples/camera-texture-lighting.html"),
+        "camera-texture-lighting": resolve(
+          root,
+          "examples/camera-texture-lighting.html",
+        ),
         "obj-chair": resolve(root, "examples/obj-chair.html"),
-        "uniform-buffer-object": resolve(root, "examples/uniform-buffer-object.html"),
+        "uniform-buffer-object": resolve(
+          root,
+          "examples/uniform-buffer-object.html",
+        ),
         "draw-line": resolve(root, "examples/draw-line.html"),
         gltf: resolve(root, "examples/gltf.html"),
       },

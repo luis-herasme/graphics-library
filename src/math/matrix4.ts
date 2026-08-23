@@ -30,7 +30,12 @@ export class Matrix4 {
   }
 
   /** A right-handed perspective projection with a [-1, 1] depth range (OpenGL convention). */
-  static perspective(fovYRadians: number, aspect: number, near: number, far: number): Matrix4 {
+  static perspective(
+    fovYRadians: number,
+    aspect: number,
+    near: number,
+    far: number,
+  ): Matrix4 {
     const f = 1 / Math.tan(fovYRadians / 2);
     const range = 1 / (near - far);
 
@@ -43,7 +48,11 @@ export class Matrix4 {
     ]);
   }
 
-  static fromScaleRotationTranslation(scale: Vector3, rotation: Quaternion, translation: Vector3): Matrix4 {
+  static fromScaleRotationTranslation(
+    scale: Vector3,
+    rotation: Quaternion,
+    translation: Vector3,
+  ): Matrix4 {
     const { x, y, z, w } = rotation;
 
     const x2 = x + x;
@@ -95,10 +104,22 @@ export class Matrix4 {
   inverse(): Matrix4 {
     const m = this.elements;
 
-    const a00 = m[0], a01 = m[1], a02 = m[2], a03 = m[3];
-    const a10 = m[4], a11 = m[5], a12 = m[6], a13 = m[7];
-    const a20 = m[8], a21 = m[9], a22 = m[10], a23 = m[11];
-    const a30 = m[12], a31 = m[13], a32 = m[14], a33 = m[15];
+    const a00 = m[0],
+      a01 = m[1],
+      a02 = m[2],
+      a03 = m[3];
+    const a10 = m[4],
+      a11 = m[5],
+      a12 = m[6],
+      a13 = m[7];
+    const a20 = m[8],
+      a21 = m[9],
+      a22 = m[10],
+      a23 = m[11];
+    const a30 = m[12],
+      a31 = m[13],
+      a32 = m[14],
+      a33 = m[15];
 
     const b00 = a00 * a11 - a01 * a10;
     const b01 = a00 * a12 - a02 * a10;
@@ -113,7 +134,8 @@ export class Matrix4 {
     const b10 = a21 * a33 - a23 * a31;
     const b11 = a22 * a33 - a23 * a32;
 
-    let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    let det =
+      b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
     if (det === 0) {
       throw new Error("Cannot invert a singular Matrix4");
@@ -146,7 +168,11 @@ export class Matrix4 {
    * Decomposes the matrix into scale, rotation and translation.
    * Assumes the matrix is a valid affine transform (no shear or projection).
    */
-  toScaleRotationTranslation(): { scale: Vector3; rotation: Quaternion; translation: Vector3 } {
+  toScaleRotationTranslation(): {
+    scale: Vector3;
+    rotation: Quaternion;
+    translation: Vector3;
+  } {
     const m = this.elements;
 
     const det =
@@ -162,6 +188,7 @@ export class Matrix4 {
       scaleX = -scaleX;
     }
 
+    // prettier-ignore
     const rotation = Quaternion.fromRotationColumns(
       m[0] / scaleX, m[1] / scaleX, m[2] / scaleX,
       m[4] / scaleY, m[5] / scaleY, m[6] / scaleY,

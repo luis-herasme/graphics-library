@@ -2,7 +2,13 @@ const GLB_MAGIC = 0x46546c67; // "glTF"
 const GLB_CHUNK_JSON = 0x4e4f534a; // "JSON"
 const GLB_CHUNK_BIN = 0x004e4942; // "BIN\0"
 
-type AccessorArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Uint32Array | Float32Array;
+type AccessorArray =
+  | Int8Array
+  | Uint8Array
+  | Int16Array
+  | Uint16Array
+  | Uint32Array
+  | Float32Array;
 
 const COMPONENT_TYPE_TO_ARRAY = {
   5120: Int8Array,
@@ -121,7 +127,9 @@ export class Gltf {
     const TypedArray = COMPONENT_TYPE_TO_ARRAY[accessor.componentType];
 
     if (TypedArray === undefined) {
-      throw new GltfParseError(`Unsupported accessor component type: ${accessor.componentType}`);
+      throw new GltfParseError(
+        `Unsupported accessor component type: ${accessor.componentType}`,
+      );
     }
 
     const componentCount = TYPE_TO_COMPONENT_COUNT[accessor.type];
@@ -138,7 +146,9 @@ export class Gltf {
     const bufferView = this.json.bufferViews?.[accessor.bufferView];
 
     if (bufferView === undefined) {
-      throw new GltfParseError(`Buffer view ${accessor.bufferView} does not exist`);
+      throw new GltfParseError(
+        `Buffer view ${accessor.bufferView} does not exist`,
+      );
     }
 
     if (this.bin === null) {
@@ -147,7 +157,10 @@ export class Gltf {
 
     const binBuffer = this.bin.buffer as ArrayBuffer;
     const elementSize = componentCount * TypedArray.BYTES_PER_ELEMENT;
-    const start = this.bin.byteOffset + (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
+    const start =
+      this.bin.byteOffset +
+      (bufferView.byteOffset ?? 0) +
+      (accessor.byteOffset ?? 0);
     const stride = bufferView.byteStride ?? elementSize;
 
     if (stride === elementSize && start % TypedArray.BYTES_PER_ELEMENT === 0) {
@@ -157,7 +170,11 @@ export class Gltf {
 
     if (stride === elementSize) {
       // Tightly packed but misaligned: copy the bytes to a fresh, aligned buffer
-      const bytes = new Uint8Array(binBuffer, start, accessor.count * elementSize);
+      const bytes = new Uint8Array(
+        binBuffer,
+        start,
+        accessor.count * elementSize,
+      );
       return new TypedArray(bytes.slice().buffer);
     }
 
@@ -167,7 +184,10 @@ export class Gltf {
 
     for (let i = 0; i < accessor.count; i++) {
       const elementStart = start + i * stride;
-      outputBytes.set(sourceBytes.subarray(elementStart, elementStart + elementSize), i * elementSize);
+      outputBytes.set(
+        sourceBytes.subarray(elementStart, elementStart + elementSize),
+        i * elementSize,
+      );
     }
 
     return new TypedArray(outputBytes.buffer);
@@ -177,14 +197,20 @@ export class Gltf {
     const primitive = this.json.meshes?.[meshIndex]?.primitives[primitiveIndex];
 
     if (primitive === undefined) {
-      throw new GltfParseError(`Mesh ${meshIndex} primitive ${primitiveIndex} does not exist`);
+      throw new GltfParseError(
+        `Mesh ${meshIndex} primitive ${primitiveIndex} does not exist`,
+      );
     }
 
     return primitive;
   }
 
   /** Reads a vertex attribute (e.g. "POSITION", "NORMAL", "TEXCOORD_0") of a primitive. */
-  readAttribute(attribute: string, meshIndex = 0, primitiveIndex = 0): AccessorArray {
+  readAttribute(
+    attribute: string,
+    meshIndex = 0,
+    primitiveIndex = 0,
+  ): AccessorArray {
     const primitive = this.getPrimitive(meshIndex, primitiveIndex);
     const accessorIndex = primitive.attributes[attribute];
 
@@ -196,11 +222,19 @@ export class Gltf {
   }
 
   readPositions(meshIndex = 0, primitiveIndex = 0): Float32Array {
-    return this.readAttribute("POSITION", meshIndex, primitiveIndex) as Float32Array;
+    return this.readAttribute(
+      "POSITION",
+      meshIndex,
+      primitiveIndex,
+    ) as Float32Array;
   }
 
   readNormals(meshIndex = 0, primitiveIndex = 0): Float32Array {
-    return this.readAttribute("NORMAL", meshIndex, primitiveIndex) as Float32Array;
+    return this.readAttribute(
+      "NORMAL",
+      meshIndex,
+      primitiveIndex,
+    ) as Float32Array;
   }
 
   readIndices(meshIndex = 0, primitiveIndex = 0): Uint32Array {

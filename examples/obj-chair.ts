@@ -63,6 +63,9 @@ requestAnimationFrameLoop(() => {
   renderer.clear();
   transform.rotation.multiply(Quaternion.fromRotationX(0.01));
   transform.rotation.multiply(Quaternion.fromRotationY(0.02));
-  mesh.material.setUniform("transform", { kind: "matrix4", value: transform.toArray() });
+  mesh.material.setUniform("transform", {
+    kind: "matrix4",
+    value: transform.toArray(),
+  });
   renderer.render(mesh);
 });

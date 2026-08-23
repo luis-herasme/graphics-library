@@ -14,7 +14,9 @@ export async function fetchBytes(url: string): Promise<Uint8Array> {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch "${url}": ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch "${url}": ${response.status} ${response.statusText}`,
+    );
   }
 
   return new Uint8Array(await response.arrayBuffer());
@@ -24,7 +26,9 @@ export async function fetchText(url: string): Promise<string> {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch "${url}": ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch "${url}": ${response.status} ${response.statusText}`,
+    );
   }
 
   return response.text();

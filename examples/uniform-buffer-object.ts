@@ -58,7 +58,10 @@ const colors2 = new Float32Array([
   0.5, 1.0, 0.5, 1.0, // colors[1]
   0.5, 0.5, 1.0, 1.0, // colors[2]
 ]);
-const uniformBufferObject2 = new UniformBufferObject(renderer, toBytes(colors2));
+const uniformBufferObject2 = new UniformBufferObject(
+  renderer,
+  toBytes(colors2),
+);
 
 mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);
 
@@ -66,7 +69,10 @@ requestAnimationFrameLoop(() => {
   renderer.clear();
 
   uniformBufferObject.setBindingPoint(bindingPoint);
-  mesh.material.setUniform("translation", { kind: "vector2", value: [-0.25, -0.25] });
+  mesh.material.setUniform("translation", {
+    kind: "vector2",
+    value: [-0.25, -0.25],
+  });
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
   renderer.render(mesh);
 
@@ -74,12 +80,18 @@ requestAnimationFrameLoop(() => {
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", { kind: "vector2", value: [0.25, 0.25] });
+  mesh.material.setUniform("translation", {
+    kind: "vector2",
+    value: [0.25, 0.25],
+  });
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
   renderer.render(mesh);
 
   uniformBufferObject2.setBindingPoint(bindingPoint);
-  mesh.material.setUniform("translation", { kind: "vector2", value: [-0.25, 0.75] });
+  mesh.material.setUniform("translation", {
+    kind: "vector2",
+    value: [-0.25, 0.75],
+  });
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
   renderer.render(mesh);
 
@@ -87,7 +99,10 @@ requestAnimationFrameLoop(() => {
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
   renderer.render(mesh);
 
-  mesh.material.setUniform("translation", { kind: "vector2", value: [0.25, 1.25] });
+  mesh.material.setUniform("translation", {
+    kind: "vector2",
+    value: [0.25, 1.25],
+  });
   mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
   renderer.render(mesh);
 });

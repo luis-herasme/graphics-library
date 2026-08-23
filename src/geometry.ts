@@ -2,7 +2,12 @@ import { BufferUsage } from "./buffer-gpu";
 import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "./obj-parser";
 import { Transform2D } from "./transform";
-import { Data, InterleavedVertexBuffer, VertexAttribute, VertexBuffer } from "./vertex-buffer";
+import {
+  Data,
+  InterleavedVertexBuffer,
+  VertexAttribute,
+  VertexBuffer,
+} from "./vertex-buffer";
 
 // prettier-ignore
 const QUAD_POSITIONS = [
@@ -93,7 +98,9 @@ export class Geometry {
     });
   }
 
-  static fromInterleavedVertexBuffer(interleavedVertexBuffer: InterleavedVertexBuffer): Geometry {
+  static fromInterleavedVertexBuffer(
+    interleavedVertexBuffer: InterleavedVertexBuffer,
+  ): Geometry {
     return new Geometry({
       vertexCount: interleavedVertexBuffer.vertexCount,
       interleavedVertexBuffers: [interleavedVertexBuffer],
@@ -215,7 +222,11 @@ export class Geometry {
   private static quadAttributes(): VertexAttribute[] {
     return [
       { name: "position", data: Data.vector2(QUAD_POSITIONS) },
-      { name: "color", data: Data.unsignedByteVector3(QUAD_COLORS), normalize: true },
+      {
+        name: "color",
+        data: Data.unsignedByteVector3(QUAD_COLORS),
+        normalize: true,
+      },
       { name: "uv", data: Data.vector2(QUAD_UVS) },
     ];
   }
@@ -225,7 +236,8 @@ export class Geometry {
       vertexCount: 4,
       indices: new IndexBuffer(QUAD_INDICES),
       vertexBuffers: Geometry.quadAttributes().map(
-        (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
+        (attribute) =>
+          new VertexBuffer(attribute.name, attribute.data, attribute),
       ),
     });
   }
@@ -234,7 +246,9 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       indices: new IndexBuffer(QUAD_INDICES),
-      interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
+      interleavedVertexBuffers: [
+        new InterleavedVertexBuffer(Geometry.quadAttributes()),
+      ],
     });
   }
 
@@ -251,7 +265,8 @@ export class Geometry {
       indices: new IndexBuffer(QUAD_INDICES),
       vertexBuffers: [
         ...Geometry.quadAttributes().map(
-          (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
+          (attribute) =>
+            new VertexBuffer(attribute.name, attribute.data, attribute),
         ),
         new VertexBuffer("transform", Data.matrix3(transforms), {
           divisor: 1,
@@ -272,8 +287,12 @@ export class Geometry {
       vertexCount: 4,
       instanceCount: count,
       indices: new IndexBuffer(QUAD_INDICES),
-      vertexBuffers: [new VertexBuffer("transform", Data.matrix3(transforms), { divisor: 1 })],
-      interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
+      vertexBuffers: [
+        new VertexBuffer("transform", Data.matrix3(transforms), { divisor: 1 }),
+      ],
+      interleavedVertexBuffers: [
+        new InterleavedVertexBuffer(Geometry.quadAttributes()),
+      ],
     });
   }
 }

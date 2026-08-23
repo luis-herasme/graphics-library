@@ -20,10 +20,20 @@ export class PerspectiveCamera {
 
   /** A camera with a 45 degree field of view and the window's aspect ratio. */
   static default(): PerspectiveCamera {
-    return new PerspectiveCamera((45 * Math.PI) / 180, window.innerWidth / window.innerHeight, 0.1, 100);
+    return new PerspectiveCamera(
+      (45 * Math.PI) / 180,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      100,
+    );
   }
 
   updateProjectionMatrix(): void {
-    this.projectionMatrix = Matrix4.perspective(this.fov, this.aspect, this.near, this.far);
+    this.projectionMatrix = Matrix4.perspective(
+      this.fov,
+      this.aspect,
+      this.near,
+      this.far,
+    );
   }
 }

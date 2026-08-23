@@ -35,6 +35,7 @@ export class Quaternion {
   }
 
   /** Builds a quaternion from a 3x3 rotation matrix given as column vectors. */
+  // prettier-ignore
   static fromRotationColumns(
     m00: number, m01: number, m02: number,
     m10: number, m11: number, m12: number,
@@ -45,21 +46,41 @@ export class Quaternion {
 
     if (trace > 0) {
       const s = 0.5 / Math.sqrt(trace + 1);
-      return new Quaternion((m12 - m21) * s, (m20 - m02) * s, (m01 - m10) * s, 0.25 / s);
+      return new Quaternion(
+        (m12 - m21) * s,
+        (m20 - m02) * s,
+        (m01 - m10) * s,
+        0.25 / s,
+      );
     }
 
     if (m00 > m11 && m00 > m22) {
       const s = 2 * Math.sqrt(1 + m00 - m11 - m22);
-      return new Quaternion(0.25 * s, (m10 + m01) / s, (m20 + m02) / s, (m12 - m21) / s);
+      return new Quaternion(
+        0.25 * s,
+        (m10 + m01) / s,
+        (m20 + m02) / s,
+        (m12 - m21) / s,
+      );
     }
 
     if (m11 > m22) {
       const s = 2 * Math.sqrt(1 + m11 - m00 - m22);
-      return new Quaternion((m10 + m01) / s, 0.25 * s, (m21 + m12) / s, (m20 - m02) / s);
+      return new Quaternion(
+        (m10 + m01) / s,
+        0.25 * s,
+        (m21 + m12) / s,
+        (m20 - m02) / s,
+      );
     }
 
     const s = 2 * Math.sqrt(1 + m22 - m00 - m11);
-    return new Quaternion((m20 + m02) / s, (m21 + m12) / s, 0.25 * s, (m01 - m10) / s);
+    return new Quaternion(
+      (m20 + m02) / s,
+      (m21 + m12) / s,
+      0.25 * s,
+      (m01 - m10) / s,
+    );
   }
 
   clone(): Quaternion {

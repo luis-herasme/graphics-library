@@ -2,7 +2,6 @@ import { PerspectiveCamera } from "./camera";
 import { Mesh } from "./mesh";
 import { Uniform } from "./uniforms";
 
-
 export class Renderer {
   readonly gl: WebGL2RenderingContext;
   readonly canvas: HTMLCanvasElement;
@@ -52,14 +51,20 @@ export class Renderer {
     this.clear();
     this.handleWindowResize(camera);
 
-    const projectionMatrix: Uniform = { kind: "matrix4", value: camera.projectionMatrix.toArray() };
+    const projectionMatrix: Uniform = {
+      kind: "matrix4",
+      value: camera.projectionMatrix.toArray(),
+    };
     const cameraInverseMatrix: Uniform = {
       kind: "matrix4",
       value: camera.transform.toMatrix4().inverse().toArray(),
     };
 
     for (const mesh of scene) {
-      mesh.material.setUniform("transform", { kind: "matrix4", value: mesh.transform.toArray() });
+      mesh.material.setUniform("transform", {
+        kind: "matrix4",
+        value: mesh.transform.toArray(),
+      });
       mesh.material.setUniform("projection_matrix", projectionMatrix);
       mesh.material.setUniform("camera_inverse_matrix", cameraInverseMatrix);
 
@@ -81,12 +86,23 @@ export class Renderer {
       indices.buffer.bind(gl);
 
       if (mesh.geometry.instanceCount !== null) {
-        gl.drawElementsInstanced(mesh.renderPrimitive, indices.count, indices.kind, 0, mesh.geometry.instanceCount);
+        gl.drawElementsInstanced(
+          mesh.renderPrimitive,
+          indices.count,
+          indices.kind,
+          0,
+          mesh.geometry.instanceCount,
+        );
       } else {
         gl.drawElements(mesh.renderPrimitive, indices.count, indices.kind, 0);
       }
     } else if (mesh.geometry.instanceCount !== null) {
-      gl.drawArraysInstanced(mesh.renderPrimitive, 0, mesh.geometry.vertexCount, mesh.geometry.instanceCount);
+      gl.drawArraysInstanced(
+        mesh.renderPrimitive,
+        0,
+        mesh.geometry.vertexCount,
+        mesh.geometry.instanceCount,
+      );
     } else {
       gl.drawArrays(mesh.renderPrimitive, 0, mesh.geometry.vertexCount);
     }

@@ -1,7 +1,6 @@
 import { Uniform } from "./uniforms";
 import { VertexLayout, componentTypeSizeInBytes } from "./vertex-buffer";
 
-
 const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
 const TEXTURE0 = WebGL2RenderingContext.TEXTURE0;
 
@@ -71,15 +70,25 @@ export class MaterialResources {
       throw new Error("Failed to create WebGL program");
     }
 
-    const vertexShader = MaterialResources.compileShader(gl, material.vertexShaderSource, gl.VERTEX_SHADER);
-    const fragmentShader = MaterialResources.compileShader(gl, material.fragmentShaderSource, gl.FRAGMENT_SHADER);
+    const vertexShader = MaterialResources.compileShader(
+      gl,
+      material.vertexShaderSource,
+      gl.VERTEX_SHADER,
+    );
+    const fragmentShader = MaterialResources.compileShader(
+      gl,
+      material.fragmentShaderSource,
+      gl.FRAGMENT_SHADER,
+    );
 
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(`Failed to link WebGL program: ${gl.getProgramInfoLog(program) ?? "unknown error"}`);
+      throw new Error(
+        `Failed to link WebGL program: ${gl.getProgramInfoLog(program) ?? "unknown error"}`,
+      );
     }
 
     this.gl = gl;
@@ -89,7 +98,11 @@ export class MaterialResources {
     this.collectUniformBlockLocations();
   }
 
-  private static compileShader(gl: WebGL2RenderingContext, shaderSource: string, shaderType: number): WebGLShader {
+  private static compileShader(
+    gl: WebGL2RenderingContext,
+    shaderSource: string,
+    shaderType: number,
+  ): WebGLShader {
     const shader = gl.createShader(shaderType);
 
     if (shader === null) {
@@ -100,7 +113,9 @@ export class MaterialResources {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw new Error(`Failed to compile shader: ${gl.getShaderInfoLog(shader) ?? "unknown error"}`);
+      throw new Error(
+        `Failed to compile shader: ${gl.getShaderInfoLog(shader) ?? "unknown error"}`,
+      );
     }
 
     return shader;
@@ -108,7 +123,11 @@ export class MaterialResources {
 
   // UNIFORMS
 
-  setUniform(uniformName: string, uniform: Uniform, currentTextureUnit: number): void {
+  setUniform(
+    uniformName: string,
+    uniform: Uniform,
+    currentTextureUnit: number,
+  ): void {
     const location = this.uniformLocations.get(uniformName);
 
     if (location === undefined) {
@@ -119,32 +138,67 @@ export class MaterialResources {
     const gl = this.gl;
 
     switch (uniform.kind) {
-      case "float": gl.uniform1f(location, uniform.value); break;
-      case "vector2": gl.uniform2fv(location, uniform.value); break;
-      case "vector3": gl.uniform3fv(location, uniform.value); break;
-      case "vector4": gl.uniform4fv(location, uniform.value); break;
+      case "float":
+        gl.uniform1f(location, uniform.value);
+        break;
+      case "vector2":
+        gl.uniform2fv(location, uniform.value);
+        break;
+      case "vector3":
+        gl.uniform3fv(location, uniform.value);
+        break;
+      case "vector4":
+        gl.uniform4fv(location, uniform.value);
+        break;
 
-      case "int": gl.uniform1i(location, uniform.value); break;
-      case "intVector2": gl.uniform2iv(location, uniform.value); break;
-      case "intVector3": gl.uniform3iv(location, uniform.value); break;
-      case "intVector4": gl.uniform4iv(location, uniform.value); break;
+      case "int":
+        gl.uniform1i(location, uniform.value);
+        break;
+      case "intVector2":
+        gl.uniform2iv(location, uniform.value);
+        break;
+      case "intVector3":
+        gl.uniform3iv(location, uniform.value);
+        break;
+      case "intVector4":
+        gl.uniform4iv(location, uniform.value);
+        break;
 
-      case "unsignedInt": gl.uniform1ui(location, uniform.value); break;
-      case "unsignedIntVector2": gl.uniform2uiv(location, uniform.value); break;
-      case "unsignedIntVector3": gl.uniform3uiv(location, uniform.value); break;
-      case "unsignedIntVector4": gl.uniform4uiv(location, uniform.value); break;
+      case "unsignedInt":
+        gl.uniform1ui(location, uniform.value);
+        break;
+      case "unsignedIntVector2":
+        gl.uniform2uiv(location, uniform.value);
+        break;
+      case "unsignedIntVector3":
+        gl.uniform3uiv(location, uniform.value);
+        break;
+      case "unsignedIntVector4":
+        gl.uniform4uiv(location, uniform.value);
+        break;
 
-      case "matrix2": gl.uniformMatrix2fv(location, false, uniform.value); break;
-      case "matrix3": gl.uniformMatrix3fv(location, false, uniform.value); break;
-      case "matrix4": gl.uniformMatrix4fv(location, false, uniform.value); break;
+      case "matrix2":
+        gl.uniformMatrix2fv(location, false, uniform.value);
+        break;
+      case "matrix3":
+        gl.uniformMatrix3fv(location, false, uniform.value);
+        break;
+      case "matrix4":
+        gl.uniformMatrix4fv(location, false, uniform.value);
+        break;
 
-      case "texture": gl.uniform1i(location, currentTextureUnit); break;
+      case "texture":
+        gl.uniform1i(location, currentTextureUnit);
+        break;
     }
   }
 
   private collectUniformLocations(): void {
     const gl = this.gl;
-    const numberOfUniforms = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS) as number;
+    const numberOfUniforms = gl.getProgramParameter(
+      this.program,
+      gl.ACTIVE_UNIFORMS,
+    ) as number;
 
     for (let i = 0; i < numberOfUniforms; i++) {
       const uniform = gl.getActiveUniform(this.program, i);
@@ -193,12 +247,14 @@ export class MaterialResources {
 
     // Only matrices have more than one column. Each column occupies its own
     // attribute location.
-    const componentsPerColumn = vertexLayout.componentCount / vertexLayout.numberOfColumns;
+    const componentsPerColumn =
+      vertexLayout.componentCount / vertexLayout.numberOfColumns;
     const componentSize = componentTypeSizeInBytes(vertexLayout.componentType);
 
     for (let i = 0; i < vertexLayout.numberOfColumns; i++) {
       const columnLocation = location + i;
-      const offset = vertexLayout.offset + i * componentsPerColumn * componentSize;
+      const offset =
+        vertexLayout.offset + i * componentsPerColumn * componentSize;
 
       gl.enableVertexAttribArray(columnLocation);
       gl.vertexAttribPointer(
@@ -218,7 +274,10 @@ export class MaterialResources {
 
   private collectAttributeLocations(): void {
     const gl = this.gl;
-    const numberOfAttributes = gl.getProgramParameter(this.program, gl.ACTIVE_ATTRIBUTES) as number;
+    const numberOfAttributes = gl.getProgramParameter(
+      this.program,
+      gl.ACTIVE_ATTRIBUTES,
+    ) as number;
 
     for (let i = 0; i < numberOfAttributes; i++) {
       const attribute = gl.getActiveAttrib(this.program, i);
@@ -227,7 +286,10 @@ export class MaterialResources {
         continue;
       }
 
-      this.attributeLocations.set(attribute.name, gl.getAttribLocation(this.program, attribute.name));
+      this.attributeLocations.set(
+        attribute.name,
+        gl.getAttribLocation(this.program, attribute.name),
+      );
     }
   }
 
@@ -235,9 +297,16 @@ export class MaterialResources {
 
   private collectUniformBlockLocations(): void {
     const gl = this.gl;
-    const numberOfUniformBlocks = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORM_BLOCKS) as number;
+    const numberOfUniformBlocks = gl.getProgramParameter(
+      this.program,
+      gl.ACTIVE_UNIFORM_BLOCKS,
+    ) as number;
 
-    for (let blockLocation = 0; blockLocation < numberOfUniformBlocks; blockLocation++) {
+    for (
+      let blockLocation = 0;
+      blockLocation < numberOfUniformBlocks;
+      blockLocation++
+    ) {
       const name = gl.getActiveUniformBlockName(this.program, blockLocation);
 
       if (name !== null) {

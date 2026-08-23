@@ -78,8 +78,13 @@ const animation = Animation.fromGltf(gltf);
 animation.updateGlobalTransform();
 const lines = animation.getLines();
 
-const skeletonGeometry = Geometry.fromVertexBuffer(new VertexBuffer("position", Data.vector3(lines)));
-const skeletonMaterial = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const skeletonGeometry = Geometry.fromVertexBuffer(
+  new VertexBuffer("position", Data.vector3(lines)),
+);
+const skeletonMaterial = new Material(
+  VERTEX_SHADER_SOURCE,
+  FRAGMENT_SHADER_SOURCE,
+);
 const skeletonMesh = new Mesh(skeletonGeometry, skeletonMaterial);
 skeletonMesh.transform = mesh.transform.clone();
 skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
@@ -89,10 +94,16 @@ const camera = PerspectiveCamera.default();
 
 requestAnimationFrameLoop(() => {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
-  mesh.material.setUniform("color", { kind: "vector4", value: [0.5, 0.5, 0.5, 1] });
+  mesh.material.setUniform("color", {
+    kind: "vector4",
+    value: [0.5, 0.5, 0.5, 1],
+  });
 
   skeletonMesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
-  skeletonMesh.material.setUniform("color", { kind: "vector4", value: [0.25, 1, 0.25, 1] });
+  skeletonMesh.material.setUniform("color", {
+    kind: "vector4",
+    value: [0.25, 1, 0.25, 1],
+  });
 
   renderer.renderScene(scene, camera);
 });

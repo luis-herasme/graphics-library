@@ -23,16 +23,16 @@ npm run dev
 
 Then open http://localhost:5173 to browse the examples:
 
-| Example | Shows |
-| --- | --- |
-| [hello-world](examples/hello-world.ts) | A minimal quad with a custom shader |
-| [textures](examples/textures.ts) | Texturing a quad from an image URL |
-| [instanced](examples/instanced.ts) | Instanced rendering with a per-instance `mat3` attribute, updated every frame |
-| [camera-texture-lighting](examples/camera-texture-lighting.ts) | A perspective camera, directional lighting, and a textured cube |
-| [obj-chair](examples/obj-chair.ts) | Loading a model from an OBJ file |
-| [uniform-buffer-object](examples/uniform-buffer-object.ts) | Uniform buffer objects with two color palettes |
-| [draw-line](examples/draw-line.ts) | A glTF fox rendered as a wireframe with its skeleton |
-| [gltf](examples/gltf.ts) | Loading positions, normals, and indices from a GLB file |
+| Example                                                        | Shows                                                                         |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| [hello-world](examples/hello-world.ts)                         | A minimal quad with a custom shader                                           |
+| [textures](examples/textures.ts)                               | Texturing a quad from an image URL                                            |
+| [instanced](examples/instanced.ts)                             | Instanced rendering with a per-instance `mat3` attribute, updated every frame |
+| [camera-texture-lighting](examples/camera-texture-lighting.ts) | A perspective camera, directional lighting, and a textured cube               |
+| [obj-chair](examples/obj-chair.ts)                             | Loading a model from an OBJ file                                              |
+| [uniform-buffer-object](examples/uniform-buffer-object.ts)     | Uniform buffer objects with two color palettes                                |
+| [draw-line](examples/draw-line.ts)                             | A glTF fox rendered as a wireframe with its skeleton                          |
+| [gltf](examples/gltf.ts)                                       | Loading positions, normals, and indices from a GLB file                       |
 
 Other scripts:
 
@@ -44,7 +44,13 @@ npm run build   # typecheck + production build of the examples
 ## Usage
 
 ```ts
-import { Geometry, Material, Mesh, Renderer, requestAnimationFrameLoop } from "./src/index";
+import {
+  Geometry,
+  Material,
+  Mesh,
+  Renderer,
+  requestAnimationFrameLoop,
+} from "./src/index";
 
 const renderer = new Renderer(); // Creates a full-window canvas
 const material = new Material(vertexShaderSource, fragmentShaderSource);

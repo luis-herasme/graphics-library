@@ -11,7 +11,9 @@ interface Node {
 
 export type Interpolation = "linear";
 
-export type SamplerValues = { kind: "vector3"; values: Vector3[] } | { kind: "quaternion"; values: Quaternion[] };
+export type SamplerValues =
+  | { kind: "vector3"; values: Vector3[] }
+  | { kind: "quaternion"; values: Quaternion[] };
 
 export interface Sampler {
   times: number[];
@@ -55,7 +57,9 @@ function nodeLocalTransform(gltf: Gltf, nodeIndex: number): Transform3D {
   const transform = new Transform3D();
 
   if (node.translation !== undefined) {
-    transform.translation = new Vector3(...(node.translation as [number, number, number]));
+    transform.translation = new Vector3(
+      ...(node.translation as [number, number, number]),
+    );
   }
 
   if (node.rotation !== undefined) {
@@ -141,7 +145,10 @@ export class Animation {
       const t = (this.currentTime - prevTime) / (nextTime - prevTime);
 
       if (sampler.values.kind === "vector3") {
-        const value = sampler.values.values[index].lerp(sampler.values.values[index + 1], t);
+        const value = sampler.values.values[index].lerp(
+          sampler.values.values[index + 1],
+          t,
+        );
 
         switch (channel.targetNodeProperty) {
           case "translation":
@@ -154,7 +161,10 @@ export class Animation {
             throw new Error("A vector3 sampler cannot target a rotation");
         }
       } else {
-        const value = sampler.values.values[index].slerp(sampler.values.values[index + 1], t);
+        const value = sampler.values.values[index].slerp(
+          sampler.values.values[index + 1],
+          t,
+        );
 
         if (channel.targetNodeProperty !== "rotation") {
           throw new Error("A quaternion sampler can only target a rotation");
@@ -179,7 +189,9 @@ export class Animation {
       const node = this.nodes[nodeIndex]!;
 
       node.globalTransform = Transform3D.fromMatrix4(
-        parentNode.globalTransform.toMatrix4().multiply(node.localTransform.toMatrix4()),
+        parentNode.globalTransform
+          .toMatrix4()
+          .multiply(node.localTransform.toMatrix4()),
       );
 
       for (const childIndex of node.childrenIndexList) {

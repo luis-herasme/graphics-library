@@ -11,7 +11,9 @@ export enum VertexComponentType {
   Float = WebGL2RenderingContext.FLOAT,
 }
 
-export function componentTypeSizeInBytes(componentType: VertexComponentType): number {
+export function componentTypeSizeInBytes(
+  componentType: VertexComponentType,
+): number {
   switch (componentType) {
     case VertexComponentType.Byte:
     case VertexComponentType.UnsignedByte:
@@ -35,7 +37,10 @@ type TypedArrayConstructor =
   | Uint32ArrayConstructor
   | Float32ArrayConstructor;
 
-const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<VertexComponentType, TypedArrayConstructor> = {
+const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
+  VertexComponentType,
+  TypedArrayConstructor
+> = {
   [VertexComponentType.Byte]: Int8Array,
   [VertexComponentType.UnsignedByte]: Uint8Array,
   [VertexComponentType.Short]: Int16Array,
@@ -50,19 +55,29 @@ const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<VertexComponentType, TypedArrayCons
  * nested arrays (one entry per vertex, e.g. `[[x, y, z], ...]`), or objects
  * with a `toArray()` method (e.g. Vector2, Vector3, Matrix3, Transform2D).
  */
-export type DataInput =
+export type DataInput = ArrayLike<number> | readonly DataInputElement[];
+
+type DataInputElement =
+  | number
   | ArrayLike<number>
-  | readonly DataInputElement[];
+  | readonly DataInputElement[]
+  | { toArray(): ArrayLike<number> };
 
-type DataInputElement = number | ArrayLike<number> | readonly DataInputElement[] | { toArray(): ArrayLike<number> };
-
-function flattenInto(output: number[], value: DataInput | DataInputElement): void {
+function flattenInto(
+  output: number[],
+  value: DataInput | DataInputElement,
+): void {
   if (typeof value === "number") {
     output.push(value);
     return;
   }
 
-  if (typeof value === "object" && value !== null && "toArray" in value && typeof value.toArray === "function") {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "toArray" in value &&
+    typeof value.toArray === "function"
+  ) {
     flattenInto(output, value.toArray());
     return;
   }
@@ -84,7 +99,12 @@ export class Data {
   /** Number of vertices in the data. */
   readonly count: number;
 
-  private constructor(componentType: VertexComponentType, componentCount: number, numberOfColumns: number, input: DataInput) {
+  private constructor(
+    componentType: VertexComponentType,
+    componentCount: number,
+    numberOfColumns: number,
+    input: DataInput,
+  ) {
     const flattened: number[] = [];
     flattenInto(flattened, input);
 
@@ -103,44 +123,106 @@ export class Data {
     this.count = flattened.length / componentCount;
   }
 
-  static byte(data: DataInput): Data { return new Data(VertexComponentType.Byte, 1, 1, data); }
-  static byteVector2(data: DataInput): Data { return new Data(VertexComponentType.Byte, 2, 1, data); }
-  static byteVector3(data: DataInput): Data { return new Data(VertexComponentType.Byte, 3, 1, data); }
-  static byteVector4(data: DataInput): Data { return new Data(VertexComponentType.Byte, 4, 1, data); }
+  static byte(data: DataInput): Data {
+    return new Data(VertexComponentType.Byte, 1, 1, data);
+  }
+  static byteVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.Byte, 2, 1, data);
+  }
+  static byteVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.Byte, 3, 1, data);
+  }
+  static byteVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.Byte, 4, 1, data);
+  }
 
-  static unsignedByte(data: DataInput): Data { return new Data(VertexComponentType.UnsignedByte, 1, 1, data); }
-  static unsignedByteVector2(data: DataInput): Data { return new Data(VertexComponentType.UnsignedByte, 2, 1, data); }
-  static unsignedByteVector3(data: DataInput): Data { return new Data(VertexComponentType.UnsignedByte, 3, 1, data); }
-  static unsignedByteVector4(data: DataInput): Data { return new Data(VertexComponentType.UnsignedByte, 4, 1, data); }
+  static unsignedByte(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedByte, 1, 1, data);
+  }
+  static unsignedByteVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedByte, 2, 1, data);
+  }
+  static unsignedByteVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedByte, 3, 1, data);
+  }
+  static unsignedByteVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedByte, 4, 1, data);
+  }
 
-  static short(data: DataInput): Data { return new Data(VertexComponentType.Short, 1, 1, data); }
-  static shortVector2(data: DataInput): Data { return new Data(VertexComponentType.Short, 2, 1, data); }
-  static shortVector3(data: DataInput): Data { return new Data(VertexComponentType.Short, 3, 1, data); }
-  static shortVector4(data: DataInput): Data { return new Data(VertexComponentType.Short, 4, 1, data); }
+  static short(data: DataInput): Data {
+    return new Data(VertexComponentType.Short, 1, 1, data);
+  }
+  static shortVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.Short, 2, 1, data);
+  }
+  static shortVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.Short, 3, 1, data);
+  }
+  static shortVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.Short, 4, 1, data);
+  }
 
-  static unsignedShort(data: DataInput): Data { return new Data(VertexComponentType.UnsignedShort, 1, 1, data); }
-  static unsignedShortVector2(data: DataInput): Data { return new Data(VertexComponentType.UnsignedShort, 2, 1, data); }
-  static unsignedShortVector3(data: DataInput): Data { return new Data(VertexComponentType.UnsignedShort, 3, 1, data); }
-  static unsignedShortVector4(data: DataInput): Data { return new Data(VertexComponentType.UnsignedShort, 4, 1, data); }
+  static unsignedShort(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedShort, 1, 1, data);
+  }
+  static unsignedShortVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedShort, 2, 1, data);
+  }
+  static unsignedShortVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedShort, 3, 1, data);
+  }
+  static unsignedShortVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedShort, 4, 1, data);
+  }
 
-  static int(data: DataInput): Data { return new Data(VertexComponentType.Int, 1, 1, data); }
-  static intVector2(data: DataInput): Data { return new Data(VertexComponentType.Int, 2, 1, data); }
-  static intVector3(data: DataInput): Data { return new Data(VertexComponentType.Int, 3, 1, data); }
-  static intVector4(data: DataInput): Data { return new Data(VertexComponentType.Int, 4, 1, data); }
+  static int(data: DataInput): Data {
+    return new Data(VertexComponentType.Int, 1, 1, data);
+  }
+  static intVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.Int, 2, 1, data);
+  }
+  static intVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.Int, 3, 1, data);
+  }
+  static intVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.Int, 4, 1, data);
+  }
 
-  static unsignedInt(data: DataInput): Data { return new Data(VertexComponentType.UnsignedInt, 1, 1, data); }
-  static unsignedIntVector2(data: DataInput): Data { return new Data(VertexComponentType.UnsignedInt, 2, 1, data); }
-  static unsignedIntVector3(data: DataInput): Data { return new Data(VertexComponentType.UnsignedInt, 3, 1, data); }
-  static unsignedIntVector4(data: DataInput): Data { return new Data(VertexComponentType.UnsignedInt, 4, 1, data); }
+  static unsignedInt(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedInt, 1, 1, data);
+  }
+  static unsignedIntVector2(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedInt, 2, 1, data);
+  }
+  static unsignedIntVector3(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedInt, 3, 1, data);
+  }
+  static unsignedIntVector4(data: DataInput): Data {
+    return new Data(VertexComponentType.UnsignedInt, 4, 1, data);
+  }
 
-  static float(data: DataInput): Data { return new Data(VertexComponentType.Float, 1, 1, data); }
-  static vector2(data: DataInput): Data { return new Data(VertexComponentType.Float, 2, 1, data); }
-  static vector3(data: DataInput): Data { return new Data(VertexComponentType.Float, 3, 1, data); }
-  static vector4(data: DataInput): Data { return new Data(VertexComponentType.Float, 4, 1, data); }
+  static float(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 1, 1, data);
+  }
+  static vector2(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 2, 1, data);
+  }
+  static vector3(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 3, 1, data);
+  }
+  static vector4(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 4, 1, data);
+  }
 
-  static matrix2(data: DataInput): Data { return new Data(VertexComponentType.Float, 4, 2, data); }
-  static matrix3(data: DataInput): Data { return new Data(VertexComponentType.Float, 9, 3, data); }
-  static matrix4(data: DataInput): Data { return new Data(VertexComponentType.Float, 16, 4, data); }
+  static matrix2(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 4, 2, data);
+  }
+  static matrix3(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 9, 3, data);
+  }
+  static matrix4(data: DataInput): Data {
+    return new Data(VertexComponentType.Float, 16, 4, data);
+  }
 
   /** The size of one vertex worth of data, in bytes. */
   get sizeInBytes(): number {
@@ -239,10 +321,18 @@ export class VertexBuffer {
   constructor(
     name: string,
     data: Data,
-    options: { divisor?: number; normalize?: boolean; usage?: BufferUsage } = {},
+    options: {
+      divisor?: number;
+      normalize?: boolean;
+      usage?: BufferUsage;
+    } = {},
   ) {
     this.layout = new VertexLayout({ name, data, ...options });
-    this.buffer = new BufferGPU(BufferKind.ArrayBuffer, options.usage ?? BufferUsage.StaticDraw, data.bytes);
+    this.buffer = new BufferGPU(
+      BufferKind.ArrayBuffer,
+      options.usage ?? BufferUsage.StaticDraw,
+      data.bytes,
+    );
   }
 
   get vertexCount(): number {
@@ -250,12 +340,16 @@ export class VertexBuffer {
   }
 
   setVertex(vertexIndex: number, value: ArrayBufferView | number[]): void {
-    this.buffer.setBytes(vertexIndex * this.layout.stride, this.coerceToBytes(value));
+    this.buffer.setBytes(
+      vertexIndex * this.layout.stride,
+      this.coerceToBytes(value),
+    );
   }
 
   private coerceToBytes(value: ArrayBufferView | number[]): ArrayBufferView {
     if (Array.isArray(value)) {
-      const TypedArray = TYPED_ARRAY_FOR_COMPONENT_TYPE[this.layout.componentType];
+      const TypedArray =
+        TYPED_ARRAY_FOR_COMPONENT_TYPE[this.layout.componentType];
       return new TypedArray(value);
     }
 
@@ -268,9 +362,14 @@ export class InterleavedVertexBuffer {
   readonly buffer: BufferGPU;
   readonly layouts: VertexLayout[];
 
-  constructor(attributes: VertexAttribute[], usage: BufferUsage = BufferUsage.StaticDraw) {
+  constructor(
+    attributes: VertexAttribute[],
+    usage: BufferUsage = BufferUsage.StaticDraw,
+  ) {
     if (attributes.length === 0) {
-      throw new Error("InterleavedVertexBuffer requires at least one attribute");
+      throw new Error(
+        "InterleavedVertexBuffer requires at least one attribute",
+      );
     }
 
     this.layouts = VertexLayout.fromAttributes(attributes);
@@ -291,7 +390,10 @@ export class InterleavedVertexBuffer {
     return this.layouts[0].stride;
   }
 
-  private static interleave(dataArray: Data[], layoutArray: VertexLayout[]): Uint8Array {
+  private static interleave(
+    dataArray: Data[],
+    layoutArray: VertexLayout[],
+  ): Uint8Array {
     const vertexCount = dataArray[0].count;
     const stride = layoutArray[0].stride;
 
@@ -322,7 +424,11 @@ export class InterleavedVertexBuffer {
    * Returns `true` if the update was successful, `false` if the attribute
    * name was not found in the layout.
    */
-  updateVertex(name: string, vertexIndex: number, value: ArrayBufferView): boolean {
+  updateVertex(
+    name: string,
+    vertexIndex: number,
+    value: ArrayBufferView,
+  ): boolean {
     const byteOffset = this.getVertexByteOffset(name, vertexIndex);
 
     if (byteOffset === null) {
@@ -334,7 +440,10 @@ export class InterleavedVertexBuffer {
   }
 
   /** Calculates the byte offset inside the buffer for a specific vertex attribute. */
-  getVertexByteOffset(attributeName: string, vertexIndex: number): number | null {
+  getVertexByteOffset(
+    attributeName: string,
+    vertexIndex: number,
+  ): number | null {
     for (const layout of this.layouts) {
       if (layout.name !== attributeName) {
         continue;

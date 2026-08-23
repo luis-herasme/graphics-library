@@ -26,6 +26,10 @@ export class IndexBuffer {
     }
 
     this.count = values.length;
-    this.buffer = new BufferGPU(BufferKind.ElementArrayBuffer, usage, toBytes(values));
+    this.buffer = new BufferGPU(
+      BufferKind.ElementArrayBuffer,
+      usage,
+      toBytes(values),
+    );
   }
 }

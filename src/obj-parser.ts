@@ -64,7 +64,9 @@ function parseFace(face: string): number[] {
   const parts = face.split("/");
 
   if (parts.length !== 3) {
-    throw new OBJParseError(`Expected a "position/uv/normal" face, got "${face}"`);
+    throw new OBJParseError(
+      `Expected a "position/uv/normal" face, got "${face}"`,
+    );
   }
 
   return parts.map((part) => {

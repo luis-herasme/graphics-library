@@ -10,13 +10,21 @@ export class UniformBufferObject {
 
   constructor(renderer: Renderer, bufferCPU: Uint8Array) {
     this.gl = renderer.gl;
-    this.buffer = new BufferGPU(BufferKind.UniformBuffer, BufferUsage.DynamicDraw, bufferCPU.slice());
+    this.buffer = new BufferGPU(
+      BufferKind.UniformBuffer,
+      BufferUsage.DynamicDraw,
+      bufferCPU.slice(),
+    );
     this.buffer.onBeforeRender(this.gl);
   }
 
   setBindingPoint(bindingPoint: number): void {
     this.bindingPoint = bindingPoint;
-    this.gl.bindBufferBase(UNIFORM_BUFFER, bindingPoint, this.buffer.getBufferGPU(this.gl));
+    this.gl.bindBufferBase(
+      UNIFORM_BUFFER,
+      bindingPoint,
+      this.buffer.getBufferGPU(this.gl),
+    );
   }
 
   setBytes(byteOffset: number, data: ArrayBufferView): void {

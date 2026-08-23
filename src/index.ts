@@ -1,5 +1,11 @@
 export { Animation } from "./animation";
-export type { Channel, Interpolation, NodeProperty, Sampler, SamplerValues } from "./animation";
+export type {
+  Channel,
+  Interpolation,
+  NodeProperty,
+  Sampler,
+  SamplerValues,
+} from "./animation";
 export { BufferGPU, BufferKind, BufferUsage } from "./buffer-gpu";
 export { PerspectiveCamera } from "./camera";
 export { Geometry } from "./geometry";
@@ -24,7 +30,13 @@ export type { ImagePixelData, TextureData } from "./texture";
 export { Transform2D, Transform3D } from "./transform";
 export { UniformBufferObject } from "./uniform-buffer-object";
 export type { Uniform } from "./uniforms";
-export { fetchBytes, fetchImage, fetchText, requestAnimationFrameLoop, toBytes } from "./utils";
+export {
+  fetchBytes,
+  fetchImage,
+  fetchText,
+  requestAnimationFrameLoop,
+  toBytes,
+} from "./utils";
 export {
   Data,
   InterleavedVertexBuffer,

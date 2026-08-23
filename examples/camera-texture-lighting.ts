@@ -53,7 +53,10 @@ const mesh = new Mesh(geometry, material);
 mesh.transform.translation.z = -5;
 
 const texture = await Texture.fromImageUrl("/bob.png");
-mesh.material.setUniform("texture_sampler", { kind: "texture", value: texture });
+mesh.material.setUniform("texture_sampler", {
+  kind: "texture",
+  value: texture,
+});
 
 const scene = [mesh];
 const camera = PerspectiveCamera.default();
