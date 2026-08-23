@@ -1,5 +1,4 @@
 import {
-  BufferUsage,
   Data,
   Geometry,
   Gltf,
@@ -54,7 +53,7 @@ const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
 
 const geometry = new Geometry({
   vertexCount: positions.length / 3,
-  indices: IndexBuffer.fromU32(BufferUsage.StaticDraw, indices),
+  indices: new IndexBuffer(indices),
   vertexBuffers: [
     new VertexBuffer("position", Data.vector3(positions)),
     new VertexBuffer("normal", Data.vector3(normals)),
