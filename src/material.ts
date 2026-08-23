@@ -2,9 +2,6 @@ import { Uniform } from "./uniforms";
 import { TYPED_ARRAY_FOR_COMPONENT_TYPE } from "./attribute-data";
 import { VertexLayout } from "./vertex-layout";
 
-const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
-const TEXTURE0 = WebGL2RenderingContext.TEXTURE0;
-
 export type MaterialDescriptor = {
   vertexShaderSource: string;
   fragmentShaderSource: string;
@@ -48,8 +45,8 @@ export class Material {
     let currentTextureUnit = 0;
     for (const [name, uniform] of this.uniforms) {
       if (uniform.kind === "texture") {
-        gl.activeTexture(TEXTURE0 + currentTextureUnit);
-        gl.bindTexture(TEXTURE_2D, uniform.value.getWebglTexture(gl));
+        gl.activeTexture(gl.TEXTURE0 + currentTextureUnit);
+        gl.bindTexture(gl.TEXTURE_2D, uniform.value.getWebglTexture(gl));
       }
 
       resources.setUniform(name, uniform, currentTextureUnit);

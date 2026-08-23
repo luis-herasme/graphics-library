@@ -1,9 +1,5 @@
 import { fetchImage } from "./utils";
 
-const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
-const TEXTURE_MIN_FILTER = WebGL2RenderingContext.TEXTURE_MIN_FILTER;
-const TEXTURE_MAG_FILTER = WebGL2RenderingContext.TEXTURE_MAG_FILTER;
-
 export enum MinificationFilter {
   Nearest = WebGL2RenderingContext.NEAREST,
   Linear = WebGL2RenderingContext.LINEAR,
@@ -85,11 +81,11 @@ export class Texture {
       throw new Error("Failed to create WebGL texture");
     }
 
-    gl.bindTexture(TEXTURE_2D, webglTexture);
+    gl.bindTexture(gl.TEXTURE_2D, webglTexture);
 
     if (this.textureData instanceof HTMLImageElement) {
       gl.texImage2D(
-        TEXTURE_2D,
+        gl.TEXTURE_2D,
         0,
         this.internalFormat,
         this.format,
@@ -99,7 +95,7 @@ export class Texture {
     } else {
       const { width, height, bytes } = this.textureData;
       gl.texImage2D(
-        TEXTURE_2D,
+        gl.TEXTURE_2D,
         0,
         this.internalFormat,
         width,
@@ -111,8 +107,16 @@ export class Texture {
       );
     }
 
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MIN_FILTER, this.minificationFilter);
-    gl.texParameteri(TEXTURE_2D, TEXTURE_MAG_FILTER, this.magnificationFilter);
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MIN_FILTER,
+      this.minificationFilter,
+    );
+    gl.texParameteri(
+      gl.TEXTURE_2D,
+      gl.TEXTURE_MAG_FILTER,
+      this.magnificationFilter,
+    );
 
     return webglTexture;
   }
