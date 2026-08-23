@@ -2,7 +2,7 @@ import {
   AttributeData,
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
 } from "./attribute-data";
-import { BufferGPU, BufferKind, BufferUsage } from "./buffer-gpu";
+import { BufferKind, BufferUsage, GpuBuffer } from "./gpu-buffer";
 import { VertexAttribute, VertexLayout } from "./vertex-layout";
 
 export type VertexBufferDescriptor = {
@@ -22,16 +22,16 @@ export type VertexBufferDescriptor = {
  */
 export class VertexBuffer {
   readonly layout: VertexLayout;
-  readonly buffer: BufferGPU;
+  readonly buffer: GpuBuffer;
 
   constructor(descriptor: VertexBufferDescriptor) {
     const { usage = BufferUsage.StaticDraw } = descriptor;
 
     this.layout = new VertexLayout(descriptor);
-    this.buffer = new BufferGPU({
+    this.buffer = new GpuBuffer({
       kind: BufferKind.ArrayBuffer,
       usage,
-      bufferCPU: descriptor.data.bytes,
+      bytes: descriptor.data.bytes,
     });
   }
 
@@ -64,7 +64,7 @@ export type InterleavedVertexBufferDescriptor = {
 
 /** A single GPU buffer holding several vertex attributes interleaved per vertex. */
 export class InterleavedVertexBuffer {
-  readonly buffer: BufferGPU;
+  readonly buffer: GpuBuffer;
   readonly layouts: VertexLayout[];
 
   constructor(descriptor: InterleavedVertexBufferDescriptor) {
@@ -83,10 +83,10 @@ export class InterleavedVertexBuffer {
       this.layouts,
     );
 
-    this.buffer = new BufferGPU({
+    this.buffer = new GpuBuffer({
       kind: BufferKind.ArrayBuffer,
       usage,
-      bufferCPU: bytes,
+      bytes,
     });
   }
 
