@@ -113,3 +113,13 @@ export class AttributeData {
     );
   }
 }
+
+/** One vertex attribute: the name the shader sees, its raw data, and optional settings. */
+export type VertexAttribute = {
+  name: string;
+  data: AttributeData;
+  /** How many instances share one value (0 = a value per vertex). */
+  divisor?: number;
+  /** Whether integer data is scaled to the [0, 1] range in the shader. */
+  normalize?: boolean;
+};

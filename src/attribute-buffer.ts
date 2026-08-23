@@ -1,30 +1,24 @@
 import {
   AttributeData,
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
+  VertexAttribute,
 } from "./attribute-data";
 import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
-import { AttributeLayout, VertexAttribute } from "./attribute-layout";
+import { AttributeLayout } from "./attribute-layout";
 
-export type VertexBufferDescriptor = {
-  /** The attribute name the shader sees. */
-  name: string;
-  data: AttributeData;
-  /** How many instances share one value (0 = a value per vertex). */
-  divisor?: number;
-  /** Whether integer data is scaled to the [0, 1] range in the shader. */
-  normalize?: boolean;
+export type AttributeBufferDescriptor = VertexAttribute & {
   usage?: BufferUsage;
 };
 
 /**
- * A buffer of vertex data stored on the CPU and the GPU, with metadata about
- * how the data should be uploaded to and interpreted by the GPU.
+ * A buffer holding one vertex attribute on the CPU and the GPU, with metadata
+ * about how the data should be uploaded to and interpreted by the GPU.
  */
-export class VertexBuffer {
+export class AttributeBuffer {
   readonly layout: AttributeLayout;
   readonly buffer: GpuBuffer;
 
-  constructor(descriptor: VertexBufferDescriptor) {
+  constructor(descriptor: AttributeBufferDescriptor) {
     const { usage = BufferUsage.StaticDraw } = descriptor;
 
     this.layout = new AttributeLayout(descriptor);
