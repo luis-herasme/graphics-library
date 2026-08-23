@@ -78,7 +78,7 @@ export class Animation {
   currentTime = 0;
   animationDuration = 1;
 
-  private nodes: (Node | null)[] = [];
+  private readonly nodes = new Map<number, Node>();
   private samplers: Sampler[] = [];
   private channels: Channel[] = [];
 
@@ -91,27 +91,25 @@ export class Animation {
     }
 
     const { nodes = [] } = gltf.json;
-    const numberOfNodes = nodes.length;
 
     const animation = new Animation();
-    animation.nodes = new Array<Node | null>(numberOfNodes).fill(null);
 
     for (const jointIndex of skin.joints) {
       const { children: childrenIndexList = [] } = nodes[jointIndex];
 
-      animation.nodes[jointIndex] = {
+      animation.nodes.set(jointIndex, {
         parentIndex: null, // Populated below
         childrenIndexList: [...childrenIndexList],
         localTransform: nodeLocalTransform(gltf, jointIndex),
         globalTransform: new Transform3D(),
-      };
+      });
     }
 
-    for (const jointIndex of skin.joints) {
-      for (const childIndex of animation.nodes[jointIndex]!.childrenIndexList) {
-        const child = animation.nodes[childIndex];
+    for (const [jointIndex, node] of animation.nodes) {
+      for (const childIndex of node.childrenIndexList) {
+        const child = animation.nodes.get(childIndex);
 
-        if (child !== null) {
+        if (child !== undefined) {
           child.parentIndex = jointIndex;
         }
       }
@@ -128,9 +126,9 @@ export class Animation {
 
   private updateLocalTransforms(): void {
     for (const channel of this.channels) {
-      const node = this.nodes[channel.targetNodeIndex];
+      const node = this.nodes.get(channel.targetNodeIndex);
 
-      if (node === null) {
+      if (node === undefined) {
         continue;
       }
 
@@ -181,23 +179,12 @@ export class Animation {
    * with its parent's global transform.
    */
   updateGlobalTransform(): void {
-    const nodesToUpdate = this.collectRootChildren();
-
-    while (nodesToUpdate.length > 0) {
-      const [nodeIndex, parentIndex] = nodesToUpdate.shift()!;
-
-      const parentNode = this.nodes[parentIndex]!;
-      const node = this.nodes[nodeIndex]!;
-
+    for (const [node, parentNode] of this.nodesFromRoots()) {
       node.globalTransform = Transform3D.fromMatrix4(
         parentNode.globalTransform
           .toMatrix4()
           .multiply(node.localTransform.toMatrix4()),
       );
-
-      for (const childIndex of node.childrenIndexList) {
-        nodesToUpdate.push([childIndex, nodeIndex]);
-      }
     }
   }
 
@@ -206,39 +193,43 @@ export class Animation {
    * rendering the skeleton as line segments.
    */
   getLines(): Vector3[] {
-    const nodesToUpdate = this.collectRootChildren();
     const lines: Vector3[] = [];
 
-    while (nodesToUpdate.length > 0) {
-      const [nodeIndex, parentIndex] = nodesToUpdate.shift()!;
-
-      const parentNode = this.nodes[parentIndex]!;
-      const node = this.nodes[nodeIndex]!;
-
+    for (const [node, parentNode] of this.nodesFromRoots()) {
       if (parentNode.parentIndex !== null) {
         lines.push(parentNode.globalTransform.translation.clone());
         lines.push(node.globalTransform.translation.clone());
-      }
-
-      for (const childIndex of node.childrenIndexList) {
-        nodesToUpdate.push([childIndex, nodeIndex]);
       }
     }
 
     return lines;
   }
 
-  /** Returns `[childIndex, parentIndex]` pairs for the children of every root node. */
-  private collectRootChildren(): [number, number][] {
-    const pairs: [number, number][] = [];
+  /**
+   * Returns every node below a root paired with its parent, each node coming
+   * after its parent.
+   */
+  private nodesFromRoots(): [Node, Node][] {
+    const pending: [number, Node][] = [];
 
-    for (let nodeIndex = 0; nodeIndex < this.nodes.length; nodeIndex++) {
-      const node = this.nodes[nodeIndex];
-
-      if (node !== null && node.parentIndex === null) {
+    for (const node of this.nodes.values()) {
+      if (node.parentIndex === null) {
         for (const childIndex of node.childrenIndexList) {
-          pairs.push([childIndex, nodeIndex]);
+          pending.push([childIndex, node]);
         }
+      }
+    }
+
+    const pairs: [Node, Node][] = [];
+
+    while (pending.length > 0) {
+      const [nodeIndex, parentNode] = pending.shift()!;
+      const node = this.nodes.get(nodeIndex)!;
+
+      pairs.push([node, parentNode]);
+
+      for (const childIndex of node.childrenIndexList) {
+        pending.push([childIndex, node]);
       }
     }
 
