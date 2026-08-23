@@ -3,7 +3,7 @@ import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "./obj-parser";
 import { Transform2D } from "./transform";
 import { AttributeData, VertexComponentType } from "./attribute-data";
-import { VertexAttribute } from "./vertex-layout";
+import { VertexAttribute } from "./attribute-layout";
 import { InterleavedVertexBuffer, VertexBuffer } from "./vertex-buffer";
 
 // prettier-ignore

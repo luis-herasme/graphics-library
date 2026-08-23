@@ -15,7 +15,7 @@ export type VertexAttribute = {
 };
 
 /** Describes how the bytes of a buffer map to a single vertex attribute. */
-export class VertexLayout {
+export class AttributeLayout {
   name: string;
   componentCount: number;
   componentType: VertexComponentType;
@@ -39,8 +39,8 @@ export class VertexLayout {
   }
 
   /** Computes interleaved layouts for a set of attributes stored in a single buffer. */
-  static fromAttributes(attributes: VertexAttribute[]): VertexLayout[] {
-    const vertexLayouts: VertexLayout[] = [];
+  static fromAttributes(attributes: VertexAttribute[]): AttributeLayout[] {
+    const attributeLayouts: AttributeLayout[] = [];
 
     let maxAlignment = 0;
     let currentOffset = 0;
@@ -51,25 +51,25 @@ export class VertexLayout {
           .BYTES_PER_ELEMENT;
 
       maxAlignment = Math.max(maxAlignment, alignment);
-      currentOffset = VertexLayout.alignTo(currentOffset, alignment);
+      currentOffset = AttributeLayout.alignTo(currentOffset, alignment);
 
-      const layout = new VertexLayout(attribute);
+      const layout = new AttributeLayout(attribute);
       layout.offset = currentOffset;
 
       currentOffset += attribute.data.sizeInBytes;
-      vertexLayouts.push(layout);
+      attributeLayouts.push(layout);
     }
 
     // The stride must be aligned to a value that is valid for all attributes.
     // Since possible alignment values for attributes are powers of two,
     // aligning to the maximum alignment ensures it is a multiple of all smaller alignments.
-    const stride = VertexLayout.alignTo(currentOffset, maxAlignment);
+    const stride = AttributeLayout.alignTo(currentOffset, maxAlignment);
 
-    for (const vertexLayout of vertexLayouts) {
-      vertexLayout.stride = stride;
+    for (const attributeLayout of attributeLayouts) {
+      attributeLayout.stride = stride;
     }
 
-    return vertexLayouts;
+    return attributeLayouts;
   }
 
   /** Aligns a value to the specified alignment boundary. */
