@@ -89,12 +89,17 @@ export class Renderer {
         gl.drawElementsInstanced(
           mesh.renderPrimitive,
           indices.count,
-          indices.kind,
+          indices.elementType,
           0,
           mesh.geometry.instanceCount,
         );
       } else {
-        gl.drawElements(mesh.renderPrimitive, indices.count, indices.kind, 0);
+        gl.drawElements(
+          mesh.renderPrimitive,
+          indices.count,
+          indices.elementType,
+          0,
+        );
       }
     } else if (mesh.geometry.instanceCount !== null) {
       gl.drawArraysInstanced(
