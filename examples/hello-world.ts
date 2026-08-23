@@ -24,7 +24,7 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 const geometry = Geometry.quad();
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 
 function frame() {
   renderer.clear();

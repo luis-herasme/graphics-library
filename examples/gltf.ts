@@ -65,7 +65,7 @@ const geometry = new Geometry({
   ],
 });
 
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 
 const transform = new Transform3D();
 transform.scale.multiplyScalar(0.25);

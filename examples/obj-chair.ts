@@ -53,7 +53,7 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 const geometry = Geometry.fromOBJ(obj);
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 
 const texture = await Texture.fromImageUrl("/chair.png");
 mesh.material.setUniform("chair_texture", { kind: "texture", value: texture });

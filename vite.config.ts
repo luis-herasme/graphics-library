@@ -11,6 +11,7 @@ export default defineConfig({
         "hello-world": resolve(root, "examples/hello-world.html"),
         textures: resolve(root, "examples/textures.html"),
         instanced: resolve(root, "examples/instanced.html"),
+        interleaved: resolve(root, "examples/interleaved.html"),
         "camera-texture-lighting": resolve(
           root,
           "examples/camera-texture-lighting.html",

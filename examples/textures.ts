@@ -31,7 +31,7 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 const geometry = Geometry.quad();
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 
 const texture = await Texture.fromImageUrl("/bob.png");
 mesh.material.setUniform("t1", { kind: "texture", value: texture });

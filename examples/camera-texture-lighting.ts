@@ -51,7 +51,7 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 const geometry = Geometry.box();
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 mesh.transform.translation.z = -5;
 
 const texture = await Texture.fromImageUrl("/bob.png");

@@ -28,7 +28,7 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 const geometry = Geometry.quadInstanced(size * size);
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 
 const transforms: Transform2D[] = [];
 

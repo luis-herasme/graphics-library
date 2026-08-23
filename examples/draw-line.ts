@@ -72,7 +72,7 @@ const geometry = new Geometry({
   ],
 });
 
-const mesh = new Mesh({ geometry: geometry, material: material });
+const mesh = new Mesh({ geometry, material });
 mesh.transform.scale.multiplyScalar(0.075);
 mesh.transform.translation.z = -20;
 mesh.transform.translation.y = -3.5;
