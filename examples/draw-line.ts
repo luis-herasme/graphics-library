@@ -1,6 +1,5 @@
 import {
   Animation,
-  BufferUsage,
   Data,
   Geometry,
   Gltf,
@@ -64,7 +63,7 @@ for (let i = 0; i < vertexCount; i += 3) {
 
 const geometry = new Geometry({
   vertexCount,
-  indices: IndexBuffer.fromU32(BufferUsage.StaticDraw, indices),
+  indices: new IndexBuffer(indices),
   vertexBuffers: [new VertexBuffer("position", Data.vector3(positions))],
 });
 

@@ -203,7 +203,7 @@ export class Geometry {
 
     return new Geometry({
       vertexCount: 24,
-      indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, indices),
+      indices: new IndexBuffer(indices),
       vertexBuffers: [
         new VertexBuffer("position", Data.vector3(positions)),
         new VertexBuffer("normal", Data.vector3(normals)),
@@ -223,7 +223,7 @@ export class Geometry {
   static quad(): Geometry {
     return new Geometry({
       vertexCount: 4,
-      indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
+      indices: new IndexBuffer(QUAD_INDICES),
       vertexBuffers: Geometry.quadAttributes().map(
         (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
       ),
@@ -233,7 +233,7 @@ export class Geometry {
   static quadInterleaved(): Geometry {
     return new Geometry({
       vertexCount: 4,
-      indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
+      indices: new IndexBuffer(QUAD_INDICES),
       interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
     });
   }
@@ -248,7 +248,7 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
-      indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
+      indices: new IndexBuffer(QUAD_INDICES),
       vertexBuffers: [
         ...Geometry.quadAttributes().map(
           (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
@@ -271,7 +271,7 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
-      indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
+      indices: new IndexBuffer(QUAD_INDICES),
       vertexBuffers: [new VertexBuffer("transform", Data.matrix3(transforms), { divisor: 1 })],
       interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
     });
