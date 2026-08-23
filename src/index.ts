@@ -41,8 +41,8 @@ export type {
   AttributeDataInput,
   AttributeDataDescriptor,
 } from "./attribute-data";
-export { VertexLayout } from "./vertex-layout";
-export type { VertexAttribute } from "./vertex-layout";
+export { AttributeLayout } from "./attribute-layout";
+export type { VertexAttribute } from "./attribute-layout";
 export { InterleavedVertexBuffer, VertexBuffer } from "./vertex-buffer";
 export type {
   InterleavedVertexBufferDescriptor,

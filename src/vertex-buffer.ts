@@ -3,7 +3,7 @@ import {
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
 } from "./attribute-data";
 import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
-import { VertexAttribute, VertexLayout } from "./vertex-layout";
+import { AttributeLayout, VertexAttribute } from "./attribute-layout";
 
 export type VertexBufferDescriptor = {
   /** The attribute name the shader sees. */
@@ -21,13 +21,13 @@ export type VertexBufferDescriptor = {
  * how the data should be uploaded to and interpreted by the GPU.
  */
 export class VertexBuffer {
-  readonly layout: VertexLayout;
+  readonly layout: AttributeLayout;
   readonly buffer: GpuBuffer;
 
   constructor(descriptor: VertexBufferDescriptor) {
     const { usage = BufferUsage.StaticDraw } = descriptor;
 
-    this.layout = new VertexLayout(descriptor);
+    this.layout = new AttributeLayout(descriptor);
     this.buffer = new GpuBuffer({
       target: BufferTarget.ArrayBuffer,
       usage,
@@ -65,7 +65,7 @@ export type InterleavedVertexBufferDescriptor = {
 /** A single GPU buffer holding several vertex attributes interleaved per vertex. */
 export class InterleavedVertexBuffer {
   readonly buffer: GpuBuffer;
-  readonly layouts: VertexLayout[];
+  readonly layouts: AttributeLayout[];
 
   constructor(descriptor: InterleavedVertexBufferDescriptor) {
     const { attributes, usage = BufferUsage.StaticDraw } = descriptor;
@@ -76,7 +76,7 @@ export class InterleavedVertexBuffer {
       );
     }
 
-    this.layouts = VertexLayout.fromAttributes(attributes);
+    this.layouts = AttributeLayout.fromAttributes(attributes);
 
     const bytes = InterleavedVertexBuffer.interleave(
       attributes.map((attribute) => attribute.data),
@@ -100,7 +100,7 @@ export class InterleavedVertexBuffer {
 
   private static interleave(
     dataArray: AttributeData[],
-    layoutArray: VertexLayout[],
+    layoutArray: AttributeLayout[],
   ): Uint8Array {
     const vertexCount = dataArray[0].count;
     const stride = layoutArray[0].stride;

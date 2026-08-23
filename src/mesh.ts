@@ -78,8 +78,8 @@ export class Mesh {
       .interleavedVertexBuffers) {
       interleavedVertexBuffer.buffer.bind(gl);
 
-      for (const vertexLayout of interleavedVertexBuffer.layouts) {
-        shaderProgram.setAttributeBuffer(vertexLayout);
+      for (const attributeLayout of interleavedVertexBuffer.layouts) {
+        shaderProgram.setAttributeBuffer(attributeLayout);
       }
     }
 
