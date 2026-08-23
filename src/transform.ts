@@ -31,11 +31,6 @@ export class Transform3D {
       this.translation,
     );
   }
-
-  /** Returns the transform as a column-major array of 16 elements. */
-  toArray(): Float32Array {
-    return this.toMatrix4().toArray();
-  }
 }
 
 export class Transform2D {
@@ -57,10 +52,5 @@ export class Transform2D {
       this.rotation,
       this.translation,
     );
-  }
-
-  /** Returns the transform as a column-major array of 9 elements. */
-  toArray(): Float32Array {
-    return this.toMatrix3().toArray();
   }
 }

@@ -201,9 +201,4 @@ export class Matrix4 {
       translation: new Vector3(m[12], m[13], m[14]),
     };
   }
-
-  /** Returns the matrix as a column-major array of 16 elements. */
-  toArray(): Float32Array {
-    return new Float32Array(this.elements);
-  }
 }
