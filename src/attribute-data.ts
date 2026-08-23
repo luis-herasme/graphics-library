@@ -47,43 +47,33 @@ export const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
   [VertexComponentType.Float]: Float32Array,
 };
 
-/**
- * Accepted input for vertex data: a flat list of numbers (or typed array),
- * nested arrays (one entry per vertex, e.g. `[[x, y, z], ...]`), or objects
- * with a `toArray()` method (e.g. Vector2, Vector3, Matrix3, Transform2D).
- */
+type TypedArray =
+  | Int8Array
+  | Uint8Array
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array;
+
+/** Flat values, or one array per vertex (e.g. `[[x, y, z], ...]`). */
 export type AttributeDataInput =
-  ArrayLike<number> | readonly DataInputElement[];
+  number[] | number[][] | TypedArray | TypedArray[];
 
-type DataInputElement =
-  | number
-  | ArrayLike<number>
-  | readonly DataInputElement[]
-  | { toArray(): ArrayLike<number> };
+function flatten(input: AttributeDataInput): number[] {
+  const output: number[] = [];
 
-function flattenInto(
-  output: number[],
-  value: AttributeDataInput | DataInputElement,
-): void {
-  if (typeof value === "number") {
-    output.push(value);
-    return;
+  for (const element of input) {
+    if (typeof element === "number") {
+      output.push(element);
+    } else {
+      for (const value of element) {
+        output.push(value);
+      }
+    }
   }
 
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "toArray" in value &&
-    typeof value.toArray === "function"
-  ) {
-    flattenInto(output, value.toArray());
-    return;
-  }
-
-  const arrayLike = value as ArrayLike<DataInputElement>;
-  for (let i = 0; i < arrayLike.length; i++) {
-    flattenInto(output, arrayLike[i]);
-  }
+  return output;
 }
 
 export type AttributeDataDescriptor = {
@@ -114,8 +104,7 @@ export class AttributeData {
       numberOfColumns = 1,
     } = descriptor;
 
-    const flattened: number[] = [];
-    flattenInto(flattened, descriptor.data);
+    const flattened = flatten(descriptor.data);
 
     if (flattened.length % componentCount !== 0) {
       throw new Error(

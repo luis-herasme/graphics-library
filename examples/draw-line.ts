@@ -89,7 +89,10 @@ const lines = animation.getLines();
 const skeletonGeometry = Geometry.fromVertexBuffer(
   new VertexBuffer({
     name: "position",
-    data: new AttributeData({ data: lines, componentCount: 3 }),
+    data: new AttributeData({
+      data: lines.map((line) => line.toArray()),
+      componentCount: 3,
+    }),
   }),
 );
 const skeletonMaterial = new Material({
