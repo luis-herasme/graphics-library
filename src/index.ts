@@ -14,7 +14,7 @@ export { GLTF, GLTFParseError } from "./gltf";
 export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./gltf";
 export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 export type { GpuBufferDescriptor } from "./gpu-buffer";
-export { IndexBuffer } from "./index-buffer";
+export { IndexBuffer, IndexElementType } from "./index-buffer";
 export type { IndexBufferDescriptor } from "./index-buffer";
 export { Material, ShaderProgram } from "./material";
 export type { MaterialDescriptor, ShaderProgramDescriptor } from "./material";
