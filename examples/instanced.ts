@@ -45,11 +45,13 @@ for (let x = 0; x < size; x++) {
 function frame() {
   renderer.clear();
 
-  const transformBuffer = mesh.geometry.getAttributeBuffer("transform")!;
-
   transforms.forEach((transform, vertexIndex) => {
     transform.rotation += vertexIndex * 0.001;
-    transformBuffer.setVertex(vertexIndex, transform.toMatrix3().elements);
+    mesh.geometry.setVertex(
+      "transform",
+      vertexIndex,
+      transform.toMatrix3().elements,
+    );
   });
 
   renderer.render(mesh);

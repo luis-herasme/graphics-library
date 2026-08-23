@@ -3,11 +3,10 @@ import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "../loaders/obj";
 import { Transform2D } from "../scene/transform";
 import {
-  AttributeData,
-  VertexAttribute,
+  VertexAttributeDescriptor,
+  VertexBuffer,
   VertexComponentType,
-} from "./attribute-data";
-import { AttributeBuffer, InterleavedVertexBuffer } from "./attribute-buffer";
+} from "./vertex-buffer";
 
 // prettier-ignore
 const QUAD_POSITIONS = [
@@ -39,63 +38,60 @@ const QUAD_INDICES = [
   2, 3, 0, // Triangle #2
 ];
 
+const QUAD_ATTRIBUTES: VertexAttributeDescriptor[] = [
+  { name: "position", values: QUAD_POSITIONS, componentCount: 2 },
+  {
+    name: "color",
+    values: QUAD_COLORS,
+    componentCount: 3,
+    componentType: VertexComponentType.UnsignedByte,
+    normalize: true,
+  },
+  { name: "uv", values: QUAD_UVS, componentCount: 2 },
+];
+
 export type GeometryDescriptor = {
   vertexCount: number;
   instanceCount?: number | null;
   indices?: IndexBuffer | null;
-  attributeBuffers?: AttributeBuffer[];
-  interleavedVertexBuffers?: InterleavedVertexBuffer[];
+  vertexBuffers?: VertexBuffer[];
 };
 
 export class Geometry {
   vertexCount: number;
   instanceCount: number | null;
   indices: IndexBuffer | null;
-  attributeBuffers: AttributeBuffer[];
-  interleavedVertexBuffers: InterleavedVertexBuffer[];
+  vertexBuffers: VertexBuffer[];
 
   constructor(descriptor: GeometryDescriptor) {
     const {
       instanceCount = null,
       indices = null,
-      attributeBuffers = [],
-      interleavedVertexBuffers = [],
+      vertexBuffers = [],
     } = descriptor;
 
     this.vertexCount = descriptor.vertexCount;
     this.instanceCount = instanceCount;
     this.indices = indices;
-    this.attributeBuffers = attributeBuffers;
-    this.interleavedVertexBuffers = interleavedVertexBuffers;
+    this.vertexBuffers = vertexBuffers;
   }
 
-  getAttributeBuffer(name: string): AttributeBuffer | null {
-    for (const attributeBuffer of this.attributeBuffers) {
-      if (attributeBuffer.layout.name === name) {
-        return attributeBuffer;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Returns the [InterleavedVertexBuffer] that contains the specified vertex
-   * attribute, if it exists.
-   *
-   * Note: a single InterleavedVertexBuffer can store multiple attributes when
-   * interleaved. Mutating it directly may unintentionally affect other attributes.
-   */
-  getInterleavedVertexBuffer(name: string): InterleavedVertexBuffer | null {
-    for (const interleavedVertexBuffer of this.interleavedVertexBuffers) {
-      for (const layout of interleavedVertexBuffer.layouts) {
-        if (layout.name === name) {
-          return interleavedVertexBuffer;
+  /** Overwrites one vertex of one attribute. The change reaches the GPU before the next draw. */
+  setVertex(
+    attributeName: string,
+    vertexIndex: number,
+    values: ArrayBufferView | number[],
+  ): void {
+    for (const vertexBuffer of this.vertexBuffers) {
+      for (const attribute of vertexBuffer.attributes) {
+        if (attribute.name === attributeName) {
+          vertexBuffer.setVertex(attribute, vertexIndex, values);
+          return;
         }
       }
     }
 
-    return null;
+    throw new Error(`This geometry has no attribute named "${attributeName}"`);
   }
 
   static fromOBJ(obj: OBJ): Geometry {
@@ -113,26 +109,17 @@ export class Geometry {
       uvs.push(obj.uvs[uvIndex]);
     }
 
-    const interleavedVertexBuffer = new InterleavedVertexBuffer({
+    const vertexBuffer = new VertexBuffer({
       attributes: [
-        {
-          name: "position",
-          data: new AttributeData({ data: positions, componentCount: 3 }),
-        },
-        {
-          name: "normal",
-          data: new AttributeData({ data: normals, componentCount: 3 }),
-        },
-        {
-          name: "uv",
-          data: new AttributeData({ data: uvs, componentCount: 2 }),
-        },
+        { name: "position", values: positions, componentCount: 3 },
+        { name: "normal", values: normals, componentCount: 3 },
+        { name: "uv", values: uvs, componentCount: 2 },
       ],
     });
 
     return new Geometry({
-      vertexCount: interleavedVertexBuffer.vertexCount,
-      interleavedVertexBuffers: [interleavedVertexBuffer],
+      vertexCount: vertexBuffer.vertexCount,
+      vertexBuffers: [vertexBuffer],
     });
   }
 
@@ -216,51 +203,28 @@ export class Geometry {
     return new Geometry({
       vertexCount: 24,
       indices: new IndexBuffer({ data: indices }),
-      attributeBuffers: [
-        new AttributeBuffer({
-          name: "position",
-          data: new AttributeData({ data: positions, componentCount: 3 }),
+      vertexBuffers: [
+        new VertexBuffer({
+          attributes: [
+            { name: "position", values: positions, componentCount: 3 },
+          ],
         }),
-        new AttributeBuffer({
-          name: "normal",
-          data: new AttributeData({ data: normals, componentCount: 3 }),
+        new VertexBuffer({
+          attributes: [{ name: "normal", values: normals, componentCount: 3 }],
         }),
-        new AttributeBuffer({
-          name: "uv",
-          data: new AttributeData({ data: uvs, componentCount: 2 }),
+        new VertexBuffer({
+          attributes: [{ name: "uv", values: uvs, componentCount: 2 }],
         }),
       ],
     });
-  }
-
-  private static quadAttributes(): VertexAttribute[] {
-    return [
-      {
-        name: "position",
-        data: new AttributeData({ data: QUAD_POSITIONS, componentCount: 2 }),
-      },
-      {
-        name: "color",
-        data: new AttributeData({
-          data: QUAD_COLORS,
-          componentCount: 3,
-          componentType: VertexComponentType.UnsignedByte,
-        }),
-        normalize: true,
-      },
-      {
-        name: "uv",
-        data: new AttributeData({ data: QUAD_UVS, componentCount: 2 }),
-      },
-    ];
   }
 
   static quad(): Geometry {
     return new Geometry({
       vertexCount: 4,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
-      attributeBuffers: Geometry.quadAttributes().map(
-        (attribute) => new AttributeBuffer(attribute),
+      vertexBuffers: QUAD_ATTRIBUTES.map(
+        (attribute) => new VertexBuffer({ attributes: [attribute] }),
       ),
     });
   }
@@ -269,35 +233,21 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
-      interleavedVertexBuffers: [
-        new InterleavedVertexBuffer({ attributes: Geometry.quadAttributes() }),
-      ],
+      vertexBuffers: [new VertexBuffer({ attributes: QUAD_ATTRIBUTES })],
     });
   }
 
   static quadInstanced(count: number): Geometry {
-    const transforms: Float32Array[] = [];
-
-    for (let i = 0; i < count; i++) {
-      transforms.push(new Transform2D().toMatrix3().elements);
-    }
-
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
-      attributeBuffers: [
-        ...Geometry.quadAttributes().map(
-          (attribute) => new AttributeBuffer(attribute),
+      vertexBuffers: [
+        ...QUAD_ATTRIBUTES.map(
+          (attribute) => new VertexBuffer({ attributes: [attribute] }),
         ),
-        new AttributeBuffer({
-          name: "transform",
-          data: new AttributeData({
-            data: transforms,
-            componentCount: 9,
-            numberOfColumns: 3,
-          }),
-          divisor: 1,
+        new VertexBuffer({
+          attributes: [instanceTransforms(count)],
           usage: BufferUsage.DynamicDraw,
         }),
       ],
@@ -305,30 +255,31 @@ export class Geometry {
   }
 
   static quadInstancedAndInterleaved(count: number): Geometry {
-    const transforms: Float32Array[] = [];
-
-    for (let i = 0; i < count; i++) {
-      transforms.push(new Transform2D().toMatrix3().elements);
-    }
-
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
-      attributeBuffers: [
-        new AttributeBuffer({
-          name: "transform",
-          data: new AttributeData({
-            data: transforms,
-            componentCount: 9,
-            numberOfColumns: 3,
-          }),
-          divisor: 1,
-        }),
-      ],
-      interleavedVertexBuffers: [
-        new InterleavedVertexBuffer({ attributes: Geometry.quadAttributes() }),
+      vertexBuffers: [
+        new VertexBuffer({ attributes: QUAD_ATTRIBUTES }),
+        new VertexBuffer({ attributes: [instanceTransforms(count)] }),
       ],
     });
   }
+}
+
+/** One identity `mat3` per instance, spread over three attribute locations by the shader. */
+function instanceTransforms(count: number): VertexAttributeDescriptor {
+  const values: Float32Array[] = [];
+
+  for (let index = 0; index < count; index++) {
+    values.push(new Transform2D().toMatrix3().elements);
+  }
+
+  return {
+    name: "transform",
+    values,
+    componentCount: 9,
+    numberOfColumns: 3,
+    divisor: 1,
+  };
 }

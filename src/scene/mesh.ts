@@ -37,13 +37,8 @@ export class Mesh {
    * index data.
    */
   prepare(gl: WebGL2RenderingContext): void {
-    for (const attributeBuffer of this.geometry.attributeBuffers) {
-      attributeBuffer.buffer.upload(gl);
-    }
-
-    for (const interleavedVertexBuffer of this.geometry
-      .interleavedVertexBuffers) {
-      interleavedVertexBuffer.buffer.upload(gl);
+    for (const vertexBuffer of this.geometry.vertexBuffers) {
+      vertexBuffer.buffer.upload(gl);
     }
 
     this.material.getShaderProgram(gl);
@@ -74,17 +69,11 @@ export class Mesh {
 
     gl.bindVertexArray(webglVertexArrayObject);
 
-    for (const attributeBuffer of this.geometry.attributeBuffers) {
-      attributeBuffer.buffer.bind(gl);
-      shaderProgram.setAttributeBuffer(attributeBuffer.layout);
-    }
+    for (const vertexBuffer of this.geometry.vertexBuffers) {
+      vertexBuffer.buffer.bind(gl);
 
-    for (const interleavedVertexBuffer of this.geometry
-      .interleavedVertexBuffers) {
-      interleavedVertexBuffer.buffer.bind(gl);
-
-      for (const attributeLayout of interleavedVertexBuffer.layouts) {
-        shaderProgram.setAttributeBuffer(attributeLayout);
+      for (const attribute of vertexBuffer.attributes) {
+        shaderProgram.setVertexAttribute(attribute, vertexBuffer.stride);
       }
     }
 
