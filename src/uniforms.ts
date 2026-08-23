@@ -10,13 +10,13 @@ export type Uniform =
   | { kind: "vector3"; value: number[] | Float32Array }
   | { kind: "vector4"; value: number[] | Float32Array }
   | { kind: "int"; value: number }
-  | { kind: "intVector2"; value: number[] | Int32Array }
-  | { kind: "intVector3"; value: number[] | Int32Array }
-  | { kind: "intVector4"; value: number[] | Int32Array }
-  | { kind: "unsignedInt"; value: number }
-  | { kind: "unsignedIntVector2"; value: number[] | Uint32Array }
-  | { kind: "unsignedIntVector3"; value: number[] | Uint32Array }
-  | { kind: "unsignedIntVector4"; value: number[] | Uint32Array }
+  | { kind: "int-vector2"; value: number[] | Int32Array }
+  | { kind: "int-vector3"; value: number[] | Int32Array }
+  | { kind: "int-vector4"; value: number[] | Int32Array }
+  | { kind: "unsigned-int"; value: number }
+  | { kind: "unsigned-int-vector2"; value: number[] | Uint32Array }
+  | { kind: "unsigned-int-vector3"; value: number[] | Uint32Array }
+  | { kind: "unsigned-int-vector4"; value: number[] | Uint32Array }
   | { kind: "matrix2"; value: number[] | Float32Array }
   | { kind: "matrix3"; value: number[] | Float32Array }
   | { kind: "matrix4"; value: number[] | Float32Array }
