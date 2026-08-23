@@ -68,6 +68,7 @@ export class Renderer {
     const gl = this.gl;
 
     mesh.prepare(gl);
+    mesh.material.applyUniforms(gl);
 
     gl.bindVertexArray(mesh.getOrCreateVao(gl));
 

@@ -61,7 +61,7 @@ const colors2 = new Float32Array([
 ]);
 const uniformBufferObject2 = new UniformBufferObject(renderer, toBytes(colors2));
 
-mesh.material.getOrCreateResources(renderer.gl).setUniformBlock("Colors", bindingPoint);
+mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);
 
 requestAnimationFrameLoop(() => {
   renderer.clear();

@@ -22,7 +22,11 @@ export class Material {
     this.uniforms.set(uniformName, uniform);
   }
 
-  getOrCreateResources(gl: WebGL2RenderingContext): MaterialResources {
+  /**
+   * Compiles and links the shader program if that has not happened yet.
+   * Runs the expensive work once; safe to call on every draw.
+   */
+  prepare(gl: WebGL2RenderingContext): MaterialResources {
     if (this.resources === null) {
       this.resources = new MaterialResources(gl, this);
     }
@@ -30,8 +34,9 @@ export class Material {
     return this.resources;
   }
 
-  onBeforeRender(gl: WebGL2RenderingContext): void {
-    const resources = this.getOrCreateResources(gl);
+  /** Activates the shader program and uploads every uniform value. Runs on every draw. */
+  applyUniforms(gl: WebGL2RenderingContext): void {
+    const resources = this.prepare(gl);
 
     gl.useProgram(resources.program);
 

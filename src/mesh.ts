@@ -40,7 +40,7 @@ export class Mesh {
       interleavedVertexBuffer.buffer.onBeforeRender(gl);
     }
 
-    this.material.onBeforeRender(gl);
+    this.material.prepare(gl);
 
     this.geometry.indices?.buffer.onBeforeRender(gl);
   }
@@ -60,7 +60,7 @@ export class Mesh {
       throw new Error("Failed to create WebGL vertex array object");
     }
 
-    const resources = this.material.getOrCreateResources(gl);
+    const resources = this.material.prepare(gl);
 
     gl.bindVertexArray(vao);
 
