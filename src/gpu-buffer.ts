@@ -35,13 +35,13 @@ export class GpuBuffer {
 
   getWebglBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
     if (this.webglBuffer === null) {
-      this.createWebglBuffer(gl);
+      this.webglBuffer = this.createWebglBuffer(gl);
     }
 
-    return this.webglBuffer!;
+    return this.webglBuffer;
   }
 
-  private createWebglBuffer(gl: WebGL2RenderingContext): void {
+  private createWebglBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
     const webglBuffer = gl.createBuffer();
 
     if (webglBuffer === null) {
@@ -50,7 +50,7 @@ export class GpuBuffer {
 
     gl.bindBuffer(this.target, webglBuffer);
     gl.bufferData(this.target, this.bytes, this.usage);
-    this.webglBuffer = webglBuffer;
+    return webglBuffer;
   }
 
   /** Overwrites part of the CPU buffer. The GPU buffer is updated on the next render. */
@@ -64,25 +64,19 @@ export class GpuBuffer {
 
   /** Creates the GPU buffer on the first call, then re-uploads only when the bytes changed. */
   upload(gl: WebGL2RenderingContext): void {
-    if (this.webglBuffer === null) {
-      this.createWebglBuffer(gl);
-    }
+    const webglBuffer = this.getWebglBuffer(gl);
 
     if (!this.needsUpdate) {
       return;
     }
 
-    this.updateWebglBuffer(gl);
+    gl.bindBuffer(this.target, webglBuffer);
+    gl.bufferSubData(this.target, 0, this.bytes);
     this.needsUpdate = false;
   }
 
-  private updateWebglBuffer(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.target, this.webglBuffer);
-    gl.bufferSubData(this.target, 0, this.bytes);
-  }
-
   bind(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.target, this.webglBuffer);
+    gl.bindBuffer(this.target, this.getWebglBuffer(gl));
   }
 
   get size(): number {
