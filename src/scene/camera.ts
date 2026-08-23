@@ -1,4 +1,4 @@
-import { Matrix4 } from "./math";
+import { Matrix4 } from "../math";
 import { Transform3D } from "./transform";
 
 export type PerspectiveCameraDescriptor = {

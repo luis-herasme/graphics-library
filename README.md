@@ -2,7 +2,7 @@
 
 A small WebGL2 graphics library written in TypeScript — a port of [suricato.rs](https://github.com/luis-herasme/suricato.rs) from Rust/WASM.
 
-It has no runtime dependencies: the `glam` math types are replaced by a small math module (`src/math/`), and the `gltf` crate by a minimal GLB reader (`src/gltf.ts`).
+It has no runtime dependencies: the `glam` math types are replaced by a small math module (`src/math/`), and the `gltf` crate by a minimal GLB reader (`src/loaders/gltf.ts`).
 
 ## Features
 

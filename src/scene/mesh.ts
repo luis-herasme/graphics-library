@@ -1,4 +1,4 @@
-import { Geometry } from "./geometry";
+import { Geometry } from "../geometry/geometry";
 import { Material } from "./material";
 import { Transform3D } from "./transform";
 
