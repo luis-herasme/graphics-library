@@ -1,5 +1,11 @@
 import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 
+export enum IndexElementType {
+  UnsignedByte = WebGL2RenderingContext.UNSIGNED_BYTE,
+  UnsignedShort = WebGL2RenderingContext.UNSIGNED_SHORT,
+  UnsignedInt = WebGL2RenderingContext.UNSIGNED_INT,
+}
+
 export type IndexBufferDescriptor = {
   data: Uint8Array | Uint16Array | Uint32Array | number[];
   usage?: BufferUsage;
@@ -7,7 +13,7 @@ export type IndexBufferDescriptor = {
 
 export class IndexBuffer {
   /** Derived from the typed array holding the indices. */
-  readonly elementType: number;
+  readonly elementType: IndexElementType;
   readonly count: number;
   readonly buffer: GpuBuffer;
 
@@ -20,11 +26,11 @@ export class IndexBuffer {
     }
 
     if (values instanceof Uint8Array) {
-      this.elementType = WebGL2RenderingContext.UNSIGNED_BYTE;
+      this.elementType = IndexElementType.UnsignedByte;
     } else if (values instanceof Uint16Array) {
-      this.elementType = WebGL2RenderingContext.UNSIGNED_SHORT;
+      this.elementType = IndexElementType.UnsignedShort;
     } else {
-      this.elementType = WebGL2RenderingContext.UNSIGNED_INT;
+      this.elementType = IndexElementType.UnsignedInt;
     }
 
     this.count = values.length;
