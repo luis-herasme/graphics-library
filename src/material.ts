@@ -1,5 +1,5 @@
 import { Uniform } from "./uniforms";
-import { componentTypeSizeInBytes } from "./attribute-data";
+import { TYPED_ARRAY_FOR_COMPONENT_TYPE } from "./attribute-data";
 import { VertexLayout } from "./vertex-layout";
 
 const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
@@ -269,7 +269,9 @@ export class MaterialResources {
     // attribute location.
     const componentsPerColumn =
       vertexLayout.componentCount / vertexLayout.numberOfColumns;
-    const componentSize = componentTypeSizeInBytes(vertexLayout.componentType);
+    const componentSize =
+      TYPED_ARRAY_FOR_COMPONENT_TYPE[vertexLayout.componentType]
+        .BYTES_PER_ELEMENT;
 
     for (let i = 0; i < vertexLayout.numberOfColumns; i++) {
       const columnLocation = location + i;

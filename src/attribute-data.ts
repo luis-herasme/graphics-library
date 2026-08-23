@@ -30,12 +30,6 @@ export const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
   [VertexComponentType.Float]: Float32Array,
 };
 
-export function componentTypeSizeInBytes(
-  componentType: VertexComponentType,
-): number {
-  return TYPED_ARRAY_FOR_COMPONENT_TYPE[componentType].BYTES_PER_ELEMENT;
-}
-
 type TypedArray =
   | Int8Array
   | Uint8Array
@@ -113,6 +107,9 @@ export class AttributeData {
 
   /** The size of one vertex worth of data, in bytes. */
   get sizeInBytes(): number {
-    return this.componentCount * componentTypeSizeInBytes(this.componentType);
+    return (
+      this.componentCount *
+      TYPED_ARRAY_FOR_COMPONENT_TYPE[this.componentType].BYTES_PER_ELEMENT
+    );
   }
 }
