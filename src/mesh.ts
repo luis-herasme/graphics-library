@@ -37,8 +37,8 @@ export class Mesh {
    * index data.
    */
   prepare(gl: WebGL2RenderingContext): void {
-    for (const vertexBuffer of this.geometry.vertexBuffers) {
-      vertexBuffer.buffer.upload(gl);
+    for (const attributeBuffer of this.geometry.attributeBuffers) {
+      attributeBuffer.buffer.upload(gl);
     }
 
     for (const interleavedVertexBuffer of this.geometry
@@ -74,9 +74,9 @@ export class Mesh {
 
     gl.bindVertexArray(webglVertexArrayObject);
 
-    for (const vertexBuffer of this.geometry.vertexBuffers) {
-      vertexBuffer.buffer.bind(gl);
-      shaderProgram.setAttributeBuffer(vertexBuffer.layout);
+    for (const attributeBuffer of this.geometry.attributeBuffers) {
+      attributeBuffer.buffer.bind(gl);
+      shaderProgram.setAttributeBuffer(attributeBuffer.layout);
     }
 
     for (const interleavedVertexBuffer of this.geometry

@@ -45,7 +45,7 @@ for (let x = 0; x < size; x++) {
 function frame() {
   renderer.clear();
 
-  const transformBuffer = mesh.geometry.getVertexBuffer("transform")!;
+  const transformBuffer = mesh.geometry.getAttributeBuffer("transform")!;
 
   transforms.forEach((transform, vertexIndex) => {
     transform.rotation += vertexIndex * 0.001;

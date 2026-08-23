@@ -36,15 +36,15 @@ export { Transform2D, Transform3D } from "./transform";
 export { UniformBufferObject } from "./uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./uniform-buffer-object";
 export type { Uniform } from "./uniforms";
+export { AttributeBuffer, InterleavedVertexBuffer } from "./attribute-buffer";
+export type {
+  AttributeBufferDescriptor,
+  InterleavedVertexBufferDescriptor,
+} from "./attribute-buffer";
 export { AttributeData, VertexComponentType } from "./attribute-data";
 export type {
-  AttributeDataInput,
   AttributeDataDescriptor,
+  AttributeDataInput,
+  VertexAttribute,
 } from "./attribute-data";
 export { AttributeLayout } from "./attribute-layout";
-export type { VertexAttribute } from "./attribute-layout";
-export { InterleavedVertexBuffer, VertexBuffer } from "./vertex-buffer";
-export type {
-  InterleavedVertexBufferDescriptor,
-  VertexBufferDescriptor,
-} from "./vertex-buffer";
