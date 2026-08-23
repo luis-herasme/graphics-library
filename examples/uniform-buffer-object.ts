@@ -79,18 +79,18 @@ requestAnimationFrameLoop(() => {
     kind: "vector2",
     value: [-0.25, -0.25],
   });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 0 });
   renderer.render(mesh);
 
   mesh.material.setUniform("translation", { kind: "vector2", value: [0, 0] });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 1 });
   renderer.render(mesh);
 
   mesh.material.setUniform("translation", {
     kind: "vector2",
     value: [0.25, 0.25],
   });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 2 });
   renderer.render(mesh);
 
   uniformBufferObject2.setBindingPoint(bindingPoint);
@@ -98,17 +98,17 @@ requestAnimationFrameLoop(() => {
     kind: "vector2",
     value: [-0.25, 0.75],
   });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 0 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 0 });
   renderer.render(mesh);
 
   mesh.material.setUniform("translation", { kind: "vector2", value: [0, 1] });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 1 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 1 });
   renderer.render(mesh);
 
   mesh.material.setUniform("translation", {
     kind: "vector2",
     value: [0.25, 1.25],
   });
-  mesh.material.setUniform("color_index", { kind: "unsignedInt", value: 2 });
+  mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 2 });
   renderer.render(mesh);
 });

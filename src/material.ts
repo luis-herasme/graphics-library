@@ -174,26 +174,26 @@ export class MaterialResources {
       case "int":
         gl.uniform1i(location, uniform.value);
         break;
-      case "intVector2":
+      case "int-vector2":
         gl.uniform2iv(location, uniform.value);
         break;
-      case "intVector3":
+      case "int-vector3":
         gl.uniform3iv(location, uniform.value);
         break;
-      case "intVector4":
+      case "int-vector4":
         gl.uniform4iv(location, uniform.value);
         break;
 
-      case "unsignedInt":
+      case "unsigned-int":
         gl.uniform1ui(location, uniform.value);
         break;
-      case "unsignedIntVector2":
+      case "unsigned-int-vector2":
         gl.uniform2uiv(location, uniform.value);
         break;
-      case "unsignedIntVector3":
+      case "unsigned-int-vector3":
         gl.uniform3uiv(location, uniform.value);
         break;
-      case "unsignedIntVector4":
+      case "unsigned-int-vector4":
         gl.uniform4uiv(location, uniform.value);
         break;
 
