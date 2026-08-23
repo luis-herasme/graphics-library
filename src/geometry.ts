@@ -1,6 +1,6 @@
 import { BufferUsage } from "./gpu-buffer";
 import { IndexBuffer } from "./index-buffer";
-import { OBJ } from "./obj-parser";
+import { OBJ } from "./obj";
 import { Transform2D } from "./transform";
 import { AttributeData, VertexComponentType } from "./attribute-data";
 import { VertexAttribute } from "./attribute-layout";
@@ -95,7 +95,7 @@ export class Geometry {
     return null;
   }
 
-  static fromObj(obj: OBJ): Geometry {
+  static fromOBJ(obj: OBJ): Geometry {
     const positions: number[][] = [];
     const normals: number[][] = [];
     const uvs: number[][] = [];

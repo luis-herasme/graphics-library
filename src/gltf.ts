@@ -29,7 +29,7 @@ const TYPE_TO_COMPONENT_COUNT: Record<string, number> = {
   MAT4: 16,
 };
 
-export type GltfNode = {
+export type GLTFNode = {
   name?: string;
   children?: number[];
   translation?: number[];
@@ -40,13 +40,13 @@ export type GltfNode = {
   skin?: number;
 };
 
-export type GltfPrimitive = {
+export type GLTFPrimitive = {
   attributes: Record<string, number>;
   indices?: number;
   mode?: number;
 };
 
-export type GltfJson = {
+export type GLTFJson = {
   accessors?: {
     bufferView?: number;
     byteOffset?: number;
@@ -60,43 +60,43 @@ export type GltfJson = {
     byteLength: number;
     byteStride?: number;
   }[];
-  meshes?: { name?: string; primitives: GltfPrimitive[] }[];
-  nodes?: GltfNode[];
+  meshes?: { name?: string; primitives: GLTFPrimitive[] }[];
+  nodes?: GLTFNode[];
   skins?: { joints: number[]; skeleton?: number }[];
   [key: string]: unknown;
 };
 
-export class GltfParseError extends Error {}
+export class GLTFParseError extends Error {}
 
-type GltfDescriptor = {
-  json: GltfJson;
+type GLTFDescriptor = {
+  json: GLTFJson;
   bin: Uint8Array | null;
 };
 
 /** A minimal reader for binary glTF (.glb) files with an embedded binary chunk. */
-export class Gltf {
-  readonly json: GltfJson;
+export class GLTF {
+  readonly json: GLTFJson;
   readonly bin: Uint8Array | null;
 
-  private constructor(descriptor: GltfDescriptor) {
+  private constructor(descriptor: GLTFDescriptor) {
     this.json = descriptor.json;
     this.bin = descriptor.bin;
   }
 
-  static fromBytes(bytes: Uint8Array): Gltf {
+  static fromBytes(bytes: Uint8Array): GLTF {
     const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
     if (bytes.byteLength < 12 || view.getUint32(0, true) !== GLB_MAGIC) {
-      throw new GltfParseError("Not a binary glTF file (bad magic)");
+      throw new GLTFParseError("Not a binary glTF file (bad magic)");
     }
 
     const version = view.getUint32(4, true);
 
     if (version !== 2) {
-      throw new GltfParseError(`Unsupported glTF version: ${version}`);
+      throw new GLTFParseError(`Unsupported glTF version: ${version}`);
     }
 
-    let json: GltfJson | null = null;
+    let json: GLTFJson | null = null;
     let bin: Uint8Array | null = null;
 
     let offset = 12;
@@ -106,7 +106,7 @@ export class Gltf {
       const chunkData = bytes.subarray(offset + 8, offset + 8 + chunkLength);
 
       if (chunkType === GLB_CHUNK_JSON) {
-        json = JSON.parse(new TextDecoder().decode(chunkData)) as GltfJson;
+        json = JSON.parse(new TextDecoder().decode(chunkData)) as GLTFJson;
       } else if (chunkType === GLB_CHUNK_BIN) {
         bin = chunkData;
       }
@@ -115,10 +115,10 @@ export class Gltf {
     }
 
     if (json === null) {
-      throw new GltfParseError("Binary glTF file has no JSON chunk");
+      throw new GLTFParseError("Binary glTF file has no JSON chunk");
     }
 
-    return new Gltf({ json, bin });
+    return new GLTF({ json, bin });
   }
 
   /** Reads an accessor's data as a flat typed array of `count * componentCount` values. */
@@ -126,13 +126,13 @@ export class Gltf {
     const accessor = this.json.accessors?.[accessorIndex];
 
     if (accessor === undefined) {
-      throw new GltfParseError(`Accessor ${accessorIndex} does not exist`);
+      throw new GLTFParseError(`Accessor ${accessorIndex} does not exist`);
     }
 
     const TypedArray = COMPONENT_TYPE_TO_ARRAY[accessor.componentType];
 
     if (TypedArray === undefined) {
-      throw new GltfParseError(
+      throw new GLTFParseError(
         `Unsupported accessor component type: ${accessor.componentType}`,
       );
     }
@@ -140,7 +140,7 @@ export class Gltf {
     const componentCount = TYPE_TO_COMPONENT_COUNT[accessor.type];
 
     if (componentCount === undefined) {
-      throw new GltfParseError(`Unsupported accessor type: ${accessor.type}`);
+      throw new GLTFParseError(`Unsupported accessor type: ${accessor.type}`);
     }
 
     if (accessor.bufferView === undefined) {
@@ -151,13 +151,13 @@ export class Gltf {
     const bufferView = this.json.bufferViews?.[accessor.bufferView];
 
     if (bufferView === undefined) {
-      throw new GltfParseError(
+      throw new GLTFParseError(
         `Buffer view ${accessor.bufferView} does not exist`,
       );
     }
 
     if (this.bin === null) {
-      throw new GltfParseError("Binary glTF file has no BIN chunk");
+      throw new GLTFParseError("Binary glTF file has no BIN chunk");
     }
 
     const binBuffer = this.bin.buffer as ArrayBuffer;
@@ -199,11 +199,11 @@ export class Gltf {
     return new TypedArray(outputBytes.buffer);
   }
 
-  getPrimitive(meshIndex = 0, primitiveIndex = 0): GltfPrimitive {
+  getPrimitive(meshIndex = 0, primitiveIndex = 0): GLTFPrimitive {
     const primitive = this.json.meshes?.[meshIndex]?.primitives[primitiveIndex];
 
     if (primitive === undefined) {
-      throw new GltfParseError(
+      throw new GLTFParseError(
         `Mesh ${meshIndex} primitive ${primitiveIndex} does not exist`,
       );
     }
@@ -221,7 +221,7 @@ export class Gltf {
     const accessorIndex = primitive.attributes[attribute];
 
     if (accessorIndex === undefined) {
-      throw new GltfParseError(`Primitive has no "${attribute}" attribute`);
+      throw new GLTFParseError(`Primitive has no "${attribute}" attribute`);
     }
 
     return this.readAccessor(accessorIndex);
@@ -247,7 +247,7 @@ export class Gltf {
     const primitive = this.getPrimitive(meshIndex, primitiveIndex);
 
     if (primitive.indices === undefined) {
-      throw new GltfParseError("Primitive has no indices");
+      throw new GLTFParseError("Primitive has no indices");
     }
 
     const indices = this.readAccessor(primitive.indices);

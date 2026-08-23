@@ -1,4 +1,4 @@
-import { Gltf } from "./gltf";
+import { GLTF } from "./gltf";
 import { Matrix4, Quaternion, Vector3 } from "./math";
 import { Transform3D } from "./transform";
 
@@ -43,7 +43,7 @@ function samplerTimeIndex(sampler: Sampler, time: number): number | null {
   return index;
 }
 
-function nodeLocalTransform(gltf: Gltf, nodeIndex: number): Transform3D {
+function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   const node = gltf.json.nodes?.[nodeIndex];
 
   if (node === undefined) {
@@ -83,7 +83,7 @@ export class Animation {
   private channels: Channel[] = [];
 
   /** Builds the joint hierarchy from the first skin of a glTF file. */
-  static fromGltf(gltf: Gltf): Animation {
+  static fromGLTF(gltf: GLTF): Animation {
     const skin = gltf.json.skins?.[0];
 
     if (skin === undefined) {

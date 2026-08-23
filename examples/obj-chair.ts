@@ -52,7 +52,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.fromObj(obj);
+const geometry = Geometry.fromOBJ(obj);
 const mesh = new Mesh({ geometry: geometry, material: material });
 
 const texture = await Texture.fromImageUrl("/chair.png");
