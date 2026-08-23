@@ -81,9 +81,9 @@ export class Renderer {
       indices.buffer.bind(gl);
 
       if (mesh.geometry.instanceCount !== null) {
-        gl.drawElementsInstanced(mesh.renderPrimitive, indices.count, indices.kind, indices.offset, mesh.geometry.instanceCount);
+        gl.drawElementsInstanced(mesh.renderPrimitive, indices.count, indices.kind, 0, mesh.geometry.instanceCount);
       } else {
-        gl.drawElements(mesh.renderPrimitive, indices.count, indices.kind, indices.offset);
+        gl.drawElements(mesh.renderPrimitive, indices.count, indices.kind, 0);
       }
     } else if (mesh.geometry.instanceCount !== null) {
       gl.drawArraysInstanced(mesh.renderPrimitive, 0, mesh.geometry.vertexCount, mesh.geometry.instanceCount);

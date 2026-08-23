@@ -5,7 +5,6 @@ export class IndexBuffer {
   /** The WebGL element type, derived from the typed array holding the indices. */
   readonly kind: number;
   readonly count: number;
-  readonly offset = 0;
   readonly buffer: BufferGPU;
 
   constructor(
