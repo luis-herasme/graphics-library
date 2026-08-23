@@ -3,7 +3,7 @@ import {
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
   VertexAttribute,
 } from "./attribute-data";
-import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 import { AttributeLayout } from "./attribute-layout";
 
 export type AttributeBufferDescriptor = VertexAttribute & {

@@ -1,4 +1,4 @@
-import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 import { Renderer } from "./renderer";
 
 export type UniformBufferObjectDescriptor = {

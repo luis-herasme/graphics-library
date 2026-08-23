@@ -1,28 +1,25 @@
-export { Animation } from "./animation";
+export {
+  AttributeBuffer,
+  InterleavedVertexBuffer,
+} from "./geometry/attribute-buffer";
 export type {
-  Channel,
-  Interpolation,
-  NodeProperty,
-  Sampler,
-  SamplerValues,
-} from "./animation";
-export { PerspectiveCamera } from "./camera";
-export type { PerspectiveCameraDescriptor } from "./camera";
-export { Geometry } from "./geometry";
-export type { GeometryDescriptor } from "./geometry";
-export { GLTF, GLTFParseError } from "./gltf";
-export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./gltf";
-export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
-export type { GpuBufferDescriptor } from "./gpu-buffer";
-export { IndexBuffer, IndexElementType } from "./index-buffer";
-export type { IndexBufferDescriptor } from "./index-buffer";
-export { Material, ShaderProgram } from "./material";
-export type { MaterialDescriptor, ShaderProgramDescriptor } from "./material";
-export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
-export { Mesh, RenderPrimitive } from "./mesh";
-export type { MeshDescriptor } from "./mesh";
-export { OBJ, OBJParseError } from "./obj";
-export { Renderer } from "./renderer";
+  AttributeBufferDescriptor,
+  InterleavedVertexBufferDescriptor,
+} from "./geometry/attribute-buffer";
+export { AttributeData, VertexComponentType } from "./geometry/attribute-data";
+export type {
+  AttributeDataDescriptor,
+  AttributeDataInput,
+  VertexAttribute,
+} from "./geometry/attribute-data";
+export { AttributeLayout } from "./geometry/attribute-layout";
+export { Geometry } from "./geometry/geometry";
+export type { GeometryDescriptor } from "./geometry/geometry";
+export { IndexBuffer, IndexElementType } from "./geometry/index-buffer";
+export type { IndexBufferDescriptor } from "./geometry/index-buffer";
+
+export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu/gpu-buffer";
+export type { GpuBufferDescriptor } from "./gpu/gpu-buffer";
 export {
   MagnificationFilter,
   MinificationFilter,
@@ -30,21 +27,34 @@ export {
   TextureDataType,
   TextureFormat,
   Wrap,
-} from "./texture";
-export type { ImagePixelData, TextureData } from "./texture";
-export { Transform2D, Transform3D } from "./transform";
-export { UniformBufferObject } from "./uniform-buffer-object";
-export type { UniformBufferObjectDescriptor } from "./uniform-buffer-object";
-export type { Uniform } from "./uniforms";
-export { AttributeBuffer, InterleavedVertexBuffer } from "./attribute-buffer";
+} from "./gpu/texture";
+export type { ImagePixelData, TextureData } from "./gpu/texture";
+
+export { Animation } from "./loaders/animation";
 export type {
-  AttributeBufferDescriptor,
-  InterleavedVertexBufferDescriptor,
-} from "./attribute-buffer";
-export { AttributeData, VertexComponentType } from "./attribute-data";
+  Channel,
+  Interpolation,
+  NodeProperty,
+  Sampler,
+  SamplerValues,
+} from "./loaders/animation";
+export { GLTF, GLTFParseError } from "./loaders/gltf";
+export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./loaders/gltf";
+export { OBJ, OBJParseError } from "./loaders/obj";
+
+export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
+
+export { PerspectiveCamera } from "./scene/camera";
+export type { PerspectiveCameraDescriptor } from "./scene/camera";
+export { Material, ShaderProgram } from "./scene/material";
 export type {
-  AttributeDataDescriptor,
-  AttributeDataInput,
-  VertexAttribute,
-} from "./attribute-data";
-export { AttributeLayout } from "./attribute-layout";
+  MaterialDescriptor,
+  ShaderProgramDescriptor,
+} from "./scene/material";
+export { Mesh, RenderPrimitive } from "./scene/mesh";
+export type { MeshDescriptor } from "./scene/mesh";
+export { Renderer } from "./scene/renderer";
+export { Transform2D, Transform3D } from "./scene/transform";
+export { UniformBufferObject } from "./scene/uniform-buffer-object";
+export type { UniformBufferObjectDescriptor } from "./scene/uniform-buffer-object";
+export type { Uniform } from "./scene/uniforms";

@@ -1,6 +1,6 @@
 import { GLTF } from "./gltf";
-import { Matrix4, Quaternion, Vector3 } from "./math";
-import { Transform3D } from "./transform";
+import { Matrix4, Quaternion, Vector3 } from "../math";
+import { Transform3D } from "../scene/transform";
 
 type Node = {
   parentIndex: number | null;

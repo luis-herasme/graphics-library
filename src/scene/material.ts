@@ -1,6 +1,6 @@
 import { Uniform } from "./uniforms";
-import { TYPED_ARRAY_FOR_COMPONENT_TYPE } from "./attribute-data";
-import { AttributeLayout } from "./attribute-layout";
+import { TYPED_ARRAY_FOR_COMPONENT_TYPE } from "../geometry/attribute-data";
+import { AttributeLayout } from "../geometry/attribute-layout";
 
 export type MaterialDescriptor = {
   vertexShaderSource: string;

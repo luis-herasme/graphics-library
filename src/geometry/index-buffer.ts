@@ -1,4 +1,4 @@
-import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 
 export enum IndexElementType {
   UnsignedByte = WebGL2RenderingContext.UNSIGNED_BYTE,
