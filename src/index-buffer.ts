@@ -1,5 +1,4 @@
 import { BufferGPU, BufferKind, BufferUsage } from "./buffer-gpu";
-import { toBytes } from "./utils";
 
 export type IndexBufferDescriptor = {
   data: Uint8Array | Uint16Array | Uint32Array | number[];
@@ -32,7 +31,11 @@ export class IndexBuffer {
     this.buffer = new BufferGPU({
       kind: BufferKind.ElementArrayBuffer,
       usage,
-      bufferCPU: toBytes(values),
+      bufferCPU: new Uint8Array(
+        values.buffer,
+        values.byteOffset,
+        values.byteLength,
+      ),
     });
   }
 }

@@ -1,5 +1,3 @@
-import { toBytes } from "./utils";
-
 export enum VertexComponentType {
   Byte = WebGL2RenderingContext.BYTE,
   UnsignedByte = WebGL2RenderingContext.UNSIGNED_BYTE,
@@ -126,11 +124,12 @@ export class AttributeData {
     }
 
     const TypedArray = TYPED_ARRAY_FOR_COMPONENT_TYPE[componentType];
+    const values = new TypedArray(flattened);
 
     this.componentType = componentType;
     this.componentCount = componentCount;
     this.numberOfColumns = numberOfColumns;
-    this.bytes = toBytes(new TypedArray(flattened));
+    this.bytes = new Uint8Array(values.buffer);
     this.count = flattened.length / componentCount;
   }
 

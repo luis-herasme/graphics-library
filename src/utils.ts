@@ -1,8 +1,3 @@
-/** Returns a Uint8Array view over the underlying bytes of a typed array. */
-export function toBytes(data: ArrayBufferView): Uint8Array {
-  return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-}
-
 export async function fetchImage(url: string): Promise<HTMLImageElement> {
   const image = new Image();
   image.src = url;

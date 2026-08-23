@@ -5,7 +5,6 @@ import {
   Renderer,
   UniformBufferObject,
   requestAnimationFrameLoop,
-  toBytes,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -54,7 +53,7 @@ const colors = new Float32Array([
 ]);
 const uniformBufferObject = new UniformBufferObject({
   renderer,
-  bufferCPU: toBytes(colors),
+  bufferCPU: new Uint8Array(colors.buffer),
 });
 
 // UBO #2
@@ -66,7 +65,7 @@ const colors2 = new Float32Array([
 ]);
 const uniformBufferObject2 = new UniformBufferObject({
   renderer,
-  bufferCPU: toBytes(colors2),
+  bufferCPU: new Uint8Array(colors2.buffer),
 });
 
 mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);

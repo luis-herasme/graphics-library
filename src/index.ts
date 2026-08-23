@@ -44,7 +44,6 @@ export {
   fetchImage,
   fetchText,
   requestAnimationFrameLoop,
-  toBytes,
 } from "./utils";
 export {
   AttributeData,
