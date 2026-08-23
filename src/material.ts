@@ -47,13 +47,12 @@ export class Material {
       if (uniform.kind === "texture") {
         gl.activeTexture(gl.TEXTURE0 + currentTextureUnit);
         gl.bindTexture(gl.TEXTURE_2D, uniform.value.getWebglTexture(gl));
+        resources.setUniform(name, uniform, currentTextureUnit);
+        currentTextureUnit += 1;
+        continue;
       }
 
       resources.setUniform(name, uniform, currentTextureUnit);
-
-      if (uniform.kind === "texture") {
-        currentTextureUnit += 1;
-      }
     }
   }
 }

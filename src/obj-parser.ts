@@ -24,13 +24,13 @@ export class OBJ {
 
       switch (command) {
         case "v":
-          obj.positions.push(parseVector3(words));
+          obj.positions.push(parseFloats(words, 3));
           break;
         case "vn":
-          obj.normals.push(parseVector3(words));
+          obj.normals.push(parseFloats(words, 3));
           break;
         case "vt":
-          obj.uvs.push(parseVector2(words));
+          obj.uvs.push(parseUv(words));
           break;
         case "f":
           for (const faceString of words) {
@@ -96,11 +96,7 @@ function parseFloats(parts: string[], count: number): number[] {
   });
 }
 
-function parseVector3(parts: string[]): number[] {
-  return parseFloats(parts, 3);
-}
-
-function parseVector2(parts: string[]): number[] {
+function parseUv(parts: string[]): number[] {
   const [x, y] = parseFloats(parts, 2);
 
   // Flip the V coordinate: OBJ uses a bottom-left origin, WebGL textures use top-left
