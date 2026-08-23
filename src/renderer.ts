@@ -52,11 +52,14 @@ export class Renderer {
     this.clear();
     this.handleWindowResize(camera);
 
-    const projectionMatrix = Uniform.matrix4(camera.projectionMatrix);
-    const cameraInverseMatrix = Uniform.matrix4(camera.transform.toMatrix4().inverse());
+    const projectionMatrix: Uniform = { kind: "matrix4", value: camera.projectionMatrix.toArray() };
+    const cameraInverseMatrix: Uniform = {
+      kind: "matrix4",
+      value: camera.transform.toMatrix4().inverse().toArray(),
+    };
 
     for (const mesh of scene) {
-      mesh.material.setUniform("transform", Uniform.matrix4(mesh.transform));
+      mesh.material.setUniform("transform", { kind: "matrix4", value: mesh.transform.toArray() });
       mesh.material.setUniform("projection_matrix", projectionMatrix);
       mesh.material.setUniform("camera_inverse_matrix", cameraInverseMatrix);
 

@@ -23,7 +23,7 @@ export {
 export type { ImagePixelData, TextureData } from "./texture";
 export { Transform2D, Transform3D } from "./transform";
 export { UniformBufferObject } from "./uniform-buffer-object";
-export { Uniform } from "./uniforms";
+export type { Uniform } from "./uniforms";
 export { fetchBytes, fetchImage, fetchText, requestAnimationFrameLoop, toBytes } from "./utils";
 export {
   Data,
