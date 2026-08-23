@@ -9,39 +9,39 @@ export enum BufferUsage {
   DynamicDraw = WebGL2RenderingContext.DYNAMIC_DRAW,
 }
 
-export type BufferGPUDescriptor = {
+export type GpuBufferDescriptor = {
   kind: BufferKind;
   usage: BufferUsage;
-  bufferCPU: Uint8Array;
+  bytes: Uint8Array;
 };
 
 /**
  * A buffer of raw bytes mirrored on the CPU and the GPU. The GPU copy is
  * created lazily and re-uploaded before rendering whenever the CPU copy changed.
  */
-export class BufferGPU {
+export class GpuBuffer {
   readonly kind: BufferKind;
   readonly usage: BufferUsage;
 
-  private bufferCPU: Uint8Array;
-  private bufferGPU: WebGLBuffer | null = null;
+  private bytes: Uint8Array;
+  private webglBuffer: WebGLBuffer | null = null;
   private needsUpdate = false;
 
-  constructor(descriptor: BufferGPUDescriptor) {
+  constructor(descriptor: GpuBufferDescriptor) {
     this.kind = descriptor.kind;
     this.usage = descriptor.usage;
-    this.bufferCPU = descriptor.bufferCPU;
+    this.bytes = descriptor.bytes;
   }
 
-  getBufferGPU(gl: WebGL2RenderingContext): WebGLBuffer {
-    if (this.bufferGPU === null) {
-      this.createBufferGPU(gl);
+  getWebglBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
+    if (this.webglBuffer === null) {
+      this.createWebglBuffer(gl);
     }
 
-    return this.bufferGPU!;
+    return this.webglBuffer!;
   }
 
-  private createBufferGPU(gl: WebGL2RenderingContext): void {
+  private createWebglBuffer(gl: WebGL2RenderingContext): void {
     const webglBuffer = gl.createBuffer();
 
     if (webglBuffer === null) {
@@ -49,13 +49,13 @@ export class BufferGPU {
     }
 
     gl.bindBuffer(this.kind, webglBuffer);
-    gl.bufferData(this.kind, this.bufferCPU, this.usage);
-    this.bufferGPU = webglBuffer;
+    gl.bufferData(this.kind, this.bytes, this.usage);
+    this.webglBuffer = webglBuffer;
   }
 
   /** Overwrites part of the CPU buffer. The GPU buffer is updated on the next render. */
   setBytes(byteOffset: number, value: ArrayBufferView): void {
-    this.bufferCPU.set(
+    this.bytes.set(
       new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
       byteOffset,
     );
@@ -63,28 +63,28 @@ export class BufferGPU {
   }
 
   onBeforeRender(gl: WebGL2RenderingContext): void {
-    if (this.bufferGPU === null) {
-      this.createBufferGPU(gl);
+    if (this.webglBuffer === null) {
+      this.createWebglBuffer(gl);
     }
 
     if (!this.needsUpdate) {
       return;
     }
 
-    this.updateBufferGPU(gl);
+    this.updateWebglBuffer(gl);
     this.needsUpdate = false;
   }
 
-  private updateBufferGPU(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.kind, this.bufferGPU);
-    gl.bufferSubData(this.kind, 0, this.bufferCPU);
+  private updateWebglBuffer(gl: WebGL2RenderingContext): void {
+    gl.bindBuffer(this.kind, this.webglBuffer);
+    gl.bufferSubData(this.kind, 0, this.bytes);
   }
 
   bind(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.kind, this.bufferGPU);
+    gl.bindBuffer(this.kind, this.webglBuffer);
   }
 
   get size(): number {
-    return this.bufferCPU.byteLength;
+    return this.bytes.byteLength;
   }
 }

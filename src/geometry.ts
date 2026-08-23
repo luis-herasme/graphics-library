@@ -1,4 +1,4 @@
-import { BufferUsage } from "./buffer-gpu";
+import { BufferUsage } from "./gpu-buffer";
 import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "./obj-parser";
 import { Transform2D } from "./transform";
