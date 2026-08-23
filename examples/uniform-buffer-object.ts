@@ -4,7 +4,6 @@ import {
   Mesh,
   Renderer,
   UniformBufferObject,
-  requestAnimationFrameLoop,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -70,7 +69,7 @@ const uniformBufferObject2 = new UniformBufferObject({
 
 mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
 
   uniformBufferObject.setBindingPoint(bindingPoint);
@@ -110,4 +109,7 @@ requestAnimationFrameLoop(() => {
   });
   mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 2 });
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

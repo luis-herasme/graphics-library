@@ -1,10 +1,4 @@
-import {
-  Geometry,
-  Material,
-  Mesh,
-  Renderer,
-  requestAnimationFrameLoop,
-} from "../src/index";
+import { Geometry, Material, Mesh, Renderer } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec3 position;
@@ -32,7 +26,10 @@ const material = new Material({
 const geometry = Geometry.quad();
 const mesh = new Mesh({ geometry: geometry, material: material });
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

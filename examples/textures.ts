@@ -1,11 +1,4 @@
-import {
-  Geometry,
-  Material,
-  Mesh,
-  Renderer,
-  Texture,
-  requestAnimationFrameLoop,
-} from "../src/index";
+import { Geometry, Material, Mesh, Renderer, Texture } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec3 position;
@@ -43,7 +36,10 @@ const mesh = new Mesh({ geometry: geometry, material: material });
 const texture = await Texture.fromImageUrl("/bob.png");
 mesh.material.setUniform("t1", { kind: "texture", value: texture });
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

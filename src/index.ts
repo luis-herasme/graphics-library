@@ -39,12 +39,6 @@ export { Transform2D, Transform3D } from "./transform";
 export { UniformBufferObject } from "./uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./uniform-buffer-object";
 export type { Uniform } from "./uniforms";
-export {
-  fetchBytes,
-  fetchImage,
-  fetchText,
-  requestAnimationFrameLoop,
-} from "./utils";
 export { AttributeData, VertexComponentType } from "./attribute-data";
 export type {
   AttributeDataInput,

@@ -11,8 +11,6 @@ import {
   RenderPrimitive,
   Renderer,
   VertexBuffer,
-  fetchBytes,
-  requestAnimationFrameLoop,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -46,7 +44,8 @@ const material = new Material({
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
 
-const data = await fetchBytes("/fox.glb");
+const response = await fetch("/fox.glb");
+const data = new Uint8Array(await response.arrayBuffer());
 const gltf = Gltf.fromBytes(data);
 
 const positions = gltf.readPositions();
@@ -111,7 +110,7 @@ skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
 const scene = [mesh, skeletonMesh];
 const camera = new PerspectiveCamera();
 
-requestAnimationFrameLoop(() => {
+function frame() {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
   mesh.material.setUniform("color", {
     kind: "vector4",
@@ -125,4 +124,7 @@ requestAnimationFrameLoop(() => {
   });
 
   renderer.renderScene(scene, camera);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

@@ -1,11 +1,4 @@
-import {
-  Geometry,
-  Material,
-  Mesh,
-  Renderer,
-  Transform2D,
-  requestAnimationFrameLoop,
-} from "../src/index";
+import { Geometry, Material, Mesh, Renderer, Transform2D } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec2 position;
@@ -49,7 +42,7 @@ for (let x = 0; x < size; x++) {
   }
 }
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
 
   const transformBuffer = mesh.geometry.getVertexBuffer("transform")!;
@@ -60,4 +53,7 @@ requestAnimationFrameLoop(() => {
   });
 
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

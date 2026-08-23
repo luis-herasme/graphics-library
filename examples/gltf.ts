@@ -9,8 +9,6 @@ import {
   Renderer,
   Transform3D,
   VertexBuffer,
-  fetchBytes,
-  requestAnimationFrameLoop,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -41,7 +39,8 @@ void main() {
 }
 `;
 
-const data = await fetchBytes("/test.glb");
+const response = await fetch("/test.glb");
+const data = new Uint8Array(await response.arrayBuffer());
 const gltf = Gltf.fromBytes(data);
 
 const positions = gltf.readPositions();
@@ -75,7 +74,7 @@ const transform = new Transform3D();
 transform.scale.multiplyScalar(0.25);
 transform.translation.y = -0.5;
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
   transform.rotation.multiply(Quaternion.fromRotationX(0.003));
   transform.rotation.multiply(Quaternion.fromRotationY(0.002));
@@ -84,4 +83,7 @@ requestAnimationFrameLoop(() => {
     value: transform.toArray(),
   });
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

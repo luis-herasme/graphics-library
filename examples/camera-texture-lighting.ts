@@ -6,7 +6,6 @@ import {
   Quaternion,
   Renderer,
   Texture,
-  requestAnimationFrameLoop,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -64,8 +63,11 @@ mesh.material.setUniform("texture_sampler", {
 const scene = [mesh];
 const camera = new PerspectiveCamera();
 
-requestAnimationFrameLoop(() => {
+function frame() {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));
   mesh.transform.rotation.multiply(Quaternion.fromRotationZ(0.005));
   renderer.renderScene(scene, camera);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

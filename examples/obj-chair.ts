@@ -7,8 +7,6 @@ import {
   Renderer,
   Texture,
   Transform3D,
-  fetchText,
-  requestAnimationFrameLoop,
 } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
@@ -45,7 +43,8 @@ void main() {
 }
 `;
 
-const objData = await fetchText("/chair.obj");
+const response = await fetch("/chair.obj");
+const objData = await response.text();
 const obj = OBJ.parse(objData);
 
 const renderer = new Renderer();
@@ -62,7 +61,7 @@ mesh.material.setUniform("chair_texture", { kind: "texture", value: texture });
 const transform = new Transform3D();
 transform.scale.multiplyScalar(0.005);
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
   transform.rotation.multiply(Quaternion.fromRotationX(0.01));
   transform.rotation.multiply(Quaternion.fromRotationY(0.02));
@@ -71,4 +70,7 @@ requestAnimationFrameLoop(() => {
     value: transform.toArray(),
   });
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);

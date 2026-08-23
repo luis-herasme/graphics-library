@@ -1,5 +1,3 @@
-import { fetchImage } from "./utils";
-
 export enum MinificationFilter {
   Nearest = WebGL2RenderingContext.NEAREST,
   Linear = WebGL2RenderingContext.LINEAR,
@@ -62,8 +60,12 @@ export class Texture {
     this.textureData = textureData;
   }
 
+  /** Waits for the image to finish decoding, so the texture uploads a complete image. */
   static async fromImageUrl(url: string): Promise<Texture> {
-    return new Texture(await fetchImage(url));
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    return new Texture(image);
   }
 
   getWebglTexture(gl: WebGL2RenderingContext): WebGLTexture {

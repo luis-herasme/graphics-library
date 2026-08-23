@@ -44,23 +44,22 @@ npm run build   # typecheck + production build of the examples
 ## Usage
 
 ```ts
-import {
-  Geometry,
-  Material,
-  Mesh,
-  Renderer,
-  requestAnimationFrameLoop,
-} from "./src/index";
+import { Geometry, Material, Mesh, Renderer } from "./src/index";
 
 const renderer = new Renderer(); // Creates a full-window canvas
 const material = new Material({ vertexShaderSource, fragmentShaderSource });
 const mesh = new Mesh({ geometry: Geometry.quad(), material });
 
-requestAnimationFrameLoop(() => {
+function frame() {
   renderer.clear();
   renderer.render(mesh);
-});
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
 ```
+
+The library owns no frame loop, so you decide when to draw and when to stop.
 
 Every class with more than one setting takes a single descriptor object, and
 each one has a matching exported type (`MaterialDescriptor`, `MeshDescriptor`,
