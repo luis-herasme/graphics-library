@@ -42,9 +42,4 @@ export class Matrix3 {
   clone(): Matrix3 {
     return new Matrix3(this.elements);
   }
-
-  /** Returns the matrix as a column-major array of 9 elements. */
-  toArray(): Float32Array {
-    return new Float32Array(this.elements);
-  }
 }

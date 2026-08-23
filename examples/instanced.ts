@@ -49,7 +49,7 @@ function frame() {
 
   transforms.forEach((transform, vertexIndex) => {
     transform.rotation += vertexIndex * 0.001;
-    transformBuffer.setVertex(vertexIndex, transform.toArray());
+    transformBuffer.setVertex(vertexIndex, transform.toMatrix3().elements);
   });
 
   renderer.render(mesh);

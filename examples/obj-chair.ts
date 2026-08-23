@@ -67,7 +67,7 @@ function frame() {
   transform.rotation.multiply(Quaternion.fromRotationY(0.02));
   mesh.material.setUniform("transform", {
     kind: "matrix4",
-    value: transform.toArray(),
+    value: transform.toMatrix4().elements,
   });
   renderer.render(mesh);
   requestAnimationFrame(frame);

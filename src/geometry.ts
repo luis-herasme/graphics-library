@@ -276,7 +276,7 @@ export class Geometry {
     const transforms: Float32Array[] = [];
 
     for (let i = 0; i < count; i++) {
-      transforms.push(new Transform2D().toArray());
+      transforms.push(new Transform2D().toMatrix3().elements);
     }
 
     return new Geometry({
@@ -305,7 +305,7 @@ export class Geometry {
     const transforms: Float32Array[] = [];
 
     for (let i = 0; i < count; i++) {
-      transforms.push(new Transform2D().toArray());
+      transforms.push(new Transform2D().toMatrix3().elements);
     }
 
     return new Geometry({
