@@ -1,4 +1,4 @@
-export enum BufferKind {
+export enum BufferTarget {
   ArrayBuffer = WebGL2RenderingContext.ARRAY_BUFFER,
   ElementArrayBuffer = WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER,
   UniformBuffer = WebGL2RenderingContext.UNIFORM_BUFFER,
@@ -10,7 +10,7 @@ export enum BufferUsage {
 }
 
 export type GpuBufferDescriptor = {
-  kind: BufferKind;
+  target: BufferTarget;
   usage: BufferUsage;
   bytes: Uint8Array;
 };
@@ -20,7 +20,7 @@ export type GpuBufferDescriptor = {
  * created lazily and re-uploaded before rendering whenever the CPU copy changed.
  */
 export class GpuBuffer {
-  readonly kind: BufferKind;
+  readonly target: BufferTarget;
   readonly usage: BufferUsage;
 
   private bytes: Uint8Array;
@@ -28,7 +28,7 @@ export class GpuBuffer {
   private needsUpdate = false;
 
   constructor(descriptor: GpuBufferDescriptor) {
-    this.kind = descriptor.kind;
+    this.target = descriptor.target;
     this.usage = descriptor.usage;
     this.bytes = descriptor.bytes;
   }
@@ -48,8 +48,8 @@ export class GpuBuffer {
       throw new Error("Failed to create WebGL buffer");
     }
 
-    gl.bindBuffer(this.kind, webglBuffer);
-    gl.bufferData(this.kind, this.bytes, this.usage);
+    gl.bindBuffer(this.target, webglBuffer);
+    gl.bufferData(this.target, this.bytes, this.usage);
     this.webglBuffer = webglBuffer;
   }
 
@@ -76,12 +76,12 @@ export class GpuBuffer {
   }
 
   private updateWebglBuffer(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.kind, this.webglBuffer);
-    gl.bufferSubData(this.kind, 0, this.bytes);
+    gl.bindBuffer(this.target, this.webglBuffer);
+    gl.bufferSubData(this.target, 0, this.bytes);
   }
 
   bind(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.kind, this.webglBuffer);
+    gl.bindBuffer(this.target, this.webglBuffer);
   }
 
   get size(): number {

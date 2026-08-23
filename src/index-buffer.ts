@@ -1,4 +1,4 @@
-import { BufferKind, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 
 export type IndexBufferDescriptor = {
   data: Uint8Array | Uint16Array | Uint32Array | number[];
@@ -6,8 +6,8 @@ export type IndexBufferDescriptor = {
 };
 
 export class IndexBuffer {
-  /** The WebGL element type, derived from the typed array holding the indices. */
-  readonly kind: number;
+  /** Derived from the typed array holding the indices. */
+  readonly elementType: number;
   readonly count: number;
   readonly buffer: GpuBuffer;
 
@@ -20,16 +20,16 @@ export class IndexBuffer {
     }
 
     if (values instanceof Uint8Array) {
-      this.kind = WebGL2RenderingContext.UNSIGNED_BYTE;
+      this.elementType = WebGL2RenderingContext.UNSIGNED_BYTE;
     } else if (values instanceof Uint16Array) {
-      this.kind = WebGL2RenderingContext.UNSIGNED_SHORT;
+      this.elementType = WebGL2RenderingContext.UNSIGNED_SHORT;
     } else {
-      this.kind = WebGL2RenderingContext.UNSIGNED_INT;
+      this.elementType = WebGL2RenderingContext.UNSIGNED_INT;
     }
 
     this.count = values.length;
     this.buffer = new GpuBuffer({
-      kind: BufferKind.ElementArrayBuffer,
+      target: BufferTarget.ElementArrayBuffer,
       usage,
       bytes: new Uint8Array(
         values.buffer,

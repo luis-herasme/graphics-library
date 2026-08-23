@@ -12,7 +12,7 @@ export { Geometry } from "./geometry";
 export type { GeometryDescriptor } from "./geometry";
 export { Gltf, GltfParseError } from "./gltf";
 export type { GltfJson, GltfNode, GltfPrimitive } from "./gltf";
-export { BufferKind, BufferUsage, GpuBuffer } from "./gpu-buffer";
+export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 export type { GpuBufferDescriptor } from "./gpu-buffer";
 export { IndexBuffer } from "./index-buffer";
 export type { IndexBufferDescriptor } from "./index-buffer";

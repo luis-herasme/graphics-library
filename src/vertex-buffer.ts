@@ -2,7 +2,7 @@ import {
   AttributeData,
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
 } from "./attribute-data";
-import { BufferKind, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 import { VertexAttribute, VertexLayout } from "./vertex-layout";
 
 export type VertexBufferDescriptor = {
@@ -29,7 +29,7 @@ export class VertexBuffer {
 
     this.layout = new VertexLayout(descriptor);
     this.buffer = new GpuBuffer({
-      kind: BufferKind.ArrayBuffer,
+      target: BufferTarget.ArrayBuffer,
       usage,
       bytes: descriptor.data.bytes,
     });
@@ -84,7 +84,7 @@ export class InterleavedVertexBuffer {
     );
 
     this.buffer = new GpuBuffer({
-      kind: BufferKind.ArrayBuffer,
+      target: BufferTarget.ArrayBuffer,
       usage,
       bytes,
     });

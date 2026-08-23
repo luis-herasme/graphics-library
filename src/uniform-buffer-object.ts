@@ -1,4 +1,4 @@
-import { BufferKind, BufferUsage, GpuBuffer } from "./gpu-buffer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 import { Renderer } from "./renderer";
 
 export type UniformBufferObjectDescriptor = {
@@ -14,7 +14,7 @@ export class UniformBufferObject {
   constructor(descriptor: UniformBufferObjectDescriptor) {
     this.gl = descriptor.renderer.gl;
     this.buffer = new GpuBuffer({
-      kind: BufferKind.UniformBuffer,
+      target: BufferTarget.UniformBuffer,
       usage: BufferUsage.DynamicDraw,
       bytes: descriptor.bytes.slice(),
     });
