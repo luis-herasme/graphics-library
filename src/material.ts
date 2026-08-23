@@ -46,7 +46,7 @@ export class Material {
     for (const [name, uniform] of this.uniforms) {
       if (uniform.kind === "texture") {
         gl.activeTexture(gl.TEXTURE0 + currentTextureUnit);
-        gl.bindTexture(gl.TEXTURE_2D, uniform.value.getWebglTexture(gl));
+        gl.bindTexture(gl.TEXTURE_2D, uniform.value.getWebGLTexture(gl));
         shaderProgram.setUniform(name, uniform, currentTextureUnit);
         currentTextureUnit += 1;
         continue;

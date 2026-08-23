@@ -68,15 +68,15 @@ export class Texture {
     return new Texture(image);
   }
 
-  getWebglTexture(gl: WebGL2RenderingContext): WebGLTexture {
+  getWebGLTexture(gl: WebGL2RenderingContext): WebGLTexture {
     if (this.webglTexture === null) {
-      this.webglTexture = this.createWebglTexture(gl);
+      this.webglTexture = this.createWebGLTexture(gl);
     }
 
     return this.webglTexture;
   }
 
-  private createWebglTexture(gl: WebGL2RenderingContext): WebGLTexture {
+  private createWebGLTexture(gl: WebGL2RenderingContext): WebGLTexture {
     const webglTexture = gl.createTexture();
 
     if (webglTexture === null) {
