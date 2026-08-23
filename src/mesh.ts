@@ -23,7 +23,7 @@ export class Mesh {
   geometry: Geometry;
   material: Material;
   renderPrimitive = RenderPrimitive.Triangles;
-  vao: WebGLVertexArrayObject | null = null;
+  webglVertexArrayObject: WebGLVertexArrayObject | null = null;
 
   constructor(descriptor: MeshDescriptor) {
     this.geometry = descriptor.geometry;
@@ -33,41 +33,46 @@ export class Mesh {
   /**
    * Creates and updates every GPU resource this mesh needs, in the required
    * order: vertex data first, then the material's shader program (the vertex
-   * bindings created later in getOrCreateVao depend on it), then index data.
+   * bindings created later in createWebglVertexArrayObject depend on it), then
+   * index data.
    */
   prepare(gl: WebGL2RenderingContext): void {
     for (const vertexBuffer of this.geometry.vertexBuffers) {
-      vertexBuffer.buffer.onBeforeRender(gl);
+      vertexBuffer.buffer.upload(gl);
     }
 
     for (const interleavedVertexBuffer of this.geometry
       .interleavedVertexBuffers) {
-      interleavedVertexBuffer.buffer.onBeforeRender(gl);
+      interleavedVertexBuffer.buffer.upload(gl);
     }
 
-    this.material.prepare(gl);
+    this.material.getShaderProgram(gl);
 
-    this.geometry.indices?.buffer.onBeforeRender(gl);
+    this.geometry.indices?.buffer.upload(gl);
   }
 
-  getOrCreateVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
-    if (this.vao === null) {
-      this.vao = this.createVao(gl);
+  getWebglVertexArrayObject(
+    gl: WebGL2RenderingContext,
+  ): WebGLVertexArrayObject {
+    if (this.webglVertexArrayObject === null) {
+      this.webglVertexArrayObject = this.createWebglVertexArrayObject(gl);
     }
 
-    return this.vao;
+    return this.webglVertexArrayObject;
   }
 
-  private createVao(gl: WebGL2RenderingContext): WebGLVertexArrayObject {
-    const vao = gl.createVertexArray();
+  private createWebglVertexArrayObject(
+    gl: WebGL2RenderingContext,
+  ): WebGLVertexArrayObject {
+    const webglVertexArrayObject = gl.createVertexArray();
 
-    if (vao === null) {
+    if (webglVertexArrayObject === null) {
       throw new Error("Failed to create WebGL vertex array object");
     }
 
-    const shaderProgram = this.material.prepare(gl);
+    const shaderProgram = this.material.getShaderProgram(gl);
 
-    gl.bindVertexArray(vao);
+    gl.bindVertexArray(webglVertexArrayObject);
 
     for (const vertexBuffer of this.geometry.vertexBuffers) {
       vertexBuffer.buffer.bind(gl);
@@ -84,6 +89,6 @@ export class Mesh {
     }
 
     gl.bindVertexArray(null);
-    return vao;
+    return webglVertexArrayObject;
   }
 }

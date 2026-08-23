@@ -67,7 +67,9 @@ const uniformBufferObject2 = new UniformBufferObject({
   bytes: new Uint8Array(colors2.buffer),
 });
 
-mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);
+mesh.material
+  .getShaderProgram(renderer.gl)
+  .setUniformBlock("Colors", bindingPoint);
 
 function frame() {
   renderer.clear();

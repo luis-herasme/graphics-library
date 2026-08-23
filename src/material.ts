@@ -28,7 +28,7 @@ export class Material {
    * Compiles and links the shader program if that has not happened yet.
    * Runs the expensive work once; safe to call on every draw.
    */
-  prepare(gl: WebGL2RenderingContext): ShaderProgram {
+  getShaderProgram(gl: WebGL2RenderingContext): ShaderProgram {
     if (this.shaderProgram === null) {
       this.shaderProgram = new ShaderProgram({ gl, material: this });
     }
@@ -38,7 +38,7 @@ export class Material {
 
   /** Activates the shader program and uploads every uniform value. Runs on every draw. */
   applyUniforms(gl: WebGL2RenderingContext): void {
-    const shaderProgram = this.prepare(gl);
+    const shaderProgram = this.getShaderProgram(gl);
 
     gl.useProgram(shaderProgram.webglProgram);
 

@@ -62,7 +62,8 @@ export class GpuBuffer {
     this.needsUpdate = true;
   }
 
-  onBeforeRender(gl: WebGL2RenderingContext): void {
+  /** Creates the GPU buffer on the first call, then re-uploads only when the bytes changed. */
+  upload(gl: WebGL2RenderingContext): void {
     if (this.webglBuffer === null) {
       this.createWebglBuffer(gl);
     }
