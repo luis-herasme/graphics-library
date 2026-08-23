@@ -40,7 +40,12 @@ const QUAD_INDICES = [
 ];
 
 export type GeometryDescriptor = {
-  vertexCount: number;
+  /**
+   * Defaults to the vertex count of the first attribute buffer that stores one
+   * value per vertex, or of the first interleaved vertex buffer when there is
+   * no such attribute buffer.
+   */
+  vertexCount?: number;
   instanceCount?: number | null;
   indices?: IndexBuffer | null;
   attributeBuffers?: AttributeBuffer[];
@@ -60,13 +65,40 @@ export class Geometry {
       indices = null,
       attributeBuffers = [],
       interleavedVertexBuffers = [],
+      vertexCount = Geometry.vertexCountFromBuffers(
+        attributeBuffers,
+        interleavedVertexBuffers,
+      ),
     } = descriptor;
 
-    this.vertexCount = descriptor.vertexCount;
+    this.vertexCount = vertexCount;
     this.instanceCount = instanceCount;
     this.indices = indices;
     this.attributeBuffers = attributeBuffers;
     this.interleavedVertexBuffers = interleavedVertexBuffers;
+  }
+
+  /**
+   * Attribute buffers with a divisor other than 0 are skipped: they store one
+   * value per instance, so their vertex count is the instance count.
+   */
+  private static vertexCountFromBuffers(
+    attributeBuffers: AttributeBuffer[],
+    interleavedVertexBuffers: InterleavedVertexBuffer[],
+  ): number {
+    for (const attributeBuffer of attributeBuffers) {
+      if (attributeBuffer.layout.divisor === 0) {
+        return attributeBuffer.vertexCount;
+      }
+    }
+
+    if (interleavedVertexBuffers.length > 0) {
+      return interleavedVertexBuffers[0].vertexCount;
+    }
+
+    throw new Error(
+      "Geometry has no buffer storing one value per vertex, so it needs an explicit vertexCount",
+    );
   }
 
   getAttributeBuffer(name: string): AttributeBuffer | null {
@@ -131,7 +163,6 @@ export class Geometry {
     });
 
     return new Geometry({
-      vertexCount: interleavedVertexBuffer.vertexCount,
       interleavedVertexBuffers: [interleavedVertexBuffer],
     });
   }
@@ -214,7 +245,6 @@ export class Geometry {
     ];
 
     return new Geometry({
-      vertexCount: 24,
       indices: new IndexBuffer({ data: indices }),
       attributeBuffers: [
         new AttributeBuffer({
@@ -257,7 +287,6 @@ export class Geometry {
 
   static quad(): Geometry {
     return new Geometry({
-      vertexCount: 4,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
       attributeBuffers: Geometry.quadAttributes().map(
         (attribute) => new AttributeBuffer(attribute),
@@ -267,7 +296,6 @@ export class Geometry {
 
   static quadInterleaved(): Geometry {
     return new Geometry({
-      vertexCount: 4,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
       interleavedVertexBuffers: [
         new InterleavedVertexBuffer({ attributes: Geometry.quadAttributes() }),
@@ -283,7 +311,6 @@ export class Geometry {
     }
 
     return new Geometry({
-      vertexCount: 4,
       instanceCount: count,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
       attributeBuffers: [
@@ -312,7 +339,6 @@ export class Geometry {
     }
 
     return new Geometry({
-      vertexCount: 4,
       instanceCount: count,
       indices: new IndexBuffer({ data: QUAD_INDICES }),
       attributeBuffers: [

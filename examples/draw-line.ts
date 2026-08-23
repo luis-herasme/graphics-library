@@ -64,7 +64,6 @@ for (let i = 0; i < vertexCount; i += 3) {
 }
 
 const geometry = new Geometry({
-  vertexCount,
   indices: new IndexBuffer({ data: indices }),
   attributeBuffers: [
     new AttributeBuffer({
@@ -93,7 +92,6 @@ const skeletonAttributeBuffer = new AttributeBuffer({
   }),
 });
 const skeletonGeometry = new Geometry({
-  vertexCount: skeletonAttributeBuffer.vertexCount,
   attributeBuffers: [skeletonAttributeBuffer],
 });
 const skeletonMaterial = new Material({

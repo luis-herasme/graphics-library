@@ -54,7 +54,6 @@ const material = new Material({
 });
 
 const geometry = new Geometry({
-  vertexCount: positions.length / 3,
   indices: new IndexBuffer({ data: indices }),
   attributeBuffers: [
     new AttributeBuffer({
