@@ -110,9 +110,11 @@ export class AttributeData {
   readonly count: number;
 
   constructor(descriptor: AttributeDataDescriptor) {
-    const componentType = descriptor.componentType ?? VertexComponentType.Float;
-    const componentCount = descriptor.componentCount;
-    const numberOfColumns = descriptor.numberOfColumns ?? 1;
+    const {
+      componentType = VertexComponentType.Float,
+      componentCount,
+      numberOfColumns = 1,
+    } = descriptor;
 
     const flattened: number[] = [];
     flattenInto(flattened, descriptor.data);

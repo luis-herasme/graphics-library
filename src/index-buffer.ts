@@ -13,6 +13,7 @@ export class IndexBuffer {
   readonly buffer: BufferGPU;
 
   constructor(descriptor: IndexBufferDescriptor) {
+    const { usage = BufferUsage.StaticDraw } = descriptor;
     let values = descriptor.data;
 
     if (Array.isArray(values)) {
@@ -30,7 +31,7 @@ export class IndexBuffer {
     this.count = values.length;
     this.buffer = new BufferGPU({
       kind: BufferKind.ElementArrayBuffer,
-      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      usage,
       bufferCPU: toBytes(values),
     });
   }

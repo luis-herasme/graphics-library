@@ -25,10 +25,12 @@ export class VertexBuffer {
   readonly buffer: BufferGPU;
 
   constructor(descriptor: VertexBufferDescriptor) {
+    const { usage = BufferUsage.StaticDraw } = descriptor;
+
     this.layout = new VertexLayout(descriptor);
     this.buffer = new BufferGPU({
       kind: BufferKind.ArrayBuffer,
-      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      usage,
       bufferCPU: descriptor.data.bytes,
     });
   }
@@ -66,7 +68,7 @@ export class InterleavedVertexBuffer {
   readonly layouts: VertexLayout[];
 
   constructor(descriptor: InterleavedVertexBufferDescriptor) {
-    const attributes = descriptor.attributes;
+    const { attributes, usage = BufferUsage.StaticDraw } = descriptor;
 
     if (attributes.length === 0) {
       throw new Error(
@@ -83,7 +85,7 @@ export class InterleavedVertexBuffer {
 
     this.buffer = new BufferGPU({
       kind: BufferKind.ArrayBuffer,
-      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      usage,
       bufferCPU: bytes,
     });
   }

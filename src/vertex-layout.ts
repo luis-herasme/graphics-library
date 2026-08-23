@@ -26,13 +26,15 @@ export class VertexLayout {
   numberOfColumns: number;
 
   constructor(attribute: VertexAttribute) {
+    const { normalize = false, divisor = 0 } = attribute;
+
     this.name = attribute.name;
     this.componentCount = attribute.data.componentCount;
     this.componentType = attribute.data.componentType;
-    this.normalize = attribute.normalize ?? false;
+    this.normalize = normalize;
     this.stride = attribute.data.sizeInBytes;
     this.offset = 0;
-    this.divisor = attribute.divisor ?? 0;
+    this.divisor = divisor;
     this.numberOfColumns = attribute.data.numberOfColumns;
   }
 

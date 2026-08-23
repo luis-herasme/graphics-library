@@ -162,11 +162,12 @@ export class Gltf {
 
     const binBuffer = this.bin.buffer as ArrayBuffer;
     const elementSize = componentCount * TypedArray.BYTES_PER_ELEMENT;
+    const { byteOffset: bufferViewByteOffset = 0 } = bufferView;
+    const { byteOffset: accessorByteOffset = 0 } = accessor;
+    const { byteStride: stride = elementSize } = bufferView;
+
     const start =
-      this.bin.byteOffset +
-      (bufferView.byteOffset ?? 0) +
-      (accessor.byteOffset ?? 0);
-    const stride = bufferView.byteStride ?? elementSize;
+      this.bin.byteOffset + bufferViewByteOffset + accessorByteOffset;
 
     if (stride === elementSize && start % TypedArray.BYTES_PER_ELEMENT === 0) {
       // Tightly packed and aligned: create a single view over the data
@@ -250,6 +251,10 @@ export class Gltf {
     }
 
     const indices = this.readAccessor(primitive.indices);
-    return indices instanceof Uint32Array ? indices : new Uint32Array(indices);
+    if (indices instanceof Uint32Array) {
+      return indices;
+    }
+
+    return new Uint32Array(indices);
   }
 }

@@ -98,9 +98,13 @@ export class MaterialResources {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(
-        `Failed to link WebGL program: ${gl.getProgramInfoLog(program) ?? "unknown error"}`,
-      );
+      let log = gl.getProgramInfoLog(program);
+
+      if (log === null) {
+        log = "unknown error";
+      }
+
+      throw new Error(`Failed to link WebGL program: ${log}`);
     }
 
     this.gl = gl;
@@ -125,9 +129,13 @@ export class MaterialResources {
     gl.compileShader(shader);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw new Error(
-        `Failed to compile shader: ${gl.getShaderInfoLog(shader) ?? "unknown error"}`,
-      );
+      let log = gl.getShaderInfoLog(shader);
+
+      if (log === null) {
+        log = "unknown error";
+      }
+
+      throw new Error(`Failed to compile shader: ${log}`);
     }
 
     return shader;

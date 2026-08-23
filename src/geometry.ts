@@ -52,11 +52,18 @@ export class Geometry {
   interleavedVertexBuffers: InterleavedVertexBuffer[];
 
   constructor(descriptor: GeometryDescriptor) {
+    const {
+      instanceCount = null,
+      indices = null,
+      vertexBuffers = [],
+      interleavedVertexBuffers = [],
+    } = descriptor;
+
     this.vertexCount = descriptor.vertexCount;
-    this.instanceCount = descriptor.instanceCount ?? null;
-    this.indices = descriptor.indices ?? null;
-    this.vertexBuffers = descriptor.vertexBuffers ?? [];
-    this.interleavedVertexBuffers = descriptor.interleavedVertexBuffers ?? [];
+    this.instanceCount = instanceCount;
+    this.indices = indices;
+    this.vertexBuffers = vertexBuffers;
+    this.interleavedVertexBuffers = interleavedVertexBuffers;
   }
 
   getVertexBuffer(name: string): VertexBuffer | null {
