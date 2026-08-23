@@ -95,22 +95,6 @@ export class Geometry {
     return null;
   }
 
-  static fromVertexBuffer(vertexBuffer: VertexBuffer): Geometry {
-    return new Geometry({
-      vertexCount: vertexBuffer.vertexCount,
-      vertexBuffers: [vertexBuffer],
-    });
-  }
-
-  static fromInterleavedVertexBuffer(
-    interleavedVertexBuffer: InterleavedVertexBuffer,
-  ): Geometry {
-    return new Geometry({
-      vertexCount: interleavedVertexBuffer.vertexCount,
-      interleavedVertexBuffers: [interleavedVertexBuffer],
-    });
-  }
-
   static fromObj(obj: OBJ): Geometry {
     const positions: number[][] = [];
     const normals: number[][] = [];
@@ -126,24 +110,27 @@ export class Geometry {
       uvs.push(obj.uvs[uvIndex]);
     }
 
-    return Geometry.fromInterleavedVertexBuffer(
-      new InterleavedVertexBuffer({
-        attributes: [
-          {
-            name: "position",
-            data: new AttributeData({ data: positions, componentCount: 3 }),
-          },
-          {
-            name: "normal",
-            data: new AttributeData({ data: normals, componentCount: 3 }),
-          },
-          {
-            name: "uv",
-            data: new AttributeData({ data: uvs, componentCount: 2 }),
-          },
-        ],
-      }),
-    );
+    const interleavedVertexBuffer = new InterleavedVertexBuffer({
+      attributes: [
+        {
+          name: "position",
+          data: new AttributeData({ data: positions, componentCount: 3 }),
+        },
+        {
+          name: "normal",
+          data: new AttributeData({ data: normals, componentCount: 3 }),
+        },
+        {
+          name: "uv",
+          data: new AttributeData({ data: uvs, componentCount: 2 }),
+        },
+      ],
+    });
+
+    return new Geometry({
+      vertexCount: interleavedVertexBuffer.vertexCount,
+      interleavedVertexBuffers: [interleavedVertexBuffer],
+    });
   }
 
   static box(): Geometry {

@@ -86,15 +86,17 @@ const animation = Animation.fromGltf(gltf);
 animation.updateGlobalTransform();
 const lines = animation.getLines();
 
-const skeletonGeometry = Geometry.fromVertexBuffer(
-  new VertexBuffer({
-    name: "position",
-    data: new AttributeData({
-      data: lines.map((line) => line.toArray()),
-      componentCount: 3,
-    }),
+const skeletonVertexBuffer = new VertexBuffer({
+  name: "position",
+  data: new AttributeData({
+    data: lines.map((line) => line.toArray()),
+    componentCount: 3,
   }),
-);
+});
+const skeletonGeometry = new Geometry({
+  vertexCount: skeletonVertexBuffer.vertexCount,
+  vertexBuffers: [skeletonVertexBuffer],
+});
 const skeletonMaterial = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
@@ -107,7 +109,7 @@ skeletonMesh.transform = mesh.transform.clone();
 skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
 
 const scene = [mesh, skeletonMesh];
-const camera = PerspectiveCamera.default();
+const camera = new PerspectiveCamera();
 
 requestAnimationFrameLoop(() => {
   mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01));

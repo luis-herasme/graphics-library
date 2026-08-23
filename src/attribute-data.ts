@@ -8,23 +8,6 @@ export enum VertexComponentType {
   Float = WebGL2RenderingContext.FLOAT,
 }
 
-export function componentTypeSizeInBytes(
-  componentType: VertexComponentType,
-): number {
-  switch (componentType) {
-    case VertexComponentType.Byte:
-    case VertexComponentType.UnsignedByte:
-      return 1;
-    case VertexComponentType.Short:
-    case VertexComponentType.UnsignedShort:
-      return 2;
-    case VertexComponentType.Int:
-    case VertexComponentType.UnsignedInt:
-    case VertexComponentType.Float:
-      return 4;
-  }
-}
-
 type TypedArrayConstructor =
   | Int8ArrayConstructor
   | Uint8ArrayConstructor
@@ -46,6 +29,12 @@ export const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
   [VertexComponentType.UnsignedInt]: Uint32Array,
   [VertexComponentType.Float]: Float32Array,
 };
+
+export function componentTypeSizeInBytes(
+  componentType: VertexComponentType,
+): number {
+  return TYPED_ARRAY_FOR_COMPONENT_TYPE[componentType].BYTES_PER_ELEMENT;
+}
 
 type TypedArray =
   | Int8Array
