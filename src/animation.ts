@@ -179,7 +179,7 @@ export class Animation {
    * with its parent's global transform.
    */
   updateGlobalTransform(): void {
-    for (const [node, parentNode] of this.walkFromRoots()) {
+    for (const [node, parentNode] of this.nodesFromRoots()) {
       node.globalTransform = Transform3D.fromMatrix4(
         parentNode.globalTransform
           .toMatrix4()
@@ -195,7 +195,7 @@ export class Animation {
   getLines(): Vector3[] {
     const lines: Vector3[] = [];
 
-    for (const [node, parentNode] of this.walkFromRoots()) {
+    for (const [node, parentNode] of this.nodesFromRoots()) {
       if (parentNode.parentIndex !== null) {
         lines.push(parentNode.globalTransform.translation.clone());
         lines.push(node.globalTransform.translation.clone());
@@ -206,33 +206,30 @@ export class Animation {
   }
 
   /**
-   * Yields every node below a root paired with its parent, always reaching a
-   * node after its parent.
+   * Returns every node below a root paired with its parent, each node coming
+   * after its parent.
    */
-  private *walkFromRoots(): Generator<[Node, Node]> {
-    const pending = this.collectRootChildren();
+  private nodesFromRoots(): [Node, Node][] {
+    const pending: [number, Node][] = [];
+
+    for (const node of this.nodes.values()) {
+      if (node.parentIndex === null) {
+        for (const childIndex of node.childrenIndexList) {
+          pending.push([childIndex, node]);
+        }
+      }
+    }
+
+    const pairs: [Node, Node][] = [];
 
     while (pending.length > 0) {
       const [nodeIndex, parentNode] = pending.shift()!;
       const node = this.nodes.get(nodeIndex)!;
 
-      yield [node, parentNode];
+      pairs.push([node, parentNode]);
 
       for (const childIndex of node.childrenIndexList) {
         pending.push([childIndex, node]);
-      }
-    }
-  }
-
-  /** Returns `[childIndex, parentNode]` pairs for the children of every root node. */
-  private collectRootChildren(): [number, Node][] {
-    const pairs: [number, Node][] = [];
-
-    for (const node of this.nodes.values()) {
-      if (node.parentIndex === null) {
-        for (const childIndex of node.childrenIndexList) {
-          pairs.push([childIndex, node]);
-        }
       }
     }
 
