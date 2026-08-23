@@ -120,20 +120,22 @@ export class Geometry {
     }
 
     return Geometry.fromInterleavedVertexBuffer(
-      new InterleavedVertexBuffer([
-        {
-          name: "position",
-          data: new AttributeData({ data: positions, componentCount: 3 }),
-        },
-        {
-          name: "normal",
-          data: new AttributeData({ data: normals, componentCount: 3 }),
-        },
-        {
-          name: "uv",
-          data: new AttributeData({ data: uvs, componentCount: 2 }),
-        },
-      ]),
+      new InterleavedVertexBuffer({
+        attributes: [
+          {
+            name: "position",
+            data: new AttributeData({ data: positions, componentCount: 3 }),
+          },
+          {
+            name: "normal",
+            data: new AttributeData({ data: normals, componentCount: 3 }),
+          },
+          {
+            name: "uv",
+            data: new AttributeData({ data: uvs, componentCount: 2 }),
+          },
+        ],
+      }),
     );
   }
 
@@ -216,20 +218,20 @@ export class Geometry {
 
     return new Geometry({
       vertexCount: 24,
-      indices: new IndexBuffer(indices),
+      indices: new IndexBuffer({ data: indices }),
       vertexBuffers: [
-        new VertexBuffer(
-          "position",
-          new AttributeData({ data: positions, componentCount: 3 }),
-        ),
-        new VertexBuffer(
-          "normal",
-          new AttributeData({ data: normals, componentCount: 3 }),
-        ),
-        new VertexBuffer(
-          "uv",
-          new AttributeData({ data: uvs, componentCount: 2 }),
-        ),
+        new VertexBuffer({
+          name: "position",
+          data: new AttributeData({ data: positions, componentCount: 3 }),
+        }),
+        new VertexBuffer({
+          name: "normal",
+          data: new AttributeData({ data: normals, componentCount: 3 }),
+        }),
+        new VertexBuffer({
+          name: "uv",
+          data: new AttributeData({ data: uvs, componentCount: 2 }),
+        }),
       ],
     });
   }
@@ -259,10 +261,9 @@ export class Geometry {
   static quad(): Geometry {
     return new Geometry({
       vertexCount: 4,
-      indices: new IndexBuffer(QUAD_INDICES),
+      indices: new IndexBuffer({ data: QUAD_INDICES }),
       vertexBuffers: Geometry.quadAttributes().map(
-        (attribute) =>
-          new VertexBuffer(attribute.name, attribute.data, attribute),
+        (attribute) => new VertexBuffer(attribute),
       ),
     });
   }
@@ -270,9 +271,9 @@ export class Geometry {
   static quadInterleaved(): Geometry {
     return new Geometry({
       vertexCount: 4,
-      indices: new IndexBuffer(QUAD_INDICES),
+      indices: new IndexBuffer({ data: QUAD_INDICES }),
       interleavedVertexBuffers: [
-        new InterleavedVertexBuffer(Geometry.quadAttributes()),
+        new InterleavedVertexBuffer({ attributes: Geometry.quadAttributes() }),
       ],
     });
   }
@@ -287,24 +288,21 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
-      indices: new IndexBuffer(QUAD_INDICES),
+      indices: new IndexBuffer({ data: QUAD_INDICES }),
       vertexBuffers: [
         ...Geometry.quadAttributes().map(
-          (attribute) =>
-            new VertexBuffer(attribute.name, attribute.data, attribute),
+          (attribute) => new VertexBuffer(attribute),
         ),
-        new VertexBuffer(
-          "transform",
-          new AttributeData({
+        new VertexBuffer({
+          name: "transform",
+          data: new AttributeData({
             data: transforms,
             componentCount: 9,
             numberOfColumns: 3,
           }),
-          {
-            divisor: 1,
-            usage: BufferUsage.DynamicDraw,
-          },
-        ),
+          divisor: 1,
+          usage: BufferUsage.DynamicDraw,
+        }),
       ],
     });
   }
@@ -319,22 +317,20 @@ export class Geometry {
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
-      indices: new IndexBuffer(QUAD_INDICES),
+      indices: new IndexBuffer({ data: QUAD_INDICES }),
       vertexBuffers: [
-        new VertexBuffer(
-          "transform",
-          new AttributeData({
+        new VertexBuffer({
+          name: "transform",
+          data: new AttributeData({
             data: transforms,
             componentCount: 9,
             numberOfColumns: 3,
           }),
-          {
-            divisor: 1,
-          },
-        ),
+          divisor: 1,
+        }),
       ],
       interleavedVertexBuffers: [
-        new InterleavedVertexBuffer(Geometry.quadAttributes()),
+        new InterleavedVertexBuffer({ attributes: Geometry.quadAttributes() }),
       ],
     });
   }

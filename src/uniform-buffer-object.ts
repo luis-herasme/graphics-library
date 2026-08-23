@@ -3,18 +3,23 @@ import { Renderer } from "./renderer";
 
 const UNIFORM_BUFFER = WebGL2RenderingContext.UNIFORM_BUFFER;
 
+export type UniformBufferObjectDescriptor = {
+  renderer: Renderer;
+  bufferCPU: Uint8Array;
+};
+
 export class UniformBufferObject {
   readonly gl: WebGL2RenderingContext;
   bindingPoint: number | null = null;
   readonly buffer: BufferGPU;
 
-  constructor(renderer: Renderer, bufferCPU: Uint8Array) {
-    this.gl = renderer.gl;
-    this.buffer = new BufferGPU(
-      BufferKind.UniformBuffer,
-      BufferUsage.DynamicDraw,
-      bufferCPU.slice(),
-    );
+  constructor(descriptor: UniformBufferObjectDescriptor) {
+    this.gl = descriptor.renderer.gl;
+    this.buffer = new BufferGPU({
+      kind: BufferKind.UniformBuffer,
+      usage: BufferUsage.DynamicDraw,
+      bufferCPU: descriptor.bufferCPU.slice(),
+    });
     this.buffer.onBeforeRender(this.gl);
   }
 

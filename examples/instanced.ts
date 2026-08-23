@@ -30,9 +30,12 @@ const renderer = new Renderer();
 
 const size = 10;
 
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 const geometry = Geometry.quadInstanced(size * size);
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 
 const transforms: Transform2D[] = [];
 

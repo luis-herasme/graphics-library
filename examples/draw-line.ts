@@ -41,7 +41,10 @@ void main() {
 `;
 
 const renderer = new Renderer();
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 
 const data = await fetchBytes("/fox.glb");
 const gltf = Gltf.fromBytes(data);
@@ -63,16 +66,16 @@ for (let i = 0; i < vertexCount; i += 3) {
 
 const geometry = new Geometry({
   vertexCount,
-  indices: new IndexBuffer(indices),
+  indices: new IndexBuffer({ data: indices }),
   vertexBuffers: [
-    new VertexBuffer(
-      "position",
-      new AttributeData({ data: positions, componentCount: 3 }),
-    ),
+    new VertexBuffer({
+      name: "position",
+      data: new AttributeData({ data: positions, componentCount: 3 }),
+    }),
   ],
 });
 
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 mesh.transform.scale.multiplyScalar(0.075);
 mesh.transform.translation.z = -20;
 mesh.transform.translation.y = -3.5;
@@ -84,16 +87,19 @@ animation.updateGlobalTransform();
 const lines = animation.getLines();
 
 const skeletonGeometry = Geometry.fromVertexBuffer(
-  new VertexBuffer(
-    "position",
-    new AttributeData({ data: lines, componentCount: 3 }),
-  ),
+  new VertexBuffer({
+    name: "position",
+    data: new AttributeData({ data: lines, componentCount: 3 }),
+  }),
 );
-const skeletonMaterial = new Material(
-  VERTEX_SHADER_SOURCE,
-  FRAGMENT_SHADER_SOURCE,
-);
-const skeletonMesh = new Mesh(skeletonGeometry, skeletonMaterial);
+const skeletonMaterial = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
+const skeletonMesh = new Mesh({
+  geometry: skeletonGeometry,
+  material: skeletonMaterial,
+});
 skeletonMesh.transform = mesh.transform.clone();
 skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
 

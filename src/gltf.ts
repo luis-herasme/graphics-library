@@ -68,14 +68,19 @@ export type GltfJson = {
 
 export class GltfParseError extends Error {}
 
+type GltfDescriptor = {
+  json: GltfJson;
+  bin: Uint8Array | null;
+};
+
 /** A minimal reader for binary glTF (.glb) files with an embedded binary chunk. */
 export class Gltf {
   readonly json: GltfJson;
   readonly bin: Uint8Array | null;
 
-  private constructor(json: GltfJson, bin: Uint8Array | null) {
-    this.json = json;
-    this.bin = bin;
+  private constructor(descriptor: GltfDescriptor) {
+    this.json = descriptor.json;
+    this.bin = descriptor.bin;
   }
 
   static fromBytes(bytes: Uint8Array): Gltf {
@@ -113,7 +118,7 @@ export class Gltf {
       throw new GltfParseError("Binary glTF file has no JSON chunk");
     }
 
-    return new Gltf(json, bin);
+    return new Gltf({ json, bin });
   }
 
   /** Reads an accessor's data as a flat typed array of `count * componentCount` values. */

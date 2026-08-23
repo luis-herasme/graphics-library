@@ -5,6 +5,11 @@ import { VertexLayout } from "./vertex-layout";
 const TEXTURE_2D = WebGL2RenderingContext.TEXTURE_2D;
 const TEXTURE0 = WebGL2RenderingContext.TEXTURE0;
 
+export type MaterialDescriptor = {
+  vertexShaderSource: string;
+  fragmentShaderSource: string;
+};
+
 export class Material {
   readonly uniforms = new Map<string, Uniform>();
   readonly vertexShaderSource: string;
@@ -13,9 +18,9 @@ export class Material {
   /** WebGL resources, created lazily on first render. */
   resources: MaterialResources | null = null;
 
-  constructor(vertexShaderSource: string, fragmentShaderSource: string) {
-    this.vertexShaderSource = vertexShaderSource;
-    this.fragmentShaderSource = fragmentShaderSource;
+  constructor(descriptor: MaterialDescriptor) {
+    this.vertexShaderSource = descriptor.vertexShaderSource;
+    this.fragmentShaderSource = descriptor.fragmentShaderSource;
   }
 
   setUniform(uniformName: string, uniform: Uniform): void {
@@ -28,7 +33,7 @@ export class Material {
    */
   prepare(gl: WebGL2RenderingContext): MaterialResources {
     if (this.resources === null) {
-      this.resources = new MaterialResources(gl, this);
+      this.resources = new MaterialResources({ gl, material: this });
     }
 
     return this.resources;
@@ -56,6 +61,11 @@ export class Material {
   }
 }
 
+export type MaterialResourcesDescriptor = {
+  gl: WebGL2RenderingContext;
+  material: Material;
+};
+
 export class MaterialResources {
   readonly gl: WebGL2RenderingContext;
   readonly program: WebGLProgram;
@@ -64,7 +74,8 @@ export class MaterialResources {
   private readonly attributeLocations = new Map<string, number>();
   private readonly uniformBlockLocations = new Map<string, number>();
 
-  constructor(gl: WebGL2RenderingContext, material: Material) {
+  constructor(descriptor: MaterialResourcesDescriptor) {
+    const { gl, material } = descriptor;
     const program = gl.createProgram();
 
     if (program === null) {

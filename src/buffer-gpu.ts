@@ -9,6 +9,12 @@ export enum BufferUsage {
   DynamicDraw = WebGL2RenderingContext.DYNAMIC_DRAW,
 }
 
+export type BufferGPUDescriptor = {
+  kind: BufferKind;
+  usage: BufferUsage;
+  bufferCPU: Uint8Array;
+};
+
 /**
  * A buffer of raw bytes mirrored on the CPU and the GPU. The GPU copy is
  * created lazily and re-uploaded before rendering whenever the CPU copy changed.
@@ -21,10 +27,10 @@ export class BufferGPU {
   private bufferGPU: WebGLBuffer | null = null;
   private needsUpdate = false;
 
-  constructor(kind: BufferKind, usage: BufferUsage, bufferCPU: Uint8Array) {
-    this.kind = kind;
-    this.usage = usage;
-    this.bufferCPU = bufferCPU;
+  constructor(descriptor: BufferGPUDescriptor) {
+    this.kind = descriptor.kind;
+    this.usage = descriptor.usage;
+    this.bufferCPU = descriptor.bufferCPU;
   }
 
   getBufferGPU(gl: WebGL2RenderingContext): WebGLBuffer {

@@ -13,6 +13,11 @@ export enum RenderPrimitive {
   TriangleFan = WebGL2RenderingContext.TRIANGLE_FAN,
 }
 
+export type MeshDescriptor = {
+  geometry: Geometry;
+  material: Material;
+};
+
 export class Mesh {
   transform = new Transform3D();
   geometry: Geometry;
@@ -20,9 +25,9 @@ export class Mesh {
   renderPrimitive = RenderPrimitive.Triangles;
   vao: WebGLVertexArrayObject | null = null;
 
-  constructor(geometry: Geometry, material: Material) {
-    this.geometry = geometry;
-    this.material = material;
+  constructor(descriptor: MeshDescriptor) {
+    this.geometry = descriptor.geometry;
+    this.material = descriptor.material;
   }
 
   /**

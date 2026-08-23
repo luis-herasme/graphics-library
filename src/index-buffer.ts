@@ -1,17 +1,19 @@
 import { BufferGPU, BufferKind, BufferUsage } from "./buffer-gpu";
 import { toBytes } from "./utils";
 
+export type IndexBufferDescriptor = {
+  data: Uint8Array | Uint16Array | Uint32Array | number[];
+  usage?: BufferUsage;
+};
+
 export class IndexBuffer {
   /** The WebGL element type, derived from the typed array holding the indices. */
   readonly kind: number;
   readonly count: number;
   readonly buffer: BufferGPU;
 
-  constructor(
-    data: Uint8Array | Uint16Array | Uint32Array | number[],
-    usage: BufferUsage = BufferUsage.StaticDraw,
-  ) {
-    let values = data;
+  constructor(descriptor: IndexBufferDescriptor) {
+    let values = descriptor.data;
 
     if (Array.isArray(values)) {
       values = new Uint32Array(values);
@@ -26,10 +28,10 @@ export class IndexBuffer {
     }
 
     this.count = values.length;
-    this.buffer = new BufferGPU(
-      BufferKind.ElementArrayBuffer,
-      usage,
-      toBytes(values),
-    );
+    this.buffer = new BufferGPU({
+      kind: BufferKind.ElementArrayBuffer,
+      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      bufferCPU: toBytes(values),
+    });
   }
 }

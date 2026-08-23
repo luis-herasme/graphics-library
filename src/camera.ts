@@ -1,8 +1,16 @@
 import { Matrix4 } from "./math";
 import { Transform3D } from "./transform";
 
+export type PerspectiveCameraDescriptor = {
+  /** Vertical field of view, in radians. */
+  fov: number;
+  aspect: number;
+  near: number;
+  far: number;
+};
+
 export class PerspectiveCamera {
-  fov: number; // radians
+  fov: number;
   aspect: number;
   near: number;
   far: number;
@@ -10,22 +18,22 @@ export class PerspectiveCamera {
   transform = new Transform3D();
   projectionMatrix = Matrix4.zero();
 
-  constructor(fov: number, aspect: number, near: number, far: number) {
-    this.fov = fov;
-    this.aspect = aspect;
-    this.near = near;
-    this.far = far;
+  constructor(descriptor: PerspectiveCameraDescriptor) {
+    this.fov = descriptor.fov;
+    this.aspect = descriptor.aspect;
+    this.near = descriptor.near;
+    this.far = descriptor.far;
     this.updateProjectionMatrix();
   }
 
   /** A camera with a 45 degree field of view and the window's aspect ratio. */
   static default(): PerspectiveCamera {
-    return new PerspectiveCamera(
-      (45 * Math.PI) / 180,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100,
-    );
+    return new PerspectiveCamera({
+      fov: (45 * Math.PI) / 180,
+      aspect: window.innerWidth / window.innerHeight,
+      near: 0.1,
+      far: 100,
+    });
   }
 
   updateProjectionMatrix(): void {

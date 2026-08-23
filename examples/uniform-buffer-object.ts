@@ -36,9 +36,12 @@ void main() {
 `;
 
 const renderer = new Renderer();
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 const geometry = Geometry.quad();
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 
 const bindingPoint = 1;
 
@@ -49,7 +52,10 @@ const colors = new Float32Array([
   0.0, 1.0, 0.0, 1.0, // colors[1]
   0.0, 0.0, 1.0, 1.0, // colors[2]
 ]);
-const uniformBufferObject = new UniformBufferObject(renderer, toBytes(colors));
+const uniformBufferObject = new UniformBufferObject({
+  renderer,
+  bufferCPU: toBytes(colors),
+});
 
 // UBO #2
 // prettier-ignore
@@ -58,10 +64,10 @@ const colors2 = new Float32Array([
   0.5, 1.0, 0.5, 1.0, // colors[1]
   0.5, 0.5, 1.0, 1.0, // colors[2]
 ]);
-const uniformBufferObject2 = new UniformBufferObject(
+const uniformBufferObject2 = new UniformBufferObject({
   renderer,
-  toBytes(colors2),
-);
+  bufferCPU: toBytes(colors2),
+});
 
 mesh.material.prepare(renderer.gl).setUniformBlock("Colors", bindingPoint);
 

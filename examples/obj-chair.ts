@@ -49,9 +49,12 @@ const objData = await fetchText("/chair.obj");
 const obj = OBJ.parse(objData);
 
 const renderer = new Renderer();
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 const geometry = Geometry.fromObj(obj);
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 
 const texture = await Texture.fromImageUrl("/chair.png");
 mesh.material.setUniform("chair_texture", { kind: "texture", value: texture });

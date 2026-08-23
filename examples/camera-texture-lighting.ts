@@ -47,9 +47,12 @@ void main() {
 
 const renderer = new Renderer();
 
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 const geometry = Geometry.box();
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 mesh.transform.translation.z = -5;
 
 const texture = await Texture.fromImageUrl("/bob.png");

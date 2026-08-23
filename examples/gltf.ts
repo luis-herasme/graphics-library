@@ -49,24 +49,27 @@ const normals = gltf.readNormals();
 const indices = gltf.readIndices();
 
 const renderer = new Renderer();
-const material = new Material(VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+const material = new Material({
+  vertexShaderSource: VERTEX_SHADER_SOURCE,
+  fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
+});
 
 const geometry = new Geometry({
   vertexCount: positions.length / 3,
-  indices: new IndexBuffer(indices),
+  indices: new IndexBuffer({ data: indices }),
   vertexBuffers: [
-    new VertexBuffer(
-      "position",
-      new AttributeData({ data: positions, componentCount: 3 }),
-    ),
-    new VertexBuffer(
-      "normal",
-      new AttributeData({ data: normals, componentCount: 3 }),
-    ),
+    new VertexBuffer({
+      name: "position",
+      data: new AttributeData({ data: positions, componentCount: 3 }),
+    }),
+    new VertexBuffer({
+      name: "normal",
+      data: new AttributeData({ data: normals, componentCount: 3 }),
+    }),
   ],
 });
 
-const mesh = new Mesh(geometry, material);
+const mesh = new Mesh({ geometry: geometry, material: material });
 
 const transform = new Transform3D();
 transform.scale.multiplyScalar(0.25);

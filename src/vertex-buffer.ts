@@ -5,7 +5,10 @@ import {
 import { BufferGPU, BufferKind, BufferUsage } from "./buffer-gpu";
 import { VertexAttribute, VertexLayout } from "./vertex-layout";
 
-export type VertexBufferOptions = {
+export type VertexBufferDescriptor = {
+  /** The attribute name the shader sees. */
+  name: string;
+  data: AttributeData;
   /** How many instances share one value (0 = a value per vertex). */
   divisor?: number;
   /** Whether integer data is scaled to the [0, 1] range in the shader. */
@@ -21,17 +24,13 @@ export class VertexBuffer {
   readonly layout: VertexLayout;
   readonly buffer: BufferGPU;
 
-  constructor(
-    name: string,
-    data: AttributeData,
-    options: VertexBufferOptions = {},
-  ) {
-    this.layout = new VertexLayout({ name, data, ...options });
-    this.buffer = new BufferGPU(
-      BufferKind.ArrayBuffer,
-      options.usage ?? BufferUsage.StaticDraw,
-      data.bytes,
-    );
+  constructor(descriptor: VertexBufferDescriptor) {
+    this.layout = new VertexLayout(descriptor);
+    this.buffer = new BufferGPU({
+      kind: BufferKind.ArrayBuffer,
+      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      bufferCPU: descriptor.data.bytes,
+    });
   }
 
   get vertexCount(): number {
@@ -56,15 +55,19 @@ export class VertexBuffer {
   }
 }
 
+export type InterleavedVertexBufferDescriptor = {
+  attributes: VertexAttribute[];
+  usage?: BufferUsage;
+};
+
 /** A single GPU buffer holding several vertex attributes interleaved per vertex. */
 export class InterleavedVertexBuffer {
   readonly buffer: BufferGPU;
   readonly layouts: VertexLayout[];
 
-  constructor(
-    attributes: VertexAttribute[],
-    usage: BufferUsage = BufferUsage.StaticDraw,
-  ) {
+  constructor(descriptor: InterleavedVertexBufferDescriptor) {
+    const attributes = descriptor.attributes;
+
     if (attributes.length === 0) {
       throw new Error(
         "InterleavedVertexBuffer requires at least one attribute",
@@ -78,7 +81,11 @@ export class InterleavedVertexBuffer {
       this.layouts,
     );
 
-    this.buffer = new BufferGPU(BufferKind.ArrayBuffer, usage, bytes);
+    this.buffer = new BufferGPU({
+      kind: BufferKind.ArrayBuffer,
+      usage: descriptor.usage ?? BufferUsage.StaticDraw,
+      bufferCPU: bytes,
+    });
   }
 
   get vertexCount(): number {
