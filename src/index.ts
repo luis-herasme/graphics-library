@@ -30,8 +30,7 @@ export {
   InterleavedVertexBuffer,
   VertexBuffer,
   VertexComponentType,
-  VertexData,
   VertexLayout,
   componentTypeSizeInBytes,
 } from "./vertex-buffer";
-export type { DataInput, VertexDataOptions } from "./vertex-buffer";
+export type { DataInput, VertexAttribute } from "./vertex-buffer";

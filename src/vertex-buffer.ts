@@ -148,27 +148,14 @@ export class Data {
   }
 }
 
-export interface VertexDataOptions {
+/** One vertex attribute: the name the shader sees, its raw data, and optional settings. */
+export interface VertexAttribute {
+  name: string;
+  data: Data;
+  /** How many instances share one value (0 = a value per vertex). */
   divisor?: number;
+  /** Whether integer data is scaled to the [0, 1] range in the shader. */
   normalize?: boolean;
-}
-
-/**
- * A container for a single attribute's raw data (e.g. a list of positions)
- * before it's processed into a VertexBuffer.
- */
-export class VertexData {
-  readonly name: string;
-  readonly data: Data;
-  readonly divisor: number;
-  readonly normalize: boolean;
-
-  constructor(name: string, data: Data, options: VertexDataOptions = {}) {
-    this.name = name;
-    this.data = data;
-    this.divisor = options.divisor ?? 0;
-    this.normalize = options.normalize ?? false;
-  }
 }
 
 /** Describes how the bytes of a buffer map to a single vertex attribute. */
@@ -182,34 +169,34 @@ export class VertexLayout {
   divisor: number;
   numberOfColumns: number;
 
-  constructor(vertex: VertexData) {
-    this.name = vertex.name;
-    this.componentCount = vertex.data.componentCount;
-    this.componentType = vertex.data.componentType;
-    this.normalize = vertex.normalize;
-    this.stride = vertex.data.sizeInBytes;
+  constructor(attribute: VertexAttribute) {
+    this.name = attribute.name;
+    this.componentCount = attribute.data.componentCount;
+    this.componentType = attribute.data.componentType;
+    this.normalize = attribute.normalize ?? false;
+    this.stride = attribute.data.sizeInBytes;
     this.offset = 0;
-    this.divisor = vertex.divisor;
-    this.numberOfColumns = vertex.data.numberOfColumns;
+    this.divisor = attribute.divisor ?? 0;
+    this.numberOfColumns = attribute.data.numberOfColumns;
   }
 
   /** Computes interleaved layouts for a set of attributes stored in a single buffer. */
-  static fromVertexArray(vertexArray: VertexData[]): VertexLayout[] {
+  static fromAttributes(attributes: VertexAttribute[]): VertexLayout[] {
     const vertexLayouts: VertexLayout[] = [];
 
     let maxAlignment = 0;
     let currentOffset = 0;
 
-    for (const vertex of vertexArray) {
-      const alignment = componentTypeSizeInBytes(vertex.data.componentType);
+    for (const attribute of attributes) {
+      const alignment = componentTypeSizeInBytes(attribute.data.componentType);
 
       maxAlignment = Math.max(maxAlignment, alignment);
       currentOffset = VertexLayout.alignTo(currentOffset, alignment);
 
-      const layout = new VertexLayout(vertex);
+      const layout = new VertexLayout(attribute);
       layout.offset = currentOffset;
 
-      currentOffset += vertex.data.sizeInBytes;
+      currentOffset += attribute.data.sizeInBytes;
       vertexLayouts.push(layout);
     }
 
@@ -249,14 +236,13 @@ export class VertexBuffer {
   readonly layout: VertexLayout;
   readonly buffer: BufferGPU;
 
-  constructor(name: string | VertexData, data?: Data, usage: BufferUsage = BufferUsage.StaticDraw) {
-    const vertexData = typeof name === "string" ? new VertexData(name, data!) : name;
-    this.layout = new VertexLayout(vertexData);
-    this.buffer = new BufferGPU(BufferKind.ArrayBuffer, usage, vertexData.data.bytes);
-  }
-
-  static withConfig(usage: BufferUsage, vertexData: VertexData): VertexBuffer {
-    return new VertexBuffer(vertexData, undefined, usage);
+  constructor(
+    name: string,
+    data: Data,
+    options: { divisor?: number; normalize?: boolean; usage?: BufferUsage } = {},
+  ) {
+    this.layout = new VertexLayout({ name, data, ...options });
+    this.buffer = new BufferGPU(BufferKind.ArrayBuffer, options.usage ?? BufferUsage.StaticDraw, data.bytes);
   }
 
   get vertexCount(): number {
@@ -282,15 +268,15 @@ export class InterleavedVertexBuffer {
   readonly buffer: BufferGPU;
   readonly layouts: VertexLayout[];
 
-  constructor(usage: BufferUsage, data: VertexData[]) {
-    if (data.length === 0) {
+  constructor(attributes: VertexAttribute[], usage: BufferUsage = BufferUsage.StaticDraw) {
+    if (attributes.length === 0) {
       throw new Error("InterleavedVertexBuffer requires at least one attribute");
     }
 
-    this.layouts = VertexLayout.fromVertexArray(data);
+    this.layouts = VertexLayout.fromAttributes(attributes);
 
     const bytes = InterleavedVertexBuffer.interleave(
-      data.map((vertexData) => vertexData.data),
+      attributes.map((attribute) => attribute.data),
       this.layouts,
     );
 

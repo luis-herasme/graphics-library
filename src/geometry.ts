@@ -2,7 +2,7 @@ import { BufferUsage } from "./buffer-gpu";
 import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "./obj-parser";
 import { Transform2D } from "./transform";
-import { Data, InterleavedVertexBuffer, VertexBuffer, VertexData } from "./vertex-buffer";
+import { Data, InterleavedVertexBuffer, VertexAttribute, VertexBuffer } from "./vertex-buffer";
 
 // prettier-ignore
 const QUAD_POSITIONS = [
@@ -116,10 +116,10 @@ export class Geometry {
     }
 
     return Geometry.fromInterleavedVertexBuffer(
-      new InterleavedVertexBuffer(BufferUsage.StaticDraw, [
-        new VertexData("position", Data.vector3(positions)),
-        new VertexData("normal", Data.vector3(normals)),
-        new VertexData("uv", Data.vector2(uvs)),
+      new InterleavedVertexBuffer([
+        { name: "position", data: Data.vector3(positions) },
+        { name: "normal", data: Data.vector3(normals) },
+        { name: "uv", data: Data.vector2(uvs) },
       ]),
     );
   }
@@ -205,42 +205,36 @@ export class Geometry {
       vertexCount: 24,
       indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, indices),
       vertexBuffers: [
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, new VertexData("position", Data.vector3(positions))),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, new VertexData("normal", Data.vector3(normals))),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, new VertexData("uv", Data.vector2(uvs))),
+        new VertexBuffer("position", Data.vector3(positions)),
+        new VertexBuffer("normal", Data.vector3(normals)),
+        new VertexBuffer("uv", Data.vector2(uvs)),
       ],
     });
   }
 
-  private static quadData(): [VertexData, VertexData, VertexData] {
+  private static quadAttributes(): VertexAttribute[] {
     return [
-      new VertexData("position", Data.vector2(QUAD_POSITIONS)),
-      new VertexData("color", Data.unsignedByteVector3(QUAD_COLORS), { normalize: true }),
-      new VertexData("uv", Data.vector2(QUAD_UVS)),
+      { name: "position", data: Data.vector2(QUAD_POSITIONS) },
+      { name: "color", data: Data.unsignedByteVector3(QUAD_COLORS), normalize: true },
+      { name: "uv", data: Data.vector2(QUAD_UVS) },
     ];
   }
 
   static quad(): Geometry {
-    const [position, color, uvs] = Geometry.quadData();
-
     return new Geometry({
       vertexCount: 4,
       indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
-      vertexBuffers: [
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, position),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, color),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, uvs),
-      ],
+      vertexBuffers: Geometry.quadAttributes().map(
+        (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
+      ),
     });
   }
 
   static quadInterleaved(): Geometry {
-    const [position, color, uvs] = Geometry.quadData();
-
     return new Geometry({
       vertexCount: 4,
       indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
-      interleavedVertexBuffers: [new InterleavedVertexBuffer(BufferUsage.StaticDraw, [position, color, uvs])],
+      interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
     });
   }
 
@@ -251,18 +245,18 @@ export class Geometry {
       transforms.push(new Transform2D().toArray());
     }
 
-    const perInstanceTransforms = new VertexData("transform", Data.matrix3(transforms), { divisor: 1 });
-    const [position, color, uvs] = Geometry.quadData();
-
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
       indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
       vertexBuffers: [
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, color),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, position),
-        VertexBuffer.withConfig(BufferUsage.StaticDraw, uvs),
-        VertexBuffer.withConfig(BufferUsage.DynamicDraw, perInstanceTransforms),
+        ...Geometry.quadAttributes().map(
+          (attribute) => new VertexBuffer(attribute.name, attribute.data, attribute),
+        ),
+        new VertexBuffer("transform", Data.matrix3(transforms), {
+          divisor: 1,
+          usage: BufferUsage.DynamicDraw,
+        }),
       ],
     });
   }
@@ -274,19 +268,12 @@ export class Geometry {
       transforms.push(new Transform2D().toArray());
     }
 
-    const transformBuffer = VertexBuffer.withConfig(
-      BufferUsage.StaticDraw,
-      new VertexData("transform", Data.matrix3(transforms), { divisor: 1 }),
-    );
-
-    const [position, color, uvs] = Geometry.quadData();
-
     return new Geometry({
       vertexCount: 4,
       instanceCount: count,
       indices: IndexBuffer.fromU8(BufferUsage.StaticDraw, QUAD_INDICES),
-      vertexBuffers: [transformBuffer],
-      interleavedVertexBuffers: [new InterleavedVertexBuffer(BufferUsage.StaticDraw, [position, color, uvs])],
+      vertexBuffers: [new VertexBuffer("transform", Data.matrix3(transforms), { divisor: 1 })],
+      interleavedVertexBuffers: [new InterleavedVertexBuffer(Geometry.quadAttributes())],
     });
   }
 }
