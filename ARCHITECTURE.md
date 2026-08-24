@@ -22,22 +22,19 @@ math ← gpu ← geometry ← scene
 
 ## Known issues
 
-1. `gpu/shader-program.ts` imports `VertexAttribute` from `geometry/` — the
-   one remaining upward arrow.
-2. `UniformBufferObject` uploads eagerly while every other resource is lazy,
+1. `UniformBufferObject` uploads eagerly while every other resource is lazy,
    and nothing in the render path calls `ShaderProgram.setUniformBlock`; users
    wire uniform blocks manually.
-3. `Geometry.quadInstanced` and friends are demo content in the library.
-4. The renderer injects `transform`, `projection_matrix`, and
+2. `Geometry.quadInstanced` and friends are demo content in the library.
+3. The renderer injects `transform`, `projection_matrix`, and
    `camera_inverse_matrix` uniforms by name — an undocumented contract.
 
 ## Open questions
 
-1. Where should `VertexAttribute` live so gpu/ needs nothing above it?
-2. Should `UniformBufferObject` become lazy like every other resource?
-3. Is `ShaderProgram` owned by one `Material`, or a resource materials could
+1. Should `UniformBufferObject` become lazy like every other resource?
+2. Is `ShaderProgram` owned by one `Material`, or a resource materials could
    share?
-4. Document the renderer's uniform-name contract, or replace it with a
+3. Document the renderer's uniform-name contract, or replace it with a
    camera uniform block?
-5. Do the built-in shapes (`quad`, `box`, instanced variants) move to a
+4. Do the built-in shapes (`quad`, `box`, instanced variants) move to a
    `geometry/primitives.ts` or out to examples?
