@@ -1,10 +1,13 @@
 import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 
-export enum IndexElementType {
-  UnsignedByte = WebGL2RenderingContext.UNSIGNED_BYTE,
-  UnsignedShort = WebGL2RenderingContext.UNSIGNED_SHORT,
-  UnsignedInt = WebGL2RenderingContext.UNSIGNED_INT,
-}
+export const IndexElementType = {
+  UnsignedByte: WebGL2RenderingContext.UNSIGNED_BYTE,
+  UnsignedShort: WebGL2RenderingContext.UNSIGNED_SHORT,
+  UnsignedInt: WebGL2RenderingContext.UNSIGNED_INT,
+} as const;
+
+export type IndexElementType =
+  (typeof IndexElementType)[keyof typeof IndexElementType];
 
 export type IndexBufferDescriptor = {
   data: Uint8Array | Uint16Array | Uint32Array | number[];

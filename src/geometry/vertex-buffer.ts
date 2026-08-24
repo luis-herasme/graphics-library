@@ -1,15 +1,18 @@
 import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 import { ShaderProgram } from "../gpu/shader-program";
 
-export enum VertexComponentType {
-  Byte = WebGL2RenderingContext.BYTE,
-  UnsignedByte = WebGL2RenderingContext.UNSIGNED_BYTE,
-  Short = WebGL2RenderingContext.SHORT,
-  UnsignedShort = WebGL2RenderingContext.UNSIGNED_SHORT,
-  Int = WebGL2RenderingContext.INT,
-  UnsignedInt = WebGL2RenderingContext.UNSIGNED_INT,
-  Float = WebGL2RenderingContext.FLOAT,
-}
+export const VertexComponentType = {
+  Byte: WebGL2RenderingContext.BYTE,
+  UnsignedByte: WebGL2RenderingContext.UNSIGNED_BYTE,
+  Short: WebGL2RenderingContext.SHORT,
+  UnsignedShort: WebGL2RenderingContext.UNSIGNED_SHORT,
+  Int: WebGL2RenderingContext.INT,
+  UnsignedInt: WebGL2RenderingContext.UNSIGNED_INT,
+  Float: WebGL2RenderingContext.FLOAT,
+} as const;
+
+export type VertexComponentType =
+  (typeof VertexComponentType)[keyof typeof VertexComponentType];
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
