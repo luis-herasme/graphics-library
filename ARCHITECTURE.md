@@ -15,22 +15,17 @@ math ← gpu ← geometry ← scene
   when the CPU side changes.
 - **geometry/** — gives meaning to GPU buffers: vertex attributes and layout
   (`VertexBuffer`), triangle indices (`IndexBuffer`), their combination
-  (`Geometry`).
+  (`Geometry`), and built-in shapes (`primitives.ts`).
 - **scene/** — things arranged in space and drawn: `Mesh`, `Material`,
   `PerspectiveCamera`, `Renderer`.
 - **loaders/** — parse OBJ/GLTF into geometry and animation data.
 
 ## Known issues
 
-1. `Geometry.quadInstanced` and friends are demo content in the library.
-2. The renderer injects `transform`, `projection_matrix`, and
+1. The renderer injects `transform`, `projection_matrix`, and
    `camera_inverse_matrix` uniforms by name — an undocumented contract.
 
 ## Open questions
 
-1. Is `ShaderProgram` owned by one `Material`, or a resource materials could
-   share?
-2. Document the renderer's uniform-name contract, or replace it with a
+1. Document the renderer's uniform-name contract, or replace it with a
    camera uniform block?
-3. Do the built-in shapes (`quad`, `box`, instanced variants) move to a
-   `geometry/primitives.ts` or out to examples?
