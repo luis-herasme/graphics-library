@@ -51,7 +51,7 @@ const colors = new Float32Array([
   0.0, 0.0, 1.0, 1.0, // colors[2]
 ]);
 const uniformBufferObject = new UniformBufferObject({
-  renderer,
+  gl: renderer.gl,
   bytes: new Uint8Array(colors.buffer),
 });
 
@@ -63,7 +63,7 @@ const colors2 = new Float32Array([
   0.5, 0.5, 1.0, 1.0, // colors[2]
 ]);
 const uniformBufferObject2 = new UniformBufferObject({
-  renderer,
+  gl: renderer.gl,
   bytes: new Uint8Array(colors2.buffer),
 });
 

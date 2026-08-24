@@ -54,6 +54,6 @@ export type { MaterialDescriptor } from "./scene/material";
 export { Mesh, RenderPrimitive } from "./scene/mesh";
 export type { MeshDescriptor } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
-export { UniformBufferObject } from "./scene/uniform-buffer-object";
-export type { UniformBufferObjectDescriptor } from "./scene/uniform-buffer-object";
+export { UniformBufferObject } from "./gpu/uniform-buffer-object";
+export type { UniformBufferObjectDescriptor } from "./gpu/uniform-buffer-object";
 export type { Uniform } from "./gpu/uniform";

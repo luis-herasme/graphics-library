@@ -1,8 +1,7 @@
-import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
-import { Renderer } from "./renderer";
+import { BufferTarget, BufferUsage, GpuBuffer } from "./gpu-buffer";
 
 export type UniformBufferObjectDescriptor = {
-  renderer: Renderer;
+  gl: WebGL2RenderingContext;
   bytes: Uint8Array;
 };
 
@@ -12,7 +11,7 @@ export class UniformBufferObject {
   readonly buffer: GpuBuffer;
 
   constructor(descriptor: UniformBufferObjectDescriptor) {
-    this.gl = descriptor.renderer.gl;
+    this.gl = descriptor.gl;
     this.buffer = new GpuBuffer({
       target: BufferTarget.UniformBuffer,
       usage: BufferUsage.DynamicDraw,
