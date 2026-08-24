@@ -3,29 +3,31 @@ import { VertexBuffer } from "./vertex-buffer";
 
 export type GeometryDescriptor = {
   vertexCount: number;
-  instanceCount?: number | null;
-  indices?: IndexBuffer | null;
+  indices?: IndexBuffer;
+  instanceCount?: number;
   vertexBuffers?: VertexBuffer[];
 };
 
 export class Geometry {
   vertexCount: number;
-  instanceCount: number | null;
+  /** Null when drawn without an index buffer. */
   indices: IndexBuffer | null;
+  /** Null when drawn without instancing. */
+  instanceCount: number | null;
   vertexBuffers: VertexBuffer[];
 
   constructor(descriptor: GeometryDescriptor) {
     this.vertexCount = descriptor.vertexCount;
-    this.instanceCount = null;
     this.indices = null;
+    this.instanceCount = null;
     this.vertexBuffers = [];
-
-    if (descriptor.instanceCount !== undefined) {
-      this.instanceCount = descriptor.instanceCount;
-    }
 
     if (descriptor.indices !== undefined) {
       this.indices = descriptor.indices;
+    }
+
+    if (descriptor.instanceCount !== undefined) {
+      this.instanceCount = descriptor.instanceCount;
     }
 
     if (descriptor.vertexBuffers !== undefined) {
