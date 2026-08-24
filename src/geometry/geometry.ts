@@ -1,6 +1,5 @@
 import { BufferUsage } from "../gpu/gpu-buffer";
 import { IndexBuffer } from "./index-buffer";
-import { OBJ } from "../loaders/obj";
 import { Transform2D } from "../math";
 import {
   VertexAttributeDescriptor,
@@ -98,35 +97,6 @@ export class Geometry {
     }
 
     throw new Error(`This geometry has no attribute named "${attributeName}"`);
-  }
-
-  static fromOBJ(obj: OBJ): Geometry {
-    const positions: number[][] = [];
-    const normals: number[][] = [];
-    const uvs: number[][] = [];
-
-    for (const face of obj.faces) {
-      const positionIndex = face[0] - 1;
-      const uvIndex = face[1] - 1;
-      const normalIndex = face[2] - 1;
-
-      positions.push(obj.positions[positionIndex]);
-      normals.push(obj.normals[normalIndex]);
-      uvs.push(obj.uvs[uvIndex]);
-    }
-
-    const vertexBuffer = new VertexBuffer({
-      attributes: [
-        { name: "position", values: positions, componentCount: 3 },
-        { name: "normal", values: normals, componentCount: 3 },
-        { name: "uv", values: uvs, componentCount: 2 },
-      ],
-    });
-
-    return new Geometry({
-      vertexCount: vertexBuffer.vertexCount,
-      vertexBuffers: [vertexBuffer],
-    });
   }
 
   static box(): Geometry {

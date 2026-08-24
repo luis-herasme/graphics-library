@@ -1,5 +1,4 @@
 import {
-  Geometry,
   Material,
   Mesh,
   OBJ,
@@ -52,7 +51,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.fromOBJ(obj);
+const geometry = obj.toGeometry();
 const mesh = new Mesh({ geometry, material });
 
 const texture = await Texture.fromImageUrl("/chair.png");

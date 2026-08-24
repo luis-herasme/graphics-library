@@ -1,3 +1,6 @@
+import { Geometry } from "../geometry/geometry";
+import { VertexBuffer } from "../geometry/vertex-buffer";
+
 export class OBJParseError extends Error {}
 
 /**
@@ -57,6 +60,36 @@ export class OBJ {
     }
 
     return obj;
+  }
+
+  /** Expands the faces into one vertex per corner, with position, normal and uv. */
+  toGeometry(): Geometry {
+    const positions: number[][] = [];
+    const normals: number[][] = [];
+    const uvs: number[][] = [];
+
+    for (const face of this.faces) {
+      const positionIndex = face[0] - 1;
+      const uvIndex = face[1] - 1;
+      const normalIndex = face[2] - 1;
+
+      positions.push(this.positions[positionIndex]);
+      normals.push(this.normals[normalIndex]);
+      uvs.push(this.uvs[uvIndex]);
+    }
+
+    const vertexBuffer = new VertexBuffer({
+      attributes: [
+        { name: "position", values: positions, componentCount: 3 },
+        { name: "normal", values: normals, componentCount: 3 },
+        { name: "uv", values: uvs, componentCount: 2 },
+      ],
+    });
+
+    return new Geometry({
+      vertexCount: vertexBuffer.vertexCount,
+      vertexBuffers: [vertexBuffer],
+    });
   }
 }
 
