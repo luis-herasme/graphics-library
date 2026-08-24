@@ -1,17 +1,11 @@
-export const BufferTarget = {
-  ArrayBuffer: WebGL2RenderingContext.ARRAY_BUFFER,
-  ElementArrayBuffer: WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER,
-  UniformBuffer: WebGL2RenderingContext.UNIFORM_BUFFER,
-} as const;
+export type BufferTarget =
+  | typeof WebGL2RenderingContext.ARRAY_BUFFER
+  | typeof WebGL2RenderingContext.UNIFORM_BUFFER
+  | typeof WebGL2RenderingContext.ELEMENT_ARRAY_BUFFER;
 
-export type BufferTarget = (typeof BufferTarget)[keyof typeof BufferTarget];
-
-export const BufferUsage = {
-  StaticDraw: WebGL2RenderingContext.STATIC_DRAW,
-  DynamicDraw: WebGL2RenderingContext.DYNAMIC_DRAW,
-} as const;
-
-export type BufferUsage = (typeof BufferUsage)[keyof typeof BufferUsage];
+export type BufferUsage =
+  | typeof WebGL2RenderingContext.STATIC_DRAW
+  | typeof WebGL2RenderingContext.DYNAMIC_DRAW;
 
 export type GpuBufferDescriptor = {
   target: BufferTarget;
