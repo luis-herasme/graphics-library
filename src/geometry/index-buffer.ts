@@ -6,7 +6,7 @@ export type IndexElementType =
   | typeof WebGL2RenderingContext.UNSIGNED_SHORT;
 
 export type IndexBufferDescriptor = {
-  data: Uint8Array | Uint16Array | Uint32Array | number[];
+  data: Uint8Array | Uint16Array | Uint32Array;
   usage?: BufferUsage;
 };
 
@@ -23,11 +23,7 @@ export class IndexBuffer {
       usage = WebGL2RenderingContext.STATIC_DRAW;
     }
 
-    let values = descriptor.data;
-
-    if (Array.isArray(values)) {
-      values = new Uint32Array(values);
-    }
+    const values = descriptor.data;
 
     if (values instanceof Uint8Array) {
       this.elementType = WebGL2RenderingContext.UNSIGNED_BYTE;

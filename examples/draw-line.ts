@@ -63,7 +63,7 @@ for (let i = 0; i < vertexCount; i += 3) {
 
 const geometry = new Geometry({
   vertexCount,
-  indices: new IndexBuffer({ data: indices }),
+  indices: new IndexBuffer({ data: new Uint32Array(indices) }),
   vertexBuffers: [
     new VertexBuffer({
       attributes: [{ name: "position", values: positions, componentCount: 3 }],

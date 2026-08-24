@@ -28,10 +28,10 @@ const QUAD_UVS = [
 ];
 
 // prettier-ignore
-const QUAD_INDICES = [
+const QUAD_INDICES = new Uint16Array([
   0, 1, 2, // Triangle #1
   2, 3, 0, // Triangle #2
-];
+]);
 
 const QUAD_ATTRIBUTES: VertexAttributeDescriptor[] = [
   {
@@ -168,14 +168,14 @@ export function box(): Geometry {
   ];
 
   // prettier-ignore
-  const indices = [
+  const indices = new Uint16Array([
     0, 1, 2, 2, 3, 0,       // Front face
     4, 5, 6, 6, 7, 4,       // Back face
     8, 9, 10, 10, 11, 8,    // Top face
     12, 13, 14, 14, 15, 12, // Bottom face
     16, 17, 18, 18, 19, 16, // Right face
     20, 21, 22, 22, 23, 20, // Left face
-  ];
+  ]);
 
   return new Geometry({
     vertexCount: 24,
