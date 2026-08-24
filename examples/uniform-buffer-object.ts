@@ -41,8 +41,6 @@ const material = new Material({
 const geometry = Geometry.quad();
 const mesh = new Mesh({ geometry, material });
 
-const bindingPoint = 1;
-
 // UBO #1
 // prettier-ignore
 const colors = new Float32Array([
@@ -51,7 +49,6 @@ const colors = new Float32Array([
   0.0, 0.0, 1.0, 1.0, // colors[2]
 ]);
 const uniformBufferObject = new UniformBufferObject({
-  gl: renderer.gl,
   bytes: new Uint8Array(colors.buffer),
 });
 
@@ -63,18 +60,13 @@ const colors2 = new Float32Array([
   0.5, 0.5, 1.0, 1.0, // colors[2]
 ]);
 const uniformBufferObject2 = new UniformBufferObject({
-  gl: renderer.gl,
   bytes: new Uint8Array(colors2.buffer),
 });
-
-mesh.material
-  .getShaderProgram(renderer.gl)
-  .setUniformBlock("Colors", bindingPoint);
 
 function frame() {
   renderer.clear();
 
-  uniformBufferObject.setBindingPoint(bindingPoint);
+  mesh.material.setUniformBlock("Colors", uniformBufferObject);
   mesh.material.setUniform("translation", {
     kind: "vector2",
     value: [-0.25, -0.25],
@@ -93,7 +85,7 @@ function frame() {
   mesh.material.setUniform("color_index", { kind: "unsigned-int", value: 2 });
   renderer.render(mesh);
 
-  uniformBufferObject2.setBindingPoint(bindingPoint);
+  mesh.material.setUniformBlock("Colors", uniformBufferObject2);
   mesh.material.setUniform("translation", {
     kind: "vector2",
     value: [-0.25, 0.75],
