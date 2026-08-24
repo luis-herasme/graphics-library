@@ -1,18 +1,14 @@
-import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
+import { BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
 import { ShaderProgram } from "../gpu/shader-program";
 
-export const VertexComponentType = {
-  Byte: WebGL2RenderingContext.BYTE,
-  UnsignedByte: WebGL2RenderingContext.UNSIGNED_BYTE,
-  Short: WebGL2RenderingContext.SHORT,
-  UnsignedShort: WebGL2RenderingContext.UNSIGNED_SHORT,
-  Int: WebGL2RenderingContext.INT,
-  UnsignedInt: WebGL2RenderingContext.UNSIGNED_INT,
-  Float: WebGL2RenderingContext.FLOAT,
-} as const;
-
 export type VertexComponentType =
-  (typeof VertexComponentType)[keyof typeof VertexComponentType];
+  | typeof WebGL2RenderingContext.BYTE
+  | typeof WebGL2RenderingContext.UNSIGNED_BYTE
+  | typeof WebGL2RenderingContext.SHORT
+  | typeof WebGL2RenderingContext.UNSIGNED_SHORT
+  | typeof WebGL2RenderingContext.INT
+  | typeof WebGL2RenderingContext.UNSIGNED_INT
+  | typeof WebGL2RenderingContext.FLOAT;
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -27,13 +23,13 @@ export const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
   VertexComponentType,
   TypedArrayConstructor
 > = {
-  [VertexComponentType.Byte]: Int8Array,
-  [VertexComponentType.UnsignedByte]: Uint8Array,
-  [VertexComponentType.Short]: Int16Array,
-  [VertexComponentType.UnsignedShort]: Uint16Array,
-  [VertexComponentType.Int]: Int32Array,
-  [VertexComponentType.UnsignedInt]: Uint32Array,
-  [VertexComponentType.Float]: Float32Array,
+  [WebGL2RenderingContext.BYTE]: Int8Array,
+  [WebGL2RenderingContext.UNSIGNED_BYTE]: Uint8Array,
+  [WebGL2RenderingContext.SHORT]: Int16Array,
+  [WebGL2RenderingContext.UNSIGNED_SHORT]: Uint16Array,
+  [WebGL2RenderingContext.INT]: Int32Array,
+  [WebGL2RenderingContext.UNSIGNED_INT]: Uint32Array,
+  [WebGL2RenderingContext.FLOAT]: Float32Array,
 };
 
 type TypedArray =
@@ -56,7 +52,7 @@ export type VertexAttributeDescriptor = {
   values: VertexAttributeValues;
   /** Components per vertex (e.g. 3 for a vec3, 9 for a mat3). */
   componentCount: number;
-  /** Defaults to `VertexComponentType.Float`. */
+  /** Defaults to `WebGL2RenderingContext.FLOAT`. */
   componentType?: VertexComponentType;
   /** Only matrices have more than one column. Defaults to 1. */
   numberOfColumns?: number;
@@ -97,7 +93,7 @@ export class VertexBuffer {
     let usage = descriptor.usage;
 
     if (usage === undefined) {
-      usage = BufferUsage.StaticDraw;
+      usage = WebGL2RenderingContext.STATIC_DRAW;
     }
 
     const { attributes, stride, bytes } = interleave(descriptor.attributes);
@@ -105,7 +101,7 @@ export class VertexBuffer {
     this.attributes = attributes;
     this.stride = stride;
     this.buffer = new GpuBuffer({
-      target: BufferTarget.ArrayBuffer,
+      target: WebGL2RenderingContext.ARRAY_BUFFER,
       usage,
       bytes,
     });
@@ -198,7 +194,7 @@ function interleave(
     let normalize = descriptor.normalize;
 
     if (componentType === undefined) {
-      componentType = VertexComponentType.Float;
+      componentType = WebGL2RenderingContext.FLOAT;
     }
 
     if (numberOfColumns === undefined) {
@@ -267,7 +263,7 @@ function toBytes(descriptor: VertexAttributeDescriptor): Uint8Array {
   let componentType = descriptor.componentType;
 
   if (componentType === undefined) {
-    componentType = VertexComponentType.Float;
+    componentType = WebGL2RenderingContext.FLOAT;
   }
 
   const values: number[] = [];

@@ -1,50 +1,31 @@
-export const MinificationFilter = {
-  Nearest: WebGL2RenderingContext.NEAREST,
-  Linear: WebGL2RenderingContext.LINEAR,
-  NearestMipmapNearest: WebGL2RenderingContext.NEAREST_MIPMAP_NEAREST,
-  LinearMipmapNearest: WebGL2RenderingContext.LINEAR_MIPMAP_NEAREST,
-  NearestMipmapLinear: WebGL2RenderingContext.NEAREST_MIPMAP_LINEAR,
-  LinearMipmapLinear: WebGL2RenderingContext.LINEAR_MIPMAP_LINEAR,
-} as const;
-
 export type MinificationFilter =
-  (typeof MinificationFilter)[keyof typeof MinificationFilter];
-
-export const MagnificationFilter = {
-  Nearest: WebGL2RenderingContext.NEAREST,
-  Linear: WebGL2RenderingContext.LINEAR,
-} as const;
+  | typeof WebGL2RenderingContext.NEAREST
+  | typeof WebGL2RenderingContext.LINEAR
+  | typeof WebGL2RenderingContext.NEAREST_MIPMAP_NEAREST
+  | typeof WebGL2RenderingContext.LINEAR_MIPMAP_NEAREST
+  | typeof WebGL2RenderingContext.NEAREST_MIPMAP_LINEAR
+  | typeof WebGL2RenderingContext.LINEAR_MIPMAP_LINEAR;
 
 export type MagnificationFilter =
-  (typeof MagnificationFilter)[keyof typeof MagnificationFilter];
+  typeof WebGL2RenderingContext.NEAREST | typeof WebGL2RenderingContext.LINEAR;
 
-export const Wrap = {
-  ClampToEdge: WebGL2RenderingContext.CLAMP_TO_EDGE,
-  Repeat: WebGL2RenderingContext.REPEAT,
-  MirroredRepeat: WebGL2RenderingContext.MIRRORED_REPEAT,
-} as const;
+export type Wrap =
+  | typeof WebGL2RenderingContext.CLAMP_TO_EDGE
+  | typeof WebGL2RenderingContext.REPEAT
+  | typeof WebGL2RenderingContext.MIRRORED_REPEAT;
 
-export type Wrap = (typeof Wrap)[keyof typeof Wrap];
-
-export const TextureFormat = {
-  Alpha: WebGL2RenderingContext.ALPHA,
-  RGB: WebGL2RenderingContext.RGB,
-  RGBA: WebGL2RenderingContext.RGBA,
-  Luminance: WebGL2RenderingContext.LUMINANCE,
-  LuminanceAlpha: WebGL2RenderingContext.LUMINANCE_ALPHA,
-} as const;
-
-export type TextureFormat = (typeof TextureFormat)[keyof typeof TextureFormat];
-
-export const TextureDataType = {
-  UnsignedByte: WebGL2RenderingContext.UNSIGNED_BYTE,
-  UnsignedShort565: WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5,
-  UnsignedShort4444: WebGL2RenderingContext.UNSIGNED_SHORT_4_4_4_4,
-  UnsignedShort5551: WebGL2RenderingContext.UNSIGNED_SHORT_5_5_5_1,
-} as const;
+export type TextureFormat =
+  | typeof WebGL2RenderingContext.ALPHA
+  | typeof WebGL2RenderingContext.RGB
+  | typeof WebGL2RenderingContext.RGBA
+  | typeof WebGL2RenderingContext.LUMINANCE
+  | typeof WebGL2RenderingContext.LUMINANCE_ALPHA;
 
 export type TextureDataType =
-  (typeof TextureDataType)[keyof typeof TextureDataType];
+  | typeof WebGL2RenderingContext.UNSIGNED_BYTE
+  | typeof WebGL2RenderingContext.UNSIGNED_SHORT_5_6_5
+  | typeof WebGL2RenderingContext.UNSIGNED_SHORT_4_4_4_4
+  | typeof WebGL2RenderingContext.UNSIGNED_SHORT_5_5_5_1;
 
 export type ImagePixelData = {
   width: number;
@@ -59,13 +40,13 @@ export type TextureData = HTMLImageElement | ImagePixelData;
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#pname
  */
 export class Texture {
-  minificationFilter = MinificationFilter.Nearest;
-  magnificationFilter = MagnificationFilter.Nearest;
-  wrapHorizontal = Wrap.Repeat;
-  wrapVertical = Wrap.Repeat;
-  dataType = TextureDataType.UnsignedByte;
-  format = TextureFormat.RGBA;
-  internalFormat = TextureFormat.RGBA;
+  minificationFilter: MinificationFilter = WebGL2RenderingContext.NEAREST;
+  magnificationFilter: MagnificationFilter = WebGL2RenderingContext.NEAREST;
+  wrapHorizontal: Wrap = WebGL2RenderingContext.REPEAT;
+  wrapVertical: Wrap = WebGL2RenderingContext.REPEAT;
+  dataType: TextureDataType = WebGL2RenderingContext.UNSIGNED_BYTE;
+  format: TextureFormat = WebGL2RenderingContext.RGBA;
+  internalFormat: TextureFormat = WebGL2RenderingContext.RGBA;
   textureData: TextureData;
   webglTexture: WebGLTexture | null = null;
 

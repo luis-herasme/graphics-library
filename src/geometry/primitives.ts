@@ -1,12 +1,7 @@
-import { BufferUsage } from "../gpu/gpu-buffer";
 import { Geometry } from "./geometry";
 import { IndexBuffer } from "./index-buffer";
 import { Transform2D } from "../math";
-import {
-  VertexAttributeDescriptor,
-  VertexBuffer,
-  VertexComponentType,
-} from "./vertex-buffer";
+import { VertexAttributeDescriptor, VertexBuffer } from "./vertex-buffer";
 
 // prettier-ignore
 const QUAD_POSITIONS = [
@@ -48,7 +43,7 @@ const QUAD_ATTRIBUTES: VertexAttributeDescriptor[] = [
     name: "color",
     values: QUAD_COLORS,
     componentCount: 3,
-    componentType: VertexComponentType.UnsignedByte,
+    componentType: WebGL2RenderingContext.UNSIGNED_BYTE,
     normalize: true,
   },
   {
@@ -87,7 +82,7 @@ export function quadInstanced(count: number): Geometry {
       ),
       new VertexBuffer({
         attributes: [instanceTransforms(count)],
-        usage: BufferUsage.DynamicDraw,
+        usage: WebGL2RenderingContext.DYNAMIC_DRAW,
       }),
     ],
   });

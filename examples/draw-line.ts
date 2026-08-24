@@ -7,7 +7,6 @@ import {
   Mesh,
   PerspectiveCamera,
   Quaternion,
-  RenderPrimitive,
   Renderer,
   VertexBuffer,
 } from "../src/index";
@@ -76,7 +75,7 @@ const mesh = new Mesh({ geometry, material });
 mesh.transform.scale.multiplyScalar(0.075);
 mesh.transform.translation.z = -20;
 mesh.transform.translation.y = -3.5;
-mesh.renderPrimitive = RenderPrimitive.Lines;
+mesh.renderPrimitive = WebGL2RenderingContext.LINES;
 
 // Skeleton
 const animation = Animation.fromGLTF(gltf);
@@ -105,7 +104,7 @@ const skeletonMesh = new Mesh({
   material: skeletonMaterial,
 });
 skeletonMesh.transform = mesh.transform.clone();
-skeletonMesh.renderPrimitive = RenderPrimitive.Lines;
+skeletonMesh.renderPrimitive = WebGL2RenderingContext.LINES;
 
 const scene = [mesh, skeletonMesh];
 const camera = new PerspectiveCamera();

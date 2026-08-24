@@ -3,18 +3,14 @@ import { Material } from "./material";
 import { Transform3D } from "../math";
 
 /** https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawArraysInstanced#mode */
-export const RenderPrimitive = {
-  Points: WebGL2RenderingContext.POINTS,
-  Lines: WebGL2RenderingContext.LINES,
-  LineLoop: WebGL2RenderingContext.LINE_LOOP,
-  LineStrip: WebGL2RenderingContext.LINE_STRIP,
-  Triangles: WebGL2RenderingContext.TRIANGLES,
-  TriangleStrip: WebGL2RenderingContext.TRIANGLE_STRIP,
-  TriangleFan: WebGL2RenderingContext.TRIANGLE_FAN,
-} as const;
-
 export type RenderPrimitive =
-  (typeof RenderPrimitive)[keyof typeof RenderPrimitive];
+  | typeof WebGL2RenderingContext.POINTS
+  | typeof WebGL2RenderingContext.LINES
+  | typeof WebGL2RenderingContext.LINE_LOOP
+  | typeof WebGL2RenderingContext.LINE_STRIP
+  | typeof WebGL2RenderingContext.TRIANGLES
+  | typeof WebGL2RenderingContext.TRIANGLE_STRIP
+  | typeof WebGL2RenderingContext.TRIANGLE_FAN;
 
 export type MeshDescriptor = {
   geometry: Geometry;
@@ -25,7 +21,7 @@ export class Mesh {
   transform = new Transform3D();
   geometry: Geometry;
   material: Material;
-  renderPrimitive: RenderPrimitive = RenderPrimitive.Triangles;
+  renderPrimitive: RenderPrimitive = WebGL2RenderingContext.TRIANGLES;
   webglVertexArrayObject: WebGLVertexArrayObject | null = null;
 
   constructor(descriptor: MeshDescriptor) {

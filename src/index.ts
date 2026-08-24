@@ -1,14 +1,18 @@
-export { VertexBuffer, VertexComponentType } from "./geometry/vertex-buffer";
+export { VertexBuffer } from "./geometry/vertex-buffer";
 export type {
   VertexAttribute,
   VertexAttributeDescriptor,
   VertexAttributeValues,
   VertexBufferDescriptor,
+  VertexComponentType,
 } from "./geometry/vertex-buffer";
 export { Geometry } from "./geometry/geometry";
 export type { GeometryDescriptor } from "./geometry/geometry";
-export { IndexBuffer, IndexElementType } from "./geometry/index-buffer";
-export type { IndexBufferDescriptor } from "./geometry/index-buffer";
+export { IndexBuffer } from "./geometry/index-buffer";
+export type {
+  IndexBufferDescriptor,
+  IndexElementType,
+} from "./geometry/index-buffer";
 export {
   box,
   quad,
@@ -17,17 +21,22 @@ export {
   quadInterleaved,
 } from "./geometry/primitives";
 
-export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu/gpu-buffer";
-export type { GpuBufferDescriptor } from "./gpu/gpu-buffer";
-export {
+export { GpuBuffer } from "./gpu/gpu-buffer";
+export type {
+  BufferTarget,
+  BufferUsage,
+  GpuBufferDescriptor,
+} from "./gpu/gpu-buffer";
+export { Texture } from "./gpu/texture";
+export type {
+  ImagePixelData,
   MagnificationFilter,
   MinificationFilter,
-  Texture,
+  TextureData,
   TextureDataType,
   TextureFormat,
   Wrap,
 } from "./gpu/texture";
-export type { ImagePixelData, TextureData } from "./gpu/texture";
 
 export { Animation } from "./loaders/animation";
 export type {
@@ -58,8 +67,8 @@ export type { ShaderProgramDescriptor } from "./gpu/shader-program";
 
 export { Material } from "./scene/material";
 export type { MaterialDescriptor } from "./scene/material";
-export { Mesh, RenderPrimitive } from "./scene/mesh";
-export type { MeshDescriptor } from "./scene/mesh";
+export { Mesh } from "./scene/mesh";
+export type { MeshDescriptor, RenderPrimitive } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
 export { UniformBufferObject } from "./gpu/uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./gpu/uniform-buffer-object";

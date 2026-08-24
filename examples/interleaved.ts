@@ -1,11 +1,4 @@
-import {
-  Geometry,
-  Material,
-  Mesh,
-  Renderer,
-  VertexBuffer,
-  VertexComponentType,
-} from "../src/index";
+import { Geometry, Material, Mesh, Renderer, VertexBuffer } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec2 position;
@@ -58,7 +51,7 @@ const vertexBuffer = new VertexBuffer({
       name: "color",
       values: COLORS,
       componentCount: 3,
-      componentType: VertexComponentType.UnsignedByte,
+      componentType: WebGL2RenderingContext.UNSIGNED_BYTE,
       normalize: true,
     },
   ],
