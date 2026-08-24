@@ -22,19 +22,15 @@ math ← gpu ← geometry ← scene
 
 ## Known issues
 
-1. `UniformBufferObject` uploads eagerly while every other resource is lazy,
-   and nothing in the render path calls `ShaderProgram.setUniformBlock`; users
-   wire uniform blocks manually.
-2. `Geometry.quadInstanced` and friends are demo content in the library.
-3. The renderer injects `transform`, `projection_matrix`, and
+1. `Geometry.quadInstanced` and friends are demo content in the library.
+2. The renderer injects `transform`, `projection_matrix`, and
    `camera_inverse_matrix` uniforms by name — an undocumented contract.
 
 ## Open questions
 
-1. Should `UniformBufferObject` become lazy like every other resource?
-2. Is `ShaderProgram` owned by one `Material`, or a resource materials could
+1. Is `ShaderProgram` owned by one `Material`, or a resource materials could
    share?
-3. Document the renderer's uniform-name contract, or replace it with a
+2. Document the renderer's uniform-name contract, or replace it with a
    camera uniform block?
-4. Do the built-in shapes (`quad`, `box`, instanced variants) move to a
+3. Do the built-in shapes (`quad`, `box`, instanced variants) move to a
    `geometry/primitives.ts` or out to examples?

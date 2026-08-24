@@ -1,5 +1,6 @@
 import { ShaderProgram } from "../gpu/shader-program";
 import { Uniform } from "../gpu/uniform";
+import { UniformBufferObject } from "../gpu/uniform-buffer-object";
 
 export type MaterialDescriptor = {
   vertexShaderSource: string;
@@ -8,6 +9,7 @@ export type MaterialDescriptor = {
 
 export class Material {
   readonly uniforms = new Map<string, Uniform>();
+  readonly uniformBlocks = new Map<string, UniformBufferObject>();
   readonly vertexShaderSource: string;
   readonly fragmentShaderSource: string;
 
@@ -21,6 +23,14 @@ export class Material {
 
   setUniform(uniformName: string, uniform: Uniform): void {
     this.uniforms.set(uniformName, uniform);
+  }
+
+  /** The block name must match a `uniform` block in the shader source. */
+  setUniformBlock(
+    blockName: string,
+    uniformBufferObject: UniformBufferObject,
+  ): void {
+    this.uniformBlocks.set(blockName, uniformBufferObject);
   }
 
   /**
@@ -56,6 +66,15 @@ export class Material {
       }
 
       shaderProgram.setUniform(name, uniform, currentTextureUnit);
+    }
+
+    // Uniform blocks get binding points the way textures get texture units:
+    // assigned in order on every draw.
+    let currentBindingPoint = 0;
+    for (const [name, uniformBufferObject] of this.uniformBlocks) {
+      uniformBufferObject.bind(gl, currentBindingPoint);
+      shaderProgram.setUniformBlock(name, currentBindingPoint);
+      currentBindingPoint += 1;
     }
   }
 }
