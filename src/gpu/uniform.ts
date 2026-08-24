@@ -1,4 +1,4 @@
-import { Texture } from "../gpu/texture";
+import { Texture } from "./texture";
 
 /**
  * A value for a shader uniform. Vector and matrix values may be plain number

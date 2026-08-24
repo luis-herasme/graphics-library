@@ -1,6 +1,6 @@
 import { PerspectiveCamera } from "./camera";
 import { Mesh } from "./mesh";
-import { Uniform } from "./uniforms";
+import { Uniform } from "../gpu/uniform";
 
 export class Renderer {
   readonly gl: WebGL2RenderingContext;

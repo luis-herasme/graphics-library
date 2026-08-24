@@ -56,4 +56,4 @@ export type { MeshDescriptor } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
 export { UniformBufferObject } from "./scene/uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./scene/uniform-buffer-object";
-export type { Uniform } from "./scene/uniforms";
+export type { Uniform } from "./gpu/uniform";

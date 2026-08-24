@@ -1,5 +1,5 @@
 import { ShaderProgram } from "../gpu/shader-program";
-import { Uniform } from "./uniforms";
+import { Uniform } from "../gpu/uniform";
 
 export type MaterialDescriptor = {
   vertexShaderSource: string;

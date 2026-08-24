@@ -1,4 +1,4 @@
-import { Uniform } from "../scene/uniforms";
+import { Uniform } from "./uniform";
 import {
   TYPED_ARRAY_FOR_COMPONENT_TYPE,
   VertexAttribute,
