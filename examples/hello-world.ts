@@ -1,4 +1,4 @@
-import { Geometry, Material, Mesh, Renderer } from "../src/index";
+import { Material, Mesh, quad, Renderer } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec3 position;
@@ -23,7 +23,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.quad();
+const geometry = quad();
 const mesh = new Mesh({ geometry, material });
 
 function frame() {

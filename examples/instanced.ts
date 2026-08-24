@@ -1,4 +1,10 @@
-import { Geometry, Material, Mesh, Renderer, Transform2D } from "../src/index";
+import {
+  Material,
+  Mesh,
+  quadInstanced,
+  Renderer,
+  Transform2D,
+} from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec2 position;
@@ -27,7 +33,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.quadInstanced(size * size);
+const geometry = quadInstanced(size * size);
 const mesh = new Mesh({ geometry, material });
 
 const transforms: Transform2D[] = [];

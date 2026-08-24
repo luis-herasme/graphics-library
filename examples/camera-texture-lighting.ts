@@ -1,5 +1,5 @@
 import {
-  Geometry,
+  box,
   Material,
   Mesh,
   PerspectiveCamera,
@@ -50,7 +50,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.box();
+const geometry = box();
 const mesh = new Mesh({ geometry, material });
 mesh.transform.translation.z = -5;
 

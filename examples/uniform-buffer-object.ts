@@ -1,5 +1,5 @@
 import {
-  Geometry,
+  quad,
   Material,
   Mesh,
   Renderer,
@@ -38,7 +38,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.quad();
+const geometry = quad();
 const mesh = new Mesh({ geometry, material });
 
 // UBO #1

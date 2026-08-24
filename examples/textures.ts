@@ -1,4 +1,4 @@
-import { Geometry, Material, Mesh, Renderer, Texture } from "../src/index";
+import { Material, Mesh, quad, Renderer, Texture } from "../src/index";
 
 const VERTEX_SHADER_SOURCE = `#version 300 es
 in vec3 position;
@@ -30,7 +30,7 @@ const material = new Material({
   vertexShaderSource: VERTEX_SHADER_SOURCE,
   fragmentShaderSource: FRAGMENT_SHADER_SOURCE,
 });
-const geometry = Geometry.quad();
+const geometry = quad();
 const mesh = new Mesh({ geometry, material });
 
 const texture = await Texture.fromImageUrl("/bob.png");

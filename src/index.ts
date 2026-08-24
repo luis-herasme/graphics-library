@@ -9,6 +9,13 @@ export { Geometry } from "./geometry/geometry";
 export type { GeometryDescriptor } from "./geometry/geometry";
 export { IndexBuffer, IndexElementType } from "./geometry/index-buffer";
 export type { IndexBufferDescriptor } from "./geometry/index-buffer";
+export {
+  box,
+  quad,
+  quadInstanced,
+  quadInstancedAndInterleaved,
+  quadInterleaved,
+} from "./geometry/primitives";
 
 export { BufferTarget, BufferUsage, GpuBuffer } from "./gpu/gpu-buffer";
 export type { GpuBufferDescriptor } from "./gpu/gpu-buffer";
