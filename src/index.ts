@@ -38,11 +38,11 @@ export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
 
 export { PerspectiveCamera } from "./scene/camera";
 export type { PerspectiveCameraDescriptor } from "./scene/camera";
-export { Material, ShaderProgram } from "./scene/material";
-export type {
-  MaterialDescriptor,
-  ShaderProgramDescriptor,
-} from "./scene/material";
+export { ShaderProgram } from "./gpu/shader-program";
+export type { ShaderProgramDescriptor } from "./gpu/shader-program";
+
+export { Material } from "./scene/material";
+export type { MaterialDescriptor } from "./scene/material";
 export { Mesh, RenderPrimitive } from "./scene/mesh";
 export type { MeshDescriptor } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
