@@ -1,4 +1,4 @@
-import { GLTF } from "./gltf";
+import { GLTF, GLTFAnimationSampler } from "./gltf";
 import { Matrix4, Quaternion, Vector3 } from "../math";
 import { Transform3D } from "../scene/transform";
 
@@ -9,8 +9,6 @@ type Node = {
   globalTransform: Transform3D;
 };
 
-export type Interpolation = "linear";
-
 export type SamplerValues =
   | { kind: "vector3"; values: Vector3[] }
   | { kind: "quaternion"; values: Quaternion[] };
@@ -18,7 +16,6 @@ export type SamplerValues =
 export type Sampler = {
   times: number[];
   values: SamplerValues;
-  interpolation: Interpolation;
 };
 
 export type NodeProperty = "translation" | "rotation" | "scale";
@@ -43,6 +40,42 @@ function samplerTimeIndex(sampler: Sampler, time: number): number | null {
   return index;
 }
 
+/** Reads one sampler's keyframe times and the values it interpolates between. */
+function readSampler(gltf: GLTF, gltfSampler: GLTFAnimationSampler): Sampler {
+  // glTF leaves the interpolation out when it is the default one.
+  const { interpolation = "LINEAR" } = gltfSampler;
+
+  if (interpolation !== "LINEAR") {
+    throw new Error(`Unsupported animation interpolation: ${interpolation}`);
+  }
+
+  const times = Array.from(gltf.readAccessor(gltfSampler.input));
+  const components = gltf.readAccessor(gltfSampler.output);
+  const componentCount = components.length / times.length;
+
+  // A rotation keyframe is a four component quaternion, a translation or a
+  // scale keyframe a three component vector.
+  if (componentCount === 4) {
+    const values = times.map((_, index) =>
+      Quaternion.fromArray(components.subarray(index * 4, index * 4 + 4)),
+    );
+
+    return { times, values: { kind: "quaternion", values } };
+  }
+
+  if (componentCount === 3) {
+    const values = times.map((_, index) =>
+      Vector3.fromArray(components.subarray(index * 3, index * 3 + 3)),
+    );
+
+    return { times, values: { kind: "vector3", values } };
+  }
+
+  throw new Error(
+    `Unsupported animation sampler with ${componentCount} components per keyframe`,
+  );
+}
+
 function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   const node = gltf.json.nodes?.[nodeIndex];
 
@@ -57,9 +90,7 @@ function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   const transform = new Transform3D();
 
   if (node.translation !== undefined) {
-    transform.translation = new Vector3(
-      ...(node.translation as [number, number, number]),
-    );
+    transform.translation = Vector3.fromArray(node.translation);
   }
 
   if (node.rotation !== undefined) {
@@ -67,7 +98,7 @@ function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   }
 
   if (node.scale !== undefined) {
-    transform.scale = new Vector3(...(node.scale as [number, number, number]));
+    transform.scale = Vector3.fromArray(node.scale);
   }
 
   return transform;
@@ -82,12 +113,21 @@ export class Animation {
   private samplers: Sampler[] = [];
   private channels: Channel[] = [];
 
-  /** Builds the joint hierarchy from the first skin of a glTF file. */
-  static fromGLTF(gltf: GLTF): Animation {
+  /**
+   * Builds the joint hierarchy from the first skin of a glTF file, and loads
+   * one of the animations the file stores, by default the first.
+   */
+  static fromGLTF(gltf: GLTF, animationIndex = 0): Animation {
     const skin = gltf.json.skins?.[0];
 
     if (skin === undefined) {
       throw new Error("glTF file has no skins");
+    }
+
+    const clip = gltf.json.animations?.[animationIndex];
+
+    if (clip === undefined) {
+      throw new Error(`glTF file has no animation ${animationIndex}`);
     }
 
     const { nodes = [] } = gltf.json;
@@ -115,6 +155,35 @@ export class Animation {
       }
     }
 
+    animation.samplers = clip.samplers.map((gltfSampler) =>
+      readSampler(gltf, gltfSampler),
+    );
+
+    for (const gltfChannel of clip.channels) {
+      const { node: targetNodeIndex, path } = gltfChannel.target;
+
+      if (targetNodeIndex === undefined) {
+        continue;
+      }
+
+      if (path !== "translation" && path !== "rotation" && path !== "scale") {
+        throw new Error(`Unsupported animation target path: ${path}`);
+      }
+
+      animation.channels.push({
+        samplerIndex: gltfChannel.sampler,
+        targetNodeIndex,
+        targetNodeProperty: path,
+      });
+    }
+
+    // glTF keeps keyframe times in ascending order, so the last one is the end.
+    animation.animationDuration = Math.max(
+      ...animation.samplers.map(
+        (sampler) => sampler.times[sampler.times.length - 1],
+      ),
+    );
+
     return animation;
   }
 
@@ -136,7 +205,7 @@ export class Animation {
       const index = samplerTimeIndex(sampler, this.currentTime);
 
       if (index === null) {
-        return;
+        continue;
       }
 
       const prevTime = sampler.times[index];

@@ -25,13 +25,18 @@ export type { ImagePixelData, TextureData } from "./gpu/texture";
 export { Animation } from "./loaders/animation";
 export type {
   Channel,
-  Interpolation,
   NodeProperty,
   Sampler,
   SamplerValues,
 } from "./loaders/animation";
 export { GLTF, GLTFParseError } from "./loaders/gltf";
-export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./loaders/gltf";
+export type {
+  GLTFAnimation,
+  GLTFAnimationSampler,
+  GLTFJson,
+  GLTFNode,
+  GLTFPrimitive,
+} from "./loaders/gltf";
 export { OBJ, OBJParseError } from "./loaders/obj";
 
 export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";

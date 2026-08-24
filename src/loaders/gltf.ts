@@ -46,6 +46,21 @@ export type GLTFPrimitive = {
   mode?: number;
 };
 
+export type GLTFAnimationSampler = {
+  /** The accessor holding the keyframe times, in seconds. */
+  input: number;
+  /** The accessor holding the value at each keyframe. */
+  output: number;
+  /** "LINEAR", "STEP" or "CUBICSPLINE". Defaults to "LINEAR" when absent. */
+  interpolation?: string;
+};
+
+export type GLTFAnimation = {
+  /** Each channel drives one property of one node. */
+  channels: { sampler: number; target: { node?: number; path: string } }[];
+  samplers: GLTFAnimationSampler[];
+};
+
 export type GLTFJson = {
   accessors?: {
     bufferView?: number;
@@ -54,6 +69,7 @@ export type GLTFJson = {
     count: number;
     type: string;
   }[];
+  animations?: GLTFAnimation[];
   bufferViews?: {
     buffer: number;
     byteOffset?: number;
