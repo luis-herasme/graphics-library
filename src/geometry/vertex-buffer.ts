@@ -1,4 +1,5 @@
 import { BufferTarget, BufferUsage, GpuBuffer } from "../gpu/gpu-buffer";
+import { ShaderProgram } from "../gpu/shader-program";
 
 export enum VertexComponentType {
   Byte = WebGL2RenderingContext.BYTE,
@@ -109,6 +110,48 @@ export class VertexBuffer {
 
   get vertexCount(): number {
     return this.buffer.size / this.stride;
+  }
+
+  /** Binds the buffer and points every attribute the shader uses at it. */
+  bindAttributes(
+    gl: WebGL2RenderingContext,
+    shaderProgram: ShaderProgram,
+  ): void {
+    this.buffer.bind(gl);
+
+    for (const attribute of this.attributes) {
+      const location = shaderProgram.getAttributeLocation(attribute.name);
+
+      if (location === undefined) {
+        continue;
+      }
+
+      // Only matrices have more than one column, and each column occupies its
+      // own attribute location. A single column is just the ordinary case of
+      // this loop.
+      const componentsPerColumn =
+        attribute.componentCount / attribute.numberOfColumns;
+      const columnSize =
+        componentsPerColumn * componentSizeInBytes(attribute.componentType);
+
+      for (let column = 0; column < attribute.numberOfColumns; column++) {
+        const columnLocation = location + column;
+
+        gl.enableVertexAttribArray(columnLocation);
+        gl.vertexAttribPointer(
+          columnLocation,
+          componentsPerColumn,
+          attribute.componentType,
+          attribute.normalize,
+          this.stride,
+          attribute.offset + column * columnSize,
+        );
+
+        if (attribute.divisor !== 0) {
+          gl.vertexAttribDivisor(columnLocation, attribute.divisor);
+        }
+      }
+    }
   }
 
   /** Overwrites one vertex of one attribute. The attribute must be one of this buffer's. */

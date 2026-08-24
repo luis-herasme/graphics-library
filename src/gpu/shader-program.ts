@@ -1,8 +1,4 @@
 import { Uniform } from "./uniform";
-import {
-  TYPED_ARRAY_FOR_COMPONENT_TYPE,
-  VertexAttribute,
-} from "../geometry/vertex-buffer";
 
 export type ShaderProgramDescriptor = {
   gl: WebGL2RenderingContext;
@@ -182,41 +178,9 @@ export class ShaderProgram {
 
   // ATTRIBUTES
 
-  /** Points one attribute at the currently bound vertex buffer. */
-  setVertexAttribute(attribute: VertexAttribute, stride: number): void {
-    const location = this.attributeLocations.get(attribute.name);
-
-    if (location === undefined) {
-      return;
-    }
-
-    const gl = this.gl;
-
-    // Only matrices have more than one column, and each column occupies its own
-    // attribute location. A single column is just the ordinary case of this loop.
-    const componentsPerColumn =
-      attribute.componentCount / attribute.numberOfColumns;
-    const columnSize =
-      componentsPerColumn *
-      TYPED_ARRAY_FOR_COMPONENT_TYPE[attribute.componentType].BYTES_PER_ELEMENT;
-
-    for (let column = 0; column < attribute.numberOfColumns; column++) {
-      const columnLocation = location + column;
-
-      gl.enableVertexAttribArray(columnLocation);
-      gl.vertexAttribPointer(
-        columnLocation,
-        componentsPerColumn,
-        attribute.componentType,
-        attribute.normalize,
-        stride,
-        attribute.offset + column * columnSize,
-      );
-
-      if (attribute.divisor !== 0) {
-        gl.vertexAttribDivisor(columnLocation, attribute.divisor);
-      }
-    }
+  /** Returns undefined when the shader does not use the attribute. */
+  getAttributeLocation(attributeName: string): number | undefined {
+    return this.attributeLocations.get(attributeName);
   }
 
   private collectAttributeLocations(): void {
