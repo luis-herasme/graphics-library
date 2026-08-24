@@ -90,12 +90,20 @@ export class Animation {
       throw new Error("glTF file has no skins");
     }
 
-    const { nodes = [] } = gltf.json;
+    let nodes = gltf.json.nodes;
+
+    if (nodes === undefined) {
+      nodes = [];
+    }
 
     const animation = new Animation();
 
     for (const jointIndex of skin.joints) {
-      const { children: childrenIndexList = [] } = nodes[jointIndex];
+      let childrenIndexList = nodes[jointIndex].children;
+
+      if (childrenIndexList === undefined) {
+        childrenIndexList = [];
+      }
 
       animation.nodes.set(jointIndex, {
         parentIndex: null, // Populated below

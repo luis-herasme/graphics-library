@@ -90,7 +90,12 @@ export class VertexBuffer {
   readonly buffer: GpuBuffer;
 
   constructor(descriptor: VertexBufferDescriptor) {
-    const { usage = BufferUsage.StaticDraw } = descriptor;
+    let usage = descriptor.usage;
+
+    if (usage === undefined) {
+      usage = BufferUsage.StaticDraw;
+    }
+
     const { attributes, stride, bytes } = interleave(descriptor.attributes);
 
     this.attributes = attributes;
@@ -141,12 +146,26 @@ function interleave(
   let offset = 0;
 
   for (const descriptor of descriptors) {
-    const {
-      componentType = VertexComponentType.Float,
-      numberOfColumns = 1,
-      divisor = 0,
-      normalize = false,
-    } = descriptor;
+    let componentType = descriptor.componentType;
+    let numberOfColumns = descriptor.numberOfColumns;
+    let divisor = descriptor.divisor;
+    let normalize = descriptor.normalize;
+
+    if (componentType === undefined) {
+      componentType = VertexComponentType.Float;
+    }
+
+    if (numberOfColumns === undefined) {
+      numberOfColumns = 1;
+    }
+
+    if (divisor === undefined) {
+      divisor = 0;
+    }
+
+    if (normalize === undefined) {
+      normalize = false;
+    }
 
     const componentSize = componentSizeInBytes(componentType);
 
@@ -199,7 +218,12 @@ function interleave(
 
 /** Flattens the caller's values and converts them to the attribute's component type. */
 function toBytes(descriptor: VertexAttributeDescriptor): Uint8Array {
-  const { componentType = VertexComponentType.Float } = descriptor;
+  let componentType = descriptor.componentType;
+
+  if (componentType === undefined) {
+    componentType = VertexComponentType.Float;
+  }
+
   const values: number[] = [];
 
   for (const element of descriptor.values) {

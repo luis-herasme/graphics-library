@@ -64,16 +64,22 @@ export class Geometry {
   vertexBuffers: VertexBuffer[];
 
   constructor(descriptor: GeometryDescriptor) {
-    const {
-      instanceCount = null,
-      indices = null,
-      vertexBuffers = [],
-    } = descriptor;
-
     this.vertexCount = descriptor.vertexCount;
-    this.instanceCount = instanceCount;
-    this.indices = indices;
-    this.vertexBuffers = vertexBuffers;
+    this.instanceCount = null;
+    this.indices = null;
+    this.vertexBuffers = [];
+
+    if (descriptor.instanceCount !== undefined) {
+      this.instanceCount = descriptor.instanceCount;
+    }
+
+    if (descriptor.indices !== undefined) {
+      this.indices = descriptor.indices;
+    }
+
+    if (descriptor.vertexBuffers !== undefined) {
+      this.vertexBuffers = descriptor.vertexBuffers;
+    }
   }
 
   /** Overwrites one vertex of one attribute. The change reaches the GPU before the next draw. */

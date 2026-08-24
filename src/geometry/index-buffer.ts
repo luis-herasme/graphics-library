@@ -18,7 +18,12 @@ export class IndexBuffer {
   readonly buffer: GpuBuffer;
 
   constructor(descriptor: IndexBufferDescriptor) {
-    const { usage = BufferUsage.StaticDraw } = descriptor;
+    let usage = descriptor.usage;
+
+    if (usage === undefined) {
+      usage = BufferUsage.StaticDraw;
+    }
+
     let values = descriptor.data;
 
     if (Array.isArray(values)) {

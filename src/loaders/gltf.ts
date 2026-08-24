@@ -162,9 +162,21 @@ export class GLTF {
 
     const binBuffer = this.bin.buffer as ArrayBuffer;
     const elementSize = componentCount * TypedArray.BYTES_PER_ELEMENT;
-    const { byteOffset: bufferViewByteOffset = 0 } = bufferView;
-    const { byteOffset: accessorByteOffset = 0 } = accessor;
-    const { byteStride: stride = elementSize } = bufferView;
+    let bufferViewByteOffset = bufferView.byteOffset;
+    let accessorByteOffset = accessor.byteOffset;
+    let stride = bufferView.byteStride;
+
+    if (bufferViewByteOffset === undefined) {
+      bufferViewByteOffset = 0;
+    }
+
+    if (accessorByteOffset === undefined) {
+      accessorByteOffset = 0;
+    }
+
+    if (stride === undefined) {
+      stride = elementSize;
+    }
 
     const start =
       this.bin.byteOffset + bufferViewByteOffset + accessorByteOffset;
