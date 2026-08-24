@@ -13,6 +13,10 @@ export class Vector3 {
     return new Vector3(0, 0, 0);
   }
 
+  static fromArray(array: ArrayLike<number>): Vector3 {
+    return new Vector3(array[0], array[1], array[2]);
+  }
+
   static one(): Vector3 {
     return new Vector3(1, 1, 1);
   }

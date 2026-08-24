@@ -25,7 +25,6 @@ export type { ImagePixelData, TextureData } from "./gpu/texture";
 export { Animation } from "./loaders/animation";
 export type {
   Channel,
-  Interpolation,
   NodeProperty,
   Sampler,
   SamplerValues,
@@ -33,9 +32,7 @@ export type {
 export { GLTF, GLTFParseError } from "./loaders/gltf";
 export type {
   GLTFAnimation,
-  GLTFAnimationChannel,
   GLTFAnimationSampler,
-  GLTFAnimationTarget,
   GLTFJson,
   GLTFNode,
   GLTFPrimitive,

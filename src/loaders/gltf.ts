@@ -46,18 +46,6 @@ export type GLTFPrimitive = {
   mode?: number;
 };
 
-/** The node and the property of it that one animation channel drives. */
-export type GLTFAnimationTarget = {
-  node?: number;
-  /** "translation", "rotation", "scale" or "weights". */
-  path: string;
-};
-
-export type GLTFAnimationChannel = {
-  sampler: number;
-  target: GLTFAnimationTarget;
-};
-
 export type GLTFAnimationSampler = {
   /** The accessor holding the keyframe times, in seconds. */
   input: number;
@@ -68,8 +56,8 @@ export type GLTFAnimationSampler = {
 };
 
 export type GLTFAnimation = {
-  name?: string;
-  channels: GLTFAnimationChannel[];
+  /** Each channel drives one property of one node. */
+  channels: { sampler: number; target: { node?: number; path: string } }[];
   samplers: GLTFAnimationSampler[];
 };
 

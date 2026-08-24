@@ -120,8 +120,8 @@ function frame(time: DOMHighResTimeStamp) {
 
   animation.update(deltaTime);
 
-  // The joint hierarchy never changes, so the skeleton keeps the same number of
-  // points and every one of them can be written back where it already sits.
+  // The joint hierarchy never changes, so every point can be written back
+  // where it already sits.
   animation.getLines().forEach((point, vertexIndex) => {
     skeletonGeometry.setVertex("position", vertexIndex, point.toArray());
   });

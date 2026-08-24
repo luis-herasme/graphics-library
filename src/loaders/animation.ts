@@ -9,8 +9,6 @@ type Node = {
   globalTransform: Transform3D;
 };
 
-export type Interpolation = "linear";
-
 export type SamplerValues =
   | { kind: "vector3"; values: Vector3[] }
   | { kind: "quaternion"; values: Quaternion[] };
@@ -18,7 +16,6 @@ export type SamplerValues =
 export type Sampler = {
   times: number[];
   values: SamplerValues;
-  interpolation: Interpolation;
 };
 
 export type NodeProperty = "translation" | "rotation" | "scale";
@@ -43,18 +40,9 @@ function samplerTimeIndex(sampler: Sampler, time: number): number | null {
   return index;
 }
 
-function readNodeProperty(path: string): NodeProperty {
-  if (path !== "translation" && path !== "rotation" && path !== "scale") {
-    throw new Error(`Unsupported animation target path: ${path}`);
-  }
-
-  return path;
-}
-
 /** Reads one sampler's keyframe times and the values it interpolates between. */
 function readSampler(gltf: GLTF, gltfSampler: GLTFAnimationSampler): Sampler {
-  // glTF names its interpolation modes in uppercase, and leaves the field out
-  // when the mode is the default one.
+  // glTF leaves the interpolation out when it is the default one.
   const { interpolation = "LINEAR" } = gltfSampler;
 
   if (interpolation !== "LINEAR") {
@@ -62,45 +50,25 @@ function readSampler(gltf: GLTF, gltfSampler: GLTFAnimationSampler): Sampler {
   }
 
   const times = Array.from(gltf.readAccessor(gltfSampler.input));
-  const components = Array.from(gltf.readAccessor(gltfSampler.output));
+  const components = gltf.readAccessor(gltfSampler.output);
   const componentCount = components.length / times.length;
 
-  // A rotation keyframe is a four component quaternion, while a translation or
-  // a scale keyframe is a three component vector.
+  // A rotation keyframe is a four component quaternion, a translation or a
+  // scale keyframe a three component vector.
   if (componentCount === 4) {
-    const values: Quaternion[] = [];
+    const values = times.map((_, index) =>
+      Quaternion.fromArray(components.subarray(index * 4, index * 4 + 4)),
+    );
 
-    for (let index = 0; index < times.length; index++) {
-      const start = index * 4;
-      values.push(Quaternion.fromArray(components.slice(start, start + 4)));
-    }
-
-    return {
-      times,
-      values: { kind: "quaternion", values },
-      interpolation: "linear",
-    };
+    return { times, values: { kind: "quaternion", values } };
   }
 
   if (componentCount === 3) {
-    const values: Vector3[] = [];
+    const values = times.map((_, index) =>
+      Vector3.fromArray(components.subarray(index * 3, index * 3 + 3)),
+    );
 
-    for (let index = 0; index < times.length; index++) {
-      const start = index * 3;
-      values.push(
-        new Vector3(
-          components[start],
-          components[start + 1],
-          components[start + 2],
-        ),
-      );
-    }
-
-    return {
-      times,
-      values: { kind: "vector3", values },
-      interpolation: "linear",
-    };
+    return { times, values: { kind: "vector3", values } };
   }
 
   throw new Error(
@@ -122,9 +90,7 @@ function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   const transform = new Transform3D();
 
   if (node.translation !== undefined) {
-    transform.translation = new Vector3(
-      ...(node.translation as [number, number, number]),
-    );
+    transform.translation = Vector3.fromArray(node.translation);
   }
 
   if (node.rotation !== undefined) {
@@ -132,7 +98,7 @@ function nodeLocalTransform(gltf: GLTF, nodeIndex: number): Transform3D {
   }
 
   if (node.scale !== undefined) {
-    transform.scale = new Vector3(...(node.scale as [number, number, number]));
+    transform.scale = Vector3.fromArray(node.scale);
   }
 
   return transform;
@@ -200,15 +166,18 @@ export class Animation {
         continue;
       }
 
+      if (path !== "translation" && path !== "rotation" && path !== "scale") {
+        throw new Error(`Unsupported animation target path: ${path}`);
+      }
+
       animation.channels.push({
         samplerIndex: gltfChannel.sampler,
         targetNodeIndex,
-        targetNodeProperty: readNodeProperty(path),
+        targetNodeProperty: path,
       });
     }
 
-    // glTF keeps a sampler's keyframe times in ascending order, so the last one
-    // is where that sampler stops contributing to the animation.
+    // glTF keeps keyframe times in ascending order, so the last one is the end.
     animation.animationDuration = Math.max(
       ...animation.samplers.map(
         (sampler) => sampler.times[sampler.times.length - 1],
