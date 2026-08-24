@@ -70,11 +70,7 @@ export class Mesh {
     gl.bindVertexArray(webglVertexArrayObject);
 
     for (const vertexBuffer of this.geometry.vertexBuffers) {
-      vertexBuffer.buffer.bind(gl);
-
-      for (const attribute of vertexBuffer.attributes) {
-        shaderProgram.setVertexAttribute(attribute, vertexBuffer.stride);
-      }
+      vertexBuffer.bindAttributes(gl, shaderProgram);
     }
 
     gl.bindVertexArray(null);
