@@ -1,7 +1,7 @@
 import { BufferUsage } from "../gpu/gpu-buffer";
 import { IndexBuffer } from "./index-buffer";
 import { OBJ } from "../loaders/obj";
-import { Transform2D } from "../scene/transform";
+import { Transform2D } from "../math";
 import {
   VertexAttributeDescriptor,
   VertexBuffer,

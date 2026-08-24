@@ -1,6 +1,6 @@
 import { Geometry } from "../geometry/geometry";
 import { Material } from "./material";
-import { Transform3D } from "./transform";
+import { Transform3D } from "../math";
 
 /** https://developer.mozilla.org/en-US/docs/Web/API/WebGL2RenderingContext/drawArraysInstanced#mode */
 export enum RenderPrimitive {

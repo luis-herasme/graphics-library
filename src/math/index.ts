@@ -3,3 +3,4 @@ export { Vector3 } from "./vector3";
 export { Quaternion } from "./quaternion";
 export { Matrix3 } from "./matrix3";
 export { Matrix4 } from "./matrix4";
+export { Transform2D, Transform3D } from "./transform";

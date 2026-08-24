@@ -1,5 +1,4 @@
-import { Matrix4 } from "../math";
-import { Transform3D } from "./transform";
+import { Matrix4, Transform3D } from "../math";
 
 export type PerspectiveCameraDescriptor = {
   /** Vertical field of view, in radians. Defaults to 45 degrees. */

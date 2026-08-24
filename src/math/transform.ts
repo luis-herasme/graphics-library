@@ -1,4 +1,8 @@
-import { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "../math";
+import { Matrix3 } from "./matrix3";
+import { Matrix4 } from "./matrix4";
+import { Quaternion } from "./quaternion";
+import { Vector2 } from "./vector2";
+import { Vector3 } from "./vector3";
 
 export class Transform3D {
   scale: Vector3 = Vector3.one();

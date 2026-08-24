@@ -34,7 +34,15 @@ export { GLTF, GLTFParseError } from "./loaders/gltf";
 export type { GLTFJson, GLTFNode, GLTFPrimitive } from "./loaders/gltf";
 export { OBJ, OBJParseError } from "./loaders/obj";
 
-export { Matrix3, Matrix4, Quaternion, Vector2, Vector3 } from "./math";
+export {
+  Matrix3,
+  Matrix4,
+  Quaternion,
+  Transform2D,
+  Transform3D,
+  Vector2,
+  Vector3,
+} from "./math";
 
 export { PerspectiveCamera } from "./scene/camera";
 export type { PerspectiveCameraDescriptor } from "./scene/camera";
@@ -46,7 +54,6 @@ export type { MaterialDescriptor } from "./scene/material";
 export { Mesh, RenderPrimitive } from "./scene/mesh";
 export type { MeshDescriptor } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
-export { Transform2D, Transform3D } from "./scene/transform";
 export { UniformBufferObject } from "./scene/uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./scene/uniform-buffer-object";
 export type { Uniform } from "./scene/uniforms";
