@@ -11,10 +11,9 @@ export type IndexBufferDescriptor = {
 };
 
 export class IndexBuffer {
-  /** Derived from the typed array holding the indices. */
-  readonly elementType: IndexElementType;
   readonly count: number;
   readonly buffer: GpuBuffer;
+  readonly elementType: IndexElementType;
 
   constructor(descriptor: IndexBufferDescriptor) {
     let usage = descriptor.usage;
@@ -25,12 +24,12 @@ export class IndexBuffer {
 
     const values = descriptor.data;
 
-    if (values instanceof Uint8Array) {
-      this.elementType = WebGL2RenderingContext.UNSIGNED_BYTE;
-    } else if (values instanceof Uint16Array) {
-      this.elementType = WebGL2RenderingContext.UNSIGNED_SHORT;
-    } else {
+    if (values instanceof Uint32Array) {
       this.elementType = WebGL2RenderingContext.UNSIGNED_INT;
+    } else if (values instanceof Uint8Array) {
+      this.elementType = WebGL2RenderingContext.UNSIGNED_BYTE;
+    } else {
+      this.elementType = WebGL2RenderingContext.UNSIGNED_SHORT;
     }
 
     this.count = values.length;
