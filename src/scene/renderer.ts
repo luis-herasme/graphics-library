@@ -2,16 +2,39 @@ import { PerspectiveCamera } from "./camera";
 import { Mesh } from "./mesh";
 import { Uniform } from "../gpu/uniform";
 
+/** Red, green, blue and alpha, each in the [0, 1] range. */
+export type ClearColor = [number, number, number, number];
+
+export type RendererDescriptor = {
+  /** Defaults to a new full-window canvas appended to the document body. */
+  canvas?: HTMLCanvasElement;
+  /** Defaults to opaque black. */
+  clearColor?: ClearColor;
+};
+
 export class Renderer {
   readonly gl: WebGL2RenderingContext;
   readonly canvas: HTMLCanvasElement;
+  clearColor: ClearColor;
 
-  constructor(canvas?: HTMLCanvasElement) {
+  /** Only a canvas the renderer created is kept at the window's size. */
+  private readonly createdCanvas: boolean;
+
+  constructor(descriptor: RendererDescriptor = {}) {
+    let canvas = descriptor.canvas;
+    let clearColor = descriptor.clearColor;
+
+    this.createdCanvas = canvas === undefined;
+
     if (canvas === undefined) {
       canvas = document.createElement("canvas");
       document.body.appendChild(canvas);
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    }
+
+    if (clearColor === undefined) {
+      clearColor = [0, 0, 0, 1];
     }
 
     const gl = canvas.getContext("webgl2");
@@ -24,32 +47,46 @@ export class Renderer {
 
     this.gl = gl;
     this.canvas = canvas;
+    this.clearColor = clearColor;
   }
 
   clear(): void {
     const gl = this.gl;
-    gl.clearColor(0, 0, 0, 1);
+    const [red, green, blue, alpha] = this.clearColor;
+    gl.clearColor(red, green, blue, alpha);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  handleWindowResize(camera: PerspectiveCamera): void {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+  /**
+   * Keeps everything that depends on the canvas size in sync: the canvas
+   * itself when the renderer created it, the camera's aspect ratio, and the
+   * viewport.
+   */
+  handleResize(camera: PerspectiveCamera): void {
+    const canvas = this.canvas;
 
-    if (width !== this.canvas.width || height !== this.canvas.height) {
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      this.canvas.width = width;
-      this.canvas.height = height;
-
-      this.gl.viewport(0, 0, width, height);
+    if (
+      this.createdCanvas &&
+      (canvas.width !== window.innerWidth ||
+        canvas.height !== window.innerHeight)
+    ) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
+
+    const aspect = canvas.width / canvas.height;
+
+    if (aspect !== camera.aspect) {
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+    }
+
+    this.gl.viewport(0, 0, canvas.width, canvas.height);
   }
 
   renderScene(scene: Mesh[], camera: PerspectiveCamera): void {
     this.clear();
-    this.handleWindowResize(camera);
+    this.handleResize(camera);
 
     const projectionMatrix: Uniform = {
       kind: "matrix4",
