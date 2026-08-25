@@ -13,13 +13,7 @@ export type {
   IndexBufferDescriptor,
   IndexElementType,
 } from "./geometry/index-buffer";
-export {
-  box,
-  quad,
-  quadInstanced,
-  quadInstancedAndInterleaved,
-  quadInterleaved,
-} from "./geometry/primitives";
+export { box, quad, quadInstanced } from "./geometry/primitives";
 
 export { GpuBuffer } from "./gpu/gpu-buffer";
 export type {
@@ -72,5 +66,4 @@ export type { MeshDescriptor, RenderPrimitive } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
 export type { ClearColor, RendererDescriptor } from "./scene/renderer";
 export { UniformBufferObject } from "./gpu/uniform-buffer-object";
-export type { UniformBufferObjectDescriptor } from "./gpu/uniform-buffer-object";
 export type { Uniform } from "./gpu/uniform";

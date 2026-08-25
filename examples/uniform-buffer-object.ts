@@ -48,9 +48,9 @@ const colors = new Float32Array([
   0.0, 1.0, 0.0, 1.0, // colors[1]
   0.0, 0.0, 1.0, 1.0, // colors[2]
 ]);
-const uniformBufferObject = new UniformBufferObject({
-  bytes: new Uint8Array(colors.buffer),
-});
+const uniformBufferObject = new UniformBufferObject(
+  new Uint8Array(colors.buffer),
+);
 
 // UBO #2
 // prettier-ignore
@@ -59,9 +59,9 @@ const colors2 = new Float32Array([
   0.5, 1.0, 0.5, 1.0, // colors[1]
   0.5, 0.5, 1.0, 1.0, // colors[2]
 ]);
-const uniformBufferObject2 = new UniformBufferObject({
-  bytes: new Uint8Array(colors2.buffer),
-});
+const uniformBufferObject2 = new UniformBufferObject(
+  new Uint8Array(colors2.buffer),
+);
 
 function frame() {
   renderer.clear();
