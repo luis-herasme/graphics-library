@@ -151,6 +151,13 @@ These are deliberate, and new code should follow them.
   reaches into things that can be shared: a `Mesh` does not delete its
   geometry or material, and a `Material` does not delete its textures or
   uniform buffer objects. Whoever created a resource deletes it.
+- **Counts are trusted on purpose.** `Geometry.vertexCount` is caller-supplied
+  (a geometry may have no vertex buffers to derive it from) and `setVertex`
+  does not range-check, because the platform already fails safely: WebGL never
+  reads vertices out of range, and a write past the end of a buffer throws a
+  `RangeError` from `Uint8Array.set`. The one case that would fail silently —
+  attributes describing different numbers of vertices interleaved into one
+  `VertexBuffer` — is checked at construction.
 - **Missing shader inputs are not errors.** Setting a uniform the shader does
   not use, or binding an attribute the shader does not read, is silently
   skipped. Shaders often optimize inputs away, and drawing the same geometry
@@ -180,11 +187,6 @@ Real limitations found by reading the code, in rough order of importance.
    resources from the wrong context. Likewise, changing `Geometry.vertexBuffers`
    or a `Texture`'s settings after the first draw has no effect, because the
    vertex array object and the GPU texture are never rebuilt.
-4. **Counts are trusted, not checked.** `Geometry.vertexCount` is
-   caller-supplied and can disagree with what the buffers hold; `setVertex`
-   does not check that `vertexIndex` is in range; every attribute in a
-   `VertexBuffer` is assumed to cover the same number of vertices (only the
-   first attribute's length determines the vertex count).
-5. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
+4. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
    dirty, so one edited vertex re-uploads everything. Irrelevant at current
    sizes; worth knowing if buffers get large.

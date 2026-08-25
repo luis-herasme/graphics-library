@@ -161,6 +161,8 @@ function interleave(
   }
 
   const attributes: VertexAttribute[] = [];
+  const vertexCount =
+    descriptors[0].values.length / descriptors[0].componentCount;
 
   let largestComponentSize = 1;
   let offset = 0;
@@ -169,6 +171,12 @@ function interleave(
     if (descriptor.values.length % descriptor.componentCount !== 0) {
       throw new Error(
         `Vertex data length (${descriptor.values.length}) is not a multiple of the component count (${descriptor.componentCount})`,
+      );
+    }
+
+    if (descriptor.values.length / descriptor.componentCount !== vertexCount) {
+      throw new Error(
+        `Attribute "${descriptor.name}" describes ${descriptor.values.length / descriptor.componentCount} vertices, but "${descriptors[0].name}" describes ${vertexCount}`,
       );
     }
 
@@ -210,9 +218,6 @@ function interleave(
   // The stride has to keep every attribute aligned. Component sizes are powers
   // of two, so aligning to the largest one is a multiple of all the others.
   const stride = alignTo(offset, largestComponentSize);
-  const vertexCount =
-    descriptors[0].values.byteLength /
-    (attributes[0].componentCount * attributes[0].bytesPerComponent);
 
   // A lone attribute already sits the way the GPU reads it: offset zero, and a
   // stride of exactly one vertex. Copying it again would change nothing.
