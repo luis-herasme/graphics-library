@@ -1,6 +1,12 @@
 import { PerspectiveCamera } from "./camera";
+import { Material } from "./material";
 import { Mesh } from "./mesh";
+import { Geometry } from "../geometry/geometry";
+import { GpuBuffer } from "../gpu/gpu-buffer";
+import { ShaderProgram } from "../gpu/shader-program";
+import { Texture } from "../gpu/texture";
 import { Uniform } from "../gpu/uniform";
+import { UniformBufferObject } from "../gpu/uniform-buffer-object";
 
 /** Red, green, blue and alpha, each in the [0, 1] range. */
 export type ClearColor = [number, number, number, number];
@@ -12,6 +18,12 @@ export type RendererDescriptor = {
   clearColor?: ClearColor;
 };
 
+/** A GPU buffer this renderer created, and the version of the bytes it holds. */
+type UploadedGpuBuffer = {
+  webglBuffer: WebGLBuffer;
+  version: number;
+};
+
 export class Renderer {
   readonly gl: WebGL2RenderingContext;
   readonly canvas: HTMLCanvasElement;
@@ -19,6 +31,14 @@ export class Renderer {
 
   /** Only a canvas the renderer created is kept at the window's size. */
   private readonly createdCanvas: boolean;
+
+  private readonly buffers = new WeakMap<GpuBuffer, UploadedGpuBuffer>();
+  private readonly textures = new WeakMap<Texture, WebGLTexture>();
+  private readonly shaderPrograms = new WeakMap<Material, ShaderProgram>();
+  private readonly vertexArrayObjects = new WeakMap<
+    Mesh,
+    WebGLVertexArrayObject
+  >();
 
   constructor(descriptor: RendererDescriptor = {}) {
     let canvas = descriptor.canvas;
@@ -112,15 +132,23 @@ export class Renderer {
   render(mesh: Mesh): void {
     const gl = this.gl;
 
-    mesh.prepare(gl);
-    mesh.material.applyUniforms(gl);
+    // The vertex array object records where the vertex data lives, not the
+    // bytes themselves, so edited buffers are re-uploaded through this lookup.
+    for (const vertexBuffer of mesh.geometry.vertexBuffers) {
+      this.getWebGLBuffer(vertexBuffer.buffer);
+    }
 
-    gl.bindVertexArray(mesh.getWebGLVertexArrayObject(gl));
+    this.applyUniforms(mesh.material);
+
+    gl.bindVertexArray(this.getWebGLVertexArrayObject(mesh));
 
     const indices = mesh.geometry.indices;
 
     if (indices !== null) {
-      indices.buffer.bind(gl);
+      gl.bindBuffer(
+        gl.ELEMENT_ARRAY_BUFFER,
+        this.getWebGLBuffer(indices.buffer),
+      );
 
       if (mesh.geometry.instanceCount !== null) {
         gl.drawElementsInstanced(
@@ -148,5 +176,180 @@ export class Renderer {
     } else {
       gl.drawArrays(mesh.renderPrimitive, 0, mesh.geometry.vertexCount);
     }
+  }
+
+  /** Creates this renderer's copy on the first call, then re-uploads only when the bytes changed. */
+  private getWebGLBuffer(buffer: GpuBuffer): WebGLBuffer {
+    let entry = this.buffers.get(buffer);
+
+    if (entry === undefined) {
+      entry = {
+        webglBuffer: buffer.createWebGLBuffer(this.gl),
+        version: buffer.version,
+      };
+      this.buffers.set(buffer, entry);
+    } else if (entry.version !== buffer.version) {
+      buffer.uploadTo(this.gl, entry.webglBuffer);
+      entry.version = buffer.version;
+    }
+
+    return entry.webglBuffer;
+  }
+
+  private getWebGLTexture(texture: Texture): WebGLTexture {
+    let webglTexture = this.textures.get(texture);
+
+    if (webglTexture === undefined) {
+      webglTexture = texture.createWebGLTexture(this.gl);
+      this.textures.set(texture, webglTexture);
+    }
+
+    return webglTexture;
+  }
+
+  /** Compiles and links on the first call; the expensive work runs once. */
+  private getShaderProgram(material: Material): ShaderProgram {
+    let shaderProgram = this.shaderPrograms.get(material);
+
+    if (shaderProgram === undefined) {
+      shaderProgram = new ShaderProgram({
+        gl: this.gl,
+        vertexShaderSource: material.vertexShaderSource,
+        fragmentShaderSource: material.fragmentShaderSource,
+      });
+      this.shaderPrograms.set(material, shaderProgram);
+    }
+
+    return shaderProgram;
+  }
+
+  private getWebGLVertexArrayObject(mesh: Mesh): WebGLVertexArrayObject {
+    const existing = this.vertexArrayObjects.get(mesh);
+
+    if (existing !== undefined) {
+      return existing;
+    }
+
+    const gl = this.gl;
+    const shaderProgram = this.getShaderProgram(mesh.material);
+    const webglVertexArrayObject = gl.createVertexArray();
+
+    if (webglVertexArrayObject === null) {
+      throw new Error("Failed to create WebGL vertex array object");
+    }
+
+    // A vertex array object records only attribute pointers and the index
+    // buffer binding, so vertex buffers can safely be created while it is
+    // bound.
+    gl.bindVertexArray(webglVertexArrayObject);
+
+    for (const vertexBuffer of mesh.geometry.vertexBuffers) {
+      vertexBuffer.bindAttributes(
+        gl,
+        this.getWebGLBuffer(vertexBuffer.buffer),
+        shaderProgram,
+      );
+    }
+
+    gl.bindVertexArray(null);
+    this.vertexArrayObjects.set(mesh, webglVertexArrayObject);
+    return webglVertexArrayObject;
+  }
+
+  /** Activates the shader program and uploads every uniform value. Runs on every draw. */
+  private applyUniforms(material: Material): void {
+    const gl = this.gl;
+    const shaderProgram = this.getShaderProgram(material);
+
+    gl.useProgram(shaderProgram.webglProgram);
+
+    let currentTextureUnit = 0;
+    for (const [name, uniform] of material.uniforms) {
+      if (uniform.kind === "texture") {
+        gl.activeTexture(gl.TEXTURE0 + currentTextureUnit);
+        gl.bindTexture(gl.TEXTURE_2D, this.getWebGLTexture(uniform.value));
+        shaderProgram.setUniform(name, uniform, currentTextureUnit);
+        currentTextureUnit += 1;
+        continue;
+      }
+
+      shaderProgram.setUniform(name, uniform, currentTextureUnit);
+    }
+
+    // Uniform blocks get binding points the way textures get texture units:
+    // assigned in order on every draw.
+    let currentBindingPoint = 0;
+    for (const [name, uniformBufferObject] of material.uniformBlocks) {
+      gl.bindBufferBase(
+        gl.UNIFORM_BUFFER,
+        currentBindingPoint,
+        this.getWebGLBuffer(uniformBufferObject.buffer),
+      );
+      shaderProgram.setUniformBlock(name, currentBindingPoint);
+      currentBindingPoint += 1;
+    }
+  }
+
+  private deleteBuffer(buffer: GpuBuffer): void {
+    const entry = this.buffers.get(buffer);
+
+    if (entry !== undefined) {
+      this.gl.deleteBuffer(entry.webglBuffer);
+      this.buffers.delete(buffer);
+    }
+  }
+
+  /** Frees this renderer's buffers for the geometry; the next draw recreates them. */
+  deleteGeometry(geometry: Geometry): void {
+    for (const vertexBuffer of geometry.vertexBuffers) {
+      this.deleteBuffer(vertexBuffer.buffer);
+    }
+
+    if (geometry.indices !== null) {
+      this.deleteBuffer(geometry.indices.buffer);
+    }
+  }
+
+  /** Frees this renderer's texture; the next draw recreates it. */
+  deleteTexture(texture: Texture): void {
+    const webglTexture = this.textures.get(texture);
+
+    if (webglTexture !== undefined) {
+      this.gl.deleteTexture(webglTexture);
+      this.textures.delete(texture);
+    }
+  }
+
+  /**
+   * Frees this renderer's shader program; the next draw compiles it again.
+   * Textures and uniform buffer objects can be shared between materials, so
+   * they are not deleted here.
+   */
+  deleteMaterial(material: Material): void {
+    const shaderProgram = this.shaderPrograms.get(material);
+
+    if (shaderProgram !== undefined) {
+      shaderProgram.delete();
+      this.shaderPrograms.delete(material);
+    }
+  }
+
+  /**
+   * Frees this renderer's vertex array object; the next draw rebuilds it. The
+   * geometry and material can be shared between meshes, so they are not
+   * deleted here.
+   */
+  deleteMesh(mesh: Mesh): void {
+    const webglVertexArrayObject = this.vertexArrayObjects.get(mesh);
+
+    if (webglVertexArrayObject !== undefined) {
+      this.gl.deleteVertexArray(webglVertexArrayObject);
+      this.vertexArrayObjects.delete(mesh);
+    }
+  }
+
+  /** Frees this renderer's buffer for the uniform buffer object; the next draw recreates it. */
+  deleteUniformBufferObject(uniformBufferObject: UniformBufferObject): void {
+    this.deleteBuffer(uniformBufferObject.buffer);
   }
 }
