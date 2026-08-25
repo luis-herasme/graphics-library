@@ -55,8 +55,9 @@ export type VertexBufferDescriptor = {
 };
 
 /**
- * A GPU buffer holding one or more vertex attributes. With several attributes
- * the values are interleaved, so everything one vertex needs sits together.
+ * One or more vertex attributes and their layout inside a shared buffer. With
+ * several attributes the values are interleaved, so everything one vertex
+ * needs sits together.
  */
 export class VertexBuffer {
   readonly attributes: VertexAttribute[];

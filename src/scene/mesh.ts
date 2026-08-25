@@ -19,8 +19,8 @@ export type MeshDescriptor = {
 
 export class Mesh {
   transform = new Transform3D();
-  geometry: Geometry;
-  material: Material;
+  readonly geometry: Geometry;
+  readonly material: Material;
   renderPrimitive: RenderPrimitive = WebGL2RenderingContext.TRIANGLES;
 
   constructor(descriptor: MeshDescriptor) {

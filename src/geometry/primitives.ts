@@ -62,14 +62,6 @@ export function quad(): Geometry {
   });
 }
 
-export function quadInterleaved(): Geometry {
-  return new Geometry({
-    vertexCount: 4,
-    indices: new IndexBuffer({ data: QUAD_INDICES }),
-    vertexBuffers: [new VertexBuffer({ attributes: QUAD_ATTRIBUTES })],
-  });
-}
-
 export function quadInstanced(count: number): Geometry {
   return new Geometry({
     vertexCount: 4,
@@ -83,18 +75,6 @@ export function quadInstanced(count: number): Geometry {
         attributes: [instanceTransforms(count)],
         usage: WebGL2RenderingContext.DYNAMIC_DRAW,
       }),
-    ],
-  });
-}
-
-export function quadInstancedAndInterleaved(count: number): Geometry {
-  return new Geometry({
-    vertexCount: 4,
-    instanceCount: count,
-    indices: new IndexBuffer({ data: QUAD_INDICES }),
-    vertexBuffers: [
-      new VertexBuffer({ attributes: QUAD_ATTRIBUTES }),
-      new VertexBuffer({ attributes: [instanceTransforms(count)] }),
     ],
   });
 }

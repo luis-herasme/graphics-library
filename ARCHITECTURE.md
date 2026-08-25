@@ -41,9 +41,10 @@ those classes describe live inside `Renderer`.
 - **math/** — pure values with no WebGL in them: `Vector2`, `Vector3`,
   `Quaternion`, `Matrix3`, `Matrix4`, `Transform2D`, `Transform3D`. A transform
   is scale + rotation + translation, and turns into a matrix on demand.
-- **gpu/** — wrappers around raw WebGL resources: `GpuBuffer`, `Texture`,
-  `ShaderProgram`, `UniformBufferObject`, and the `Uniform` value type. This
-  layer moves bytes; it does not know what the bytes mean.
+- **gpu/** — descriptions of GPU resources that know how to create them:
+  `GpuBuffer`, `Texture`, `ShaderProgram`, `UniformBufferObject`, and the
+  `Uniform` value type. This layer moves bytes; it does not know what the
+  bytes mean.
 - **geometry/** — gives meaning to GPU buffers: vertex attributes and their
   layout (`VertexBuffer`), triangle indices (`IndexBuffer`), their combination
   (`Geometry`), and built-in shapes (`primitives.ts`).
@@ -156,7 +157,13 @@ These are deliberate, and new code should follow them.
   copy and the next draw rebuilds it. The delete methods never reach into
   things that can be shared: `deleteMesh` does not delete the mesh's geometry
   or material, and `deleteMaterial` does not delete the material's textures or
-  uniform buffer objects.
+  uniform buffer objects. A mesh's `geometry` and `material` are `readonly`
+  because the vertex array object is built from that pair; to draw the same
+  geometry with another material, make a new mesh. `ShaderProgram` is the one
+  deliberate exception to renderer ownership: a shader program has no CPU half
+  (the sources live in `Material`), so the class is the GPU resource itself,
+  carrying the uniform and attribute location caches a raw `WebGLProgram` has
+  no place for — the renderer still creates one per material per context.
 - **Counts are trusted on purpose.** `Geometry.vertexCount` is caller-supplied
   (a geometry may have no vertex buffers to derive it from) and `setVertex`
   does not range-check, because the platform already fails safely: WebGL never
