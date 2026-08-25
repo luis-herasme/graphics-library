@@ -75,4 +75,16 @@ export class Mesh {
     gl.bindVertexArray(null);
     return webglVertexArrayObject;
   }
+
+  /**
+   * Frees the GPU vertex array object; the next draw rebuilds it. The geometry
+   * and material can be shared between meshes, so they are not deleted here —
+   * call their own `delete` when nothing else uses them.
+   */
+  delete(gl: WebGL2RenderingContext): void {
+    if (this.webglVertexArrayObject !== null) {
+      gl.deleteVertexArray(this.webglVertexArrayObject);
+      this.webglVertexArrayObject = null;
+    }
+  }
 }

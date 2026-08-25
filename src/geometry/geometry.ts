@@ -52,4 +52,15 @@ export class Geometry {
 
     throw new Error(`This geometry has no attribute named "${attributeName}"`);
   }
+
+  /** Frees the GPU buffers of every vertex buffer and of the index buffer. */
+  delete(gl: WebGL2RenderingContext): void {
+    for (const vertexBuffer of this.vertexBuffers) {
+      vertexBuffer.delete(gl);
+    }
+
+    if (this.indices !== null) {
+      this.indices.delete(gl);
+    }
+  }
 }

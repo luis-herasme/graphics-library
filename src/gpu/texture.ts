@@ -118,4 +118,12 @@ export class Texture {
 
     return webglTexture;
   }
+
+  /** Frees the GPU texture. The texture data stays, so the next use recreates it. */
+  delete(gl: WebGL2RenderingContext): void {
+    if (this.webglTexture !== null) {
+      gl.deleteTexture(this.webglTexture);
+      this.webglTexture = null;
+    }
+  }
 }

@@ -127,6 +127,11 @@ export class VertexBuffer {
     }
   }
 
+  /** Frees the GPU buffer. The CPU copy stays, so the next draw recreates it. */
+  delete(gl: WebGL2RenderingContext): void {
+    this.buffer.delete(gl);
+  }
+
   /** Overwrites one vertex of one attribute. The attribute must be one of this buffer's. */
   setVertex(
     attribute: VertexAttribute,

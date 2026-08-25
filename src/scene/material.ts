@@ -77,4 +77,16 @@ export class Material {
       currentBindingPoint += 1;
     }
   }
+
+  /**
+   * Frees the GPU program; the next draw compiles it again. Textures and
+   * uniform buffer objects can be shared between materials, so they are not
+   * deleted here — delete them where they were created.
+   */
+  delete(): void {
+    if (this.shaderProgram !== null) {
+      this.shaderProgram.delete();
+      this.shaderProgram = null;
+    }
+  }
 }
