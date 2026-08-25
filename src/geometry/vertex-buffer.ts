@@ -89,9 +89,10 @@ export class VertexBuffer {
   /** Binds the buffer and points every attribute the shader uses at it. */
   bindAttributes(
     gl: WebGL2RenderingContext,
+    webglBuffer: WebGLBuffer,
     shaderProgram: ShaderProgram,
   ): void {
-    this.buffer.bind(gl);
+    gl.bindBuffer(WebGL2RenderingContext.ARRAY_BUFFER, webglBuffer);
 
     for (const attribute of this.attributes) {
       const location = shaderProgram.getAttributeLocation(attribute.name);
@@ -125,11 +126,6 @@ export class VertexBuffer {
         }
       }
     }
-  }
-
-  /** Frees the GPU buffer. The CPU copy stays, so the next draw recreates it. */
-  delete(gl: WebGL2RenderingContext): void {
-    this.buffer.delete(gl);
   }
 
   /** Overwrites one vertex of one attribute. The attribute must be one of this buffer's. */

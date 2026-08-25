@@ -35,7 +35,8 @@ graph TD
 
 The two sides of a mesh mirror each other: `Geometry` gives meaning to GPU
 buffers, and `Material` gives meaning to a shader program. `Mesh` pairs them,
-and `Renderer` draws the pair.
+and `Renderer` draws the pair. The arrows mean "uses"; the raw WebGL objects
+those classes describe live inside `Renderer`.
 
 - **math/** — pure values with no WebGL in them: `Vector2`, `Vector3`,
   `Quaternion`, `Matrix3`, `Matrix4`, `Transform2D`, `Transform3D`. A transform
@@ -54,48 +55,49 @@ and `Renderer` draws the pair.
 
 ## The life of a draw
 
-Everything can be constructed before a WebGL context exists. Each wrapper
-holds a CPU-side copy of its data and a `null` slot for the GPU resource; the
-GPU resource is created the first time it is needed and reused after that.
+Everything can be constructed before a WebGL context exists. Each object holds
+only CPU data; each `Renderer` keeps the GPU resources it created for them in
+weak maps keyed by the object. The first draw creates a resource; later draws
+re-upload a buffer only when its version counter says the bytes changed.
+Because the maps are weak, dropping every reference to an object lets the
+browser free its GPU resources.
 
 1. **Construction** — `new VertexBuffer(...)` interleaves the attribute values
    into one byte array and computes each attribute's offset and the shared
    stride. `new IndexBuffer(...)` wraps the index array. `new Geometry(...)`
    groups them. `new Material(...)` just stores the two shader sources.
    No WebGL call happens yet.
-2. **First render** — `Renderer.render(mesh)` calls `mesh.prepare(gl)`, which
-   creates and uploads the vertex buffers, compiles and links the shader
-   program (caching every uniform, attribute, and uniform-block location), and
-   uploads the index buffer. The mesh then builds its vertex array object:
-   for each attribute the shader actually uses, it points an attribute
-   location at the right offset inside the right buffer. Attributes the
-   shader does not use are silently skipped.
-3. **Every render** — `mesh.prepare(gl)` re-uploads only buffers whose bytes
-   changed since the last draw (`needsUpdate`). `material.applyUniforms(gl)`
-   activates the program and uploads every stored uniform value, assigning
+2. **First render** — `Renderer.render(mesh)` creates and uploads the vertex
+   buffers, compiles and links the shader program (caching every uniform,
+   attribute, and uniform-block location), and uploads the index buffer,
+   storing each resource in the matching weak map. The renderer then builds
+   the mesh's vertex array object: for each attribute the shader actually
+   uses, it points an attribute location at the right offset inside the right
+   buffer. Attributes the shader does not use are silently skipped.
+3. **Every render** — the renderer looks up each resource in its weak maps and
+   re-uploads only buffers whose version counter changed since the last draw.
+   It activates the program and uploads every stored uniform value, assigning
    texture units and uniform-block binding points in insertion order. Then
    the renderer picks one of the four WebGL draw calls based on whether the
    geometry has indices and whether it has an instance count.
 4. **Editing after the fact** — `Geometry.setVertex(name, index, values)`
-   writes into the CPU copy and marks the buffer dirty; the change reaches
-   the GPU on the next draw. The same applies to
+   writes into the CPU copy and bumps the buffer's version counter; the
+   change reaches the GPU on the next draw. The same applies to
    `UniformBufferObject.setBytes`.
 
 ```mermaid
 sequenceDiagram
   participant R as Renderer.render
-  participant M as Mesh
+  participant Maps as Renderer's resource maps
   participant Mat as Material
-  participant G as GpuBuffer
 
-  R->>M: prepare(gl)
-  M->>G: upload vertex buffers (only if bytes changed)
-  M->>Mat: getShaderProgram(gl) (compiled once, then cached)
-  M->>G: upload index buffer (only if bytes changed)
-  R->>Mat: applyUniforms(gl)
-  Note over Mat: use program, upload uniforms,<br/>assign texture units and binding points
-  R->>M: getWebGLVertexArrayObject(gl) (built once, then cached)
-  R->>G: bind index buffer (if the geometry has one)
+  R->>Maps: get vertex buffers (created once, re-uploaded only when the version changed)
+  R->>Maps: get shader program (compiled once, then cached)
+  R->>Maps: get index buffer (created once, re-uploaded only when the version changed)
+  R->>Mat: read uniforms and uniform blocks
+  Note over R: use program, upload uniforms,<br/>assign texture units and binding points
+  R->>Maps: get vertex array object (built once, then cached)
+  R->>R: bind index buffer (if the geometry has one)
   R->>R: drawElements / drawArrays<br/>(instanced variant if instanceCount is set)
 ```
 
@@ -135,22 +137,27 @@ These are deliberate, and new code should follow them.
   positional arguments instead, since their components are already ordered.
 - **`undefined` is for inputs, `null` is for state.** A caller omits a
   descriptor setting by leaving it `undefined`. A class field that
-  deliberately holds nothing (`webglTexture`, `Geometry.indices`,
-  `Geometry.instanceCount`) is `null`, and typing it `X | null` forces the
-  constructor to assign it.
+  deliberately holds nothing (`Geometry.indices`, `Geometry.instanceCount`)
+  is `null`, and typing it `X | null` forces the constructor to assign it.
 - **One vertex buffer, one layout choice.** Several attributes in one
   `VertexBuffer` are interleaved, so everything one vertex needs sits
   together. One attribute per `VertexBuffer` is stored as-is — the caller's
   array is used directly, with no copy. To keep attributes in separate
   regions, use separate vertex buffers; a "several attributes, not
   interleaved, same buffer" layout is deliberately unsupported.
-- **Deleting frees the GPU copy, not the object.** Every wrapper with a GPU
-  resource has a `delete` method that frees that resource and clears the
-  lazy slot, so the CPU side stays valid and the next draw simply recreates
-  it — there is no "disposed" state and no use-after-free. `delete` never
-  reaches into things that can be shared: a `Mesh` does not delete its
-  geometry or material, and a `Material` does not delete its textures or
-  uniform buffer objects. Whoever created a resource deletes it.
+- **The renderer owns every GPU resource.** Scene objects are pure CPU data;
+  each renderer keeps its own GPU copies in weak maps keyed by the object, so
+  sharing objects between renderers (contexts) just works — each renderer
+  creates its own copy for its own context. `Renderer.deleteGeometry`,
+  `deleteTexture`, `deleteMaterial`, `deleteMesh`, and
+  `deleteUniformBufferObject` free a resource while leaving the object valid —
+  the next draw recreates it, so there is no "disposed" state and no
+  use-after-free. This is also the lever for changed settings: after changing
+  a `Texture`'s settings or a geometry's vertex buffers, delete the renderer's
+  copy and the next draw rebuilds it. The delete methods never reach into
+  things that can be shared: `deleteMesh` does not delete the mesh's geometry
+  or material, and `deleteMaterial` does not delete the material's textures or
+  uniform buffer objects.
 - **Counts are trusted on purpose.** `Geometry.vertexCount` is caller-supplied
   (a geometry may have no vertex buffers to derive it from) and `setVertex`
   does not range-check, because the platform already fails safely: WebGL never
@@ -181,12 +188,6 @@ Real limitations found by reading the code, in rough order of importance.
    channels from the file. `update()` advances a clock that changes nothing.
    Either load channels from the glTF `animations` array, or delete the
    sampling half until it is needed.
-3. **One WebGL context is assumed.** A `Material` compiles its shader program
-   against the first context it sees and a `Mesh` builds its vertex array
-   object once; sharing either across two `Renderer`s would silently use
-   resources from the wrong context. Likewise, changing `Geometry.vertexBuffers`
-   or a `Texture`'s settings after the first draw has no effect, because the
-   vertex array object and the GPU texture are never rebuilt.
-4. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
+3. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
    dirty, so one edited vertex re-uploads everything. Irrelevant at current
    sizes; worth knowing if buffers get large.

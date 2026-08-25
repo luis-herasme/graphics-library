@@ -14,16 +14,15 @@ export type GpuBufferDescriptor = {
 };
 
 /**
- * A buffer of raw bytes mirrored on the CPU and the GPU. The GPU copy is
- * created lazily and re-uploaded before rendering whenever the CPU copy changed.
+ * A buffer of raw bytes. The buffer holds the CPU copy and knows how to create
+ * and refill a GPU copy, but a renderer owns the GPU copy.
  */
 export class GpuBuffer {
   readonly target: BufferTarget;
   readonly usage: BufferUsage;
 
   private bytes: Uint8Array;
-  private webglBuffer: WebGLBuffer | null = null;
-  private needsUpdate = false;
+  private currentVersion = 0;
 
   constructor(descriptor: GpuBufferDescriptor) {
     this.target = descriptor.target;
@@ -31,15 +30,12 @@ export class GpuBuffer {
     this.bytes = descriptor.bytes;
   }
 
-  getWebGLBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
-    if (this.webglBuffer === null) {
-      this.webglBuffer = this.createWebGLBuffer(gl);
-    }
-
-    return this.webglBuffer;
+  /** Counts every CPU-side change; a renderer re-uploads when its copy is behind. */
+  get version(): number {
+    return this.currentVersion;
   }
 
-  private createWebGLBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
+  createWebGLBuffer(gl: WebGL2RenderingContext): WebGLBuffer {
     const webglBuffer = gl.createBuffer();
 
     if (webglBuffer === null) {
@@ -51,38 +47,19 @@ export class GpuBuffer {
     return webglBuffer;
   }
 
-  /** Overwrites part of the CPU buffer. The GPU buffer is updated on the next render. */
+  /** Refills an existing GPU copy with the current CPU bytes. */
+  uploadTo(gl: WebGL2RenderingContext, webglBuffer: WebGLBuffer): void {
+    gl.bindBuffer(this.target, webglBuffer);
+    gl.bufferSubData(this.target, 0, this.bytes);
+  }
+
+  /** Overwrites part of the CPU buffer. A renderer re-uploads on the next draw. */
   setBytes(byteOffset: number, value: ArrayBufferView): void {
     this.bytes.set(
       new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
       byteOffset,
     );
-    this.needsUpdate = true;
-  }
-
-  /** Creates the GPU buffer on the first call, then re-uploads only when the bytes changed. */
-  upload(gl: WebGL2RenderingContext): void {
-    const webglBuffer = this.getWebGLBuffer(gl);
-
-    if (!this.needsUpdate) {
-      return;
-    }
-
-    gl.bindBuffer(this.target, webglBuffer);
-    gl.bufferSubData(this.target, 0, this.bytes);
-    this.needsUpdate = false;
-  }
-
-  bind(gl: WebGL2RenderingContext): void {
-    gl.bindBuffer(this.target, this.getWebGLBuffer(gl));
-  }
-
-  /** Frees the GPU buffer. The CPU copy stays, so the next use recreates it. */
-  delete(gl: WebGL2RenderingContext): void {
-    if (this.webglBuffer !== null) {
-      gl.deleteBuffer(this.webglBuffer);
-      this.webglBuffer = null;
-    }
+    this.currentVersion += 1;
   }
 
   get size(): number {

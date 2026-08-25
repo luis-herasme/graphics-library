@@ -36,6 +36,10 @@ export type ImagePixelData = {
 export type TextureData = HTMLImageElement | ImagePixelData;
 
 /**
+ * Holds the settings and pixel data of a texture; a renderer owns the GPU
+ * texture. To apply changed settings, ask the renderer to delete its copy so
+ * the next draw recreates it.
+ *
  * Texture parameters are documented at:
  * https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#pname
  */
@@ -48,7 +52,6 @@ export class Texture {
   format: TextureFormat = WebGL2RenderingContext.RGBA;
   internalFormat: TextureFormat = WebGL2RenderingContext.RGBA;
   textureData: TextureData;
-  webglTexture: WebGLTexture | null = null;
 
   constructor(textureData: TextureData) {
     this.textureData = textureData;
@@ -62,15 +65,7 @@ export class Texture {
     return new Texture(image);
   }
 
-  getWebGLTexture(gl: WebGL2RenderingContext): WebGLTexture {
-    if (this.webglTexture === null) {
-      this.webglTexture = this.createWebGLTexture(gl);
-    }
-
-    return this.webglTexture;
-  }
-
-  private createWebGLTexture(gl: WebGL2RenderingContext): WebGLTexture {
+  createWebGLTexture(gl: WebGL2RenderingContext): WebGLTexture {
     const webglTexture = gl.createTexture();
 
     if (webglTexture === null) {
@@ -117,13 +112,5 @@ export class Texture {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, this.wrapVertical);
 
     return webglTexture;
-  }
-
-  /** Frees the GPU texture. The texture data stays, so the next use recreates it. */
-  delete(gl: WebGL2RenderingContext): void {
-    if (this.webglTexture !== null) {
-      gl.deleteTexture(this.webglTexture);
-      this.webglTexture = null;
-    }
   }
 }
