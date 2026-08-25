@@ -25,6 +25,11 @@ export class UniformBufferObject {
     this.buffer.setBytes(byteOffset, data);
   }
 
+  /** Frees the GPU buffer. The CPU copy stays, so the next draw recreates it. */
+  delete(gl: WebGL2RenderingContext): void {
+    this.buffer.delete(gl);
+  }
+
   /** Uploads pending changes and attaches the buffer to a binding point. */
   bind(gl: WebGL2RenderingContext, bindingPoint: number): void {
     this.buffer.upload(gl);

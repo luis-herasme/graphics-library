@@ -47,6 +47,10 @@ export class ShaderProgram {
       throw new Error(`Failed to link WebGL program: ${log}`);
     }
 
+    // The linked program keeps its own copy; the shader objects can go.
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
     this.gl = gl;
     this.webglProgram = webglProgram;
     this.collectUniformLocations();
@@ -237,5 +241,10 @@ export class ShaderProgram {
     }
 
     this.gl.uniformBlockBinding(this.webglProgram, blockLocation, bindingPoint);
+  }
+
+  /** Frees the GPU program. Unlike the lazy resources, a deleted program is gone for good. */
+  delete(): void {
+    this.gl.deleteProgram(this.webglProgram);
   }
 }

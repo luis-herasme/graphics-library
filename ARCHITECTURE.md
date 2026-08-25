@@ -144,6 +144,13 @@ These are deliberate, and new code should follow them.
   array is used directly, with no copy. To keep attributes in separate
   regions, use separate vertex buffers; a "several attributes, not
   interleaved, same buffer" layout is deliberately unsupported.
+- **Deleting frees the GPU copy, not the object.** Every wrapper with a GPU
+  resource has a `delete` method that frees that resource and clears the
+  lazy slot, so the CPU side stays valid and the next draw simply recreates
+  it — there is no "disposed" state and no use-after-free. `delete` never
+  reaches into things that can be shared: a `Mesh` does not delete its
+  geometry or material, and a `Material` does not delete its textures or
+  uniform buffer objects. Whoever created a resource deletes it.
 - **Missing shader inputs are not errors.** Setting a uniform the shader does
   not use, or binding an attribute the shader does not read, is silently
   skipped. Shaders often optimize inputs away, and drawing the same geometry
@@ -173,14 +180,11 @@ Real limitations found by reading the code, in rough order of importance.
    resources from the wrong context. Likewise, changing `Geometry.vertexBuffers`
    or a `Texture`'s settings after the first draw has no effect, because the
    vertex array object and the GPU texture are never rebuilt.
-4. **Nothing is ever deleted.** There is no way to free a buffer, texture,
-   program, or vertex array object. Fine for a page that draws until it is
-   closed; a leak for anything that creates resources over time.
-5. **Counts are trusted, not checked.** `Geometry.vertexCount` is
+4. **Counts are trusted, not checked.** `Geometry.vertexCount` is
    caller-supplied and can disagree with what the buffers hold; `setVertex`
    does not check that `vertexIndex` is in range; every attribute in a
    `VertexBuffer` is assumed to cover the same number of vertices (only the
    first attribute's length determines the vertex count).
-6. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
+5. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
    dirty, so one edited vertex re-uploads everything. Irrelevant at current
    sizes; worth knowing if buffers get large.

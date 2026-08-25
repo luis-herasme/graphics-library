@@ -77,6 +77,14 @@ export class GpuBuffer {
     gl.bindBuffer(this.target, this.getWebGLBuffer(gl));
   }
 
+  /** Frees the GPU buffer. The CPU copy stays, so the next use recreates it. */
+  delete(gl: WebGL2RenderingContext): void {
+    if (this.webglBuffer !== null) {
+      gl.deleteBuffer(this.webglBuffer);
+      this.webglBuffer = null;
+    }
+  }
+
   get size(): number {
     return this.bytes.byteLength;
   }
