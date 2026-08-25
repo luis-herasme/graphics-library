@@ -1,9 +1,5 @@
 import { GpuBuffer } from "./gpu-buffer";
 
-export type UniformBufferObjectDescriptor = {
-  bytes: Uint8Array;
-};
-
 /**
  * A buffer for a shader uniform block. The renderer uploads and binds it
  * during a draw. Attach it to a material with
@@ -12,11 +8,11 @@ export type UniformBufferObjectDescriptor = {
 export class UniformBufferObject {
   readonly buffer: GpuBuffer;
 
-  constructor(descriptor: UniformBufferObjectDescriptor) {
+  constructor(bytes: Uint8Array) {
     this.buffer = new GpuBuffer({
       target: WebGL2RenderingContext.UNIFORM_BUFFER,
       usage: WebGL2RenderingContext.DYNAMIC_DRAW,
-      bytes: descriptor.bytes.slice(),
+      bytes: bytes.slice(),
     });
   }
 
