@@ -100,8 +100,10 @@ sequenceDiagram
 ```
 
 `Renderer.render(mesh)` draws one mesh and nothing else. `renderScene(scene,
-camera)` adds the frame housekeeping: it clears, resizes the canvas to the
-window, and sets three camera uniforms on every mesh (see "Known gaps").
+camera)` adds the frame housekeeping: it clears, keeps the canvas size, the
+camera's aspect ratio, and the viewport in sync, and sets three camera
+uniforms on every mesh (see "Known gaps"). A canvas the renderer created is
+kept at the window's size; a canvas the caller passed in is left alone.
 
 The library owns no frame loop; the caller decides when to draw.
 
@@ -174,15 +176,11 @@ Real limitations found by reading the code, in rough order of importance.
 4. **Nothing is ever deleted.** There is no way to free a buffer, texture,
    program, or vertex array object. Fine for a page that draws until it is
    closed; a leak for anything that creates resources over time.
-5. **`renderScene` assumes it owns the window.** It resizes the canvas to
-   `window.innerWidth`/`innerHeight` even when the caller passed in their own
-   canvas, and it hard-codes the clear color. `render` does neither, so the
-   two entry points behave differently.
-6. **Counts are trusted, not checked.** `Geometry.vertexCount` is
+5. **Counts are trusted, not checked.** `Geometry.vertexCount` is
    caller-supplied and can disagree with what the buffers hold; `setVertex`
    does not check that `vertexIndex` is in range; every attribute in a
    `VertexBuffer` is assumed to cover the same number of vertices (only the
    first attribute's length determines the vertex count).
-7. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
+6. **Whole-buffer uploads.** `GpuBuffer.setBytes` marks the entire buffer
    dirty, so one edited vertex re-uploads everything. Irrelevant at current
    sizes; worth knowing if buffers get large.

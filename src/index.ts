@@ -70,6 +70,7 @@ export type { MaterialDescriptor } from "./scene/material";
 export { Mesh } from "./scene/mesh";
 export type { MeshDescriptor, RenderPrimitive } from "./scene/mesh";
 export { Renderer } from "./scene/renderer";
+export type { ClearColor, RendererDescriptor } from "./scene/renderer";
 export { UniformBufferObject } from "./gpu/uniform-buffer-object";
 export type { UniformBufferObjectDescriptor } from "./gpu/uniform-buffer-object";
 export type { Uniform } from "./gpu/uniform";
