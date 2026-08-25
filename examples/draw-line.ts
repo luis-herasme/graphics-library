@@ -86,7 +86,7 @@ const skeletonVertexBuffer = new VertexBuffer({
   attributes: [
     {
       name: "position",
-      values: lines.map((line) => line.toArray()),
+      values: new Float32Array(lines.flatMap((line) => line.toArray())),
       componentCount: 3,
     },
   ],

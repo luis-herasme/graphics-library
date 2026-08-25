@@ -10,29 +10,8 @@ export type VertexComponentType =
   | typeof WebGL2RenderingContext.UNSIGNED_INT
   | typeof WebGL2RenderingContext.FLOAT;
 
-type TypedArrayConstructor =
-  | Int8ArrayConstructor
-  | Uint8ArrayConstructor
-  | Int16ArrayConstructor
-  | Uint16ArrayConstructor
-  | Int32ArrayConstructor
-  | Uint32ArrayConstructor
-  | Float32ArrayConstructor;
-
-export const TYPED_ARRAY_FOR_COMPONENT_TYPE: Record<
-  VertexComponentType,
-  TypedArrayConstructor
-> = {
-  [WebGL2RenderingContext.BYTE]: Int8Array,
-  [WebGL2RenderingContext.UNSIGNED_BYTE]: Uint8Array,
-  [WebGL2RenderingContext.SHORT]: Int16Array,
-  [WebGL2RenderingContext.UNSIGNED_SHORT]: Uint16Array,
-  [WebGL2RenderingContext.INT]: Int32Array,
-  [WebGL2RenderingContext.UNSIGNED_INT]: Uint32Array,
-  [WebGL2RenderingContext.FLOAT]: Float32Array,
-};
-
-type TypedArray =
+/** Flat values, one vertex after another. The array type picks the component type. */
+export type VertexAttributeValues =
   | Int8Array
   | Uint8Array
   | Int16Array
@@ -41,10 +20,6 @@ type TypedArray =
   | Uint32Array
   | Float32Array;
 
-/** Flat values, or one array per vertex (e.g. `[[x, y, z], ...]`). */
-export type VertexAttributeValues =
-  number[] | number[][] | TypedArray | TypedArray[];
-
 /** One vertex attribute as the caller describes it, before it has a place in a buffer. */
 export type VertexAttributeDescriptor = {
   /** The name the shader sees. */
@@ -52,8 +27,6 @@ export type VertexAttributeDescriptor = {
   values: VertexAttributeValues;
   /** Components per vertex (e.g. 3 for a vec3, 9 for a mat3). */
   componentCount: number;
-  /** Defaults to `WebGL2RenderingContext.FLOAT`. */
-  componentType?: VertexComponentType;
   /** Only matrices have more than one column. Defaults to 1. */
   numberOfColumns?: number;
   /** How many instances share one value (0 = a value per vertex). Defaults to 0. */
@@ -67,6 +40,8 @@ export type VertexAttribute = {
   readonly name: string;
   readonly componentCount: number;
   readonly componentType: VertexComponentType;
+  /** The size of one component, which is also the alignment the GPU expects for it. */
+  readonly bytesPerComponent: number;
   readonly numberOfColumns: number;
   readonly divisor: number;
   readonly normalize: boolean;
@@ -130,8 +105,7 @@ export class VertexBuffer {
       // this loop.
       const componentsPerColumn =
         attribute.componentCount / attribute.numberOfColumns;
-      const columnSize =
-        componentsPerColumn * componentSizeInBytes(attribute.componentType);
+      const columnSize = componentsPerColumn * attribute.bytesPerComponent;
 
       for (let column = 0; column < attribute.numberOfColumns; column++) {
         const columnLocation = location + column;
@@ -157,10 +131,10 @@ export class VertexBuffer {
   setVertex(
     attribute: VertexAttribute,
     vertexIndex: number,
-    values: ArrayBufferView | number[],
+    values: ArrayBufferView,
   ): void {
     const byteOffset = vertexIndex * this.stride + attribute.offset;
-    this.buffer.setBytes(byteOffset, toArrayBufferView(values, attribute));
+    this.buffer.setBytes(byteOffset, values);
   }
 }
 
@@ -181,21 +155,21 @@ function interleave(
     throw new Error("A vertex buffer needs at least one attribute");
   }
 
-  const valueBytes = descriptors.map(toBytes);
   const attributes: VertexAttribute[] = [];
 
   let largestComponentSize = 1;
   let offset = 0;
 
   for (const descriptor of descriptors) {
-    let componentType = descriptor.componentType;
+    if (descriptor.values.length % descriptor.componentCount !== 0) {
+      throw new Error(
+        `Vertex data length (${descriptor.values.length}) is not a multiple of the component count (${descriptor.componentCount})`,
+      );
+    }
+
     let numberOfColumns = descriptor.numberOfColumns;
     let divisor = descriptor.divisor;
     let normalize = descriptor.normalize;
-
-    if (componentType === undefined) {
-      componentType = WebGL2RenderingContext.FLOAT;
-    }
 
     if (numberOfColumns === undefined) {
       numberOfColumns = 1;
@@ -209,47 +183,50 @@ function interleave(
       normalize = false;
     }
 
-    const componentSize = componentSizeInBytes(componentType);
+    const bytesPerComponent = descriptor.values.BYTES_PER_ELEMENT;
 
-    largestComponentSize = Math.max(largestComponentSize, componentSize);
-    offset = alignTo(offset, componentSize);
+    largestComponentSize = Math.max(largestComponentSize, bytesPerComponent);
+    offset = alignTo(offset, bytesPerComponent);
 
     attributes.push({
       name: descriptor.name,
       componentCount: descriptor.componentCount,
-      componentType,
+      componentType: componentTypeOf(descriptor.values),
+      bytesPerComponent,
       numberOfColumns,
       divisor,
       normalize,
       offset,
     });
 
-    offset += descriptor.componentCount * componentSize;
+    offset += descriptor.componentCount * bytesPerComponent;
   }
 
   // The stride has to keep every attribute aligned. Component sizes are powers
   // of two, so aligning to the largest one is a multiple of all the others.
   const stride = alignTo(offset, largestComponentSize);
   const vertexCount =
-    valueBytes[0].byteLength / vertexSizeInBytes(attributes[0]);
+    descriptors[0].values.byteLength /
+    (attributes[0].componentCount * attributes[0].bytesPerComponent);
 
   // A lone attribute already sits the way the GPU reads it: offset zero, and a
   // stride of exactly one vertex. Copying it again would change nothing.
   if (attributes.length === 1) {
-    return { attributes, stride, bytes: valueBytes[0] };
+    return { attributes, stride, bytes: toUint8Array(descriptors[0].values) };
   }
 
   const bytes = new Uint8Array(stride * vertexCount);
 
   for (let index = 0; index < attributes.length; index++) {
     const attribute = attributes[index];
-    const size = vertexSizeInBytes(attribute);
+    const valueBytes = toUint8Array(descriptors[index].values);
+    const size = attribute.componentCount * attribute.bytesPerComponent;
 
     for (let vertexIndex = 0; vertexIndex < vertexCount; vertexIndex++) {
       const start = vertexIndex * size;
 
       bytes.set(
-        valueBytes[index].subarray(start, start + size),
+        valueBytes.subarray(start, start + size),
         vertexIndex * stride + attribute.offset,
       );
     }
@@ -258,58 +235,27 @@ function interleave(
   return { attributes, stride, bytes };
 }
 
-/** Flattens the caller's values and converts them to the attribute's component type. */
-function toBytes(descriptor: VertexAttributeDescriptor): Uint8Array {
-  let componentType = descriptor.componentType;
-
-  if (componentType === undefined) {
-    componentType = WebGL2RenderingContext.FLOAT;
+function componentTypeOf(values: VertexAttributeValues): VertexComponentType {
+  if (values instanceof Int8Array) {
+    return WebGL2RenderingContext.BYTE;
+  } else if (values instanceof Uint8Array) {
+    return WebGL2RenderingContext.UNSIGNED_BYTE;
+  } else if (values instanceof Int16Array) {
+    return WebGL2RenderingContext.SHORT;
+  } else if (values instanceof Uint16Array) {
+    return WebGL2RenderingContext.UNSIGNED_SHORT;
+  } else if (values instanceof Int32Array) {
+    return WebGL2RenderingContext.INT;
+  } else if (values instanceof Uint32Array) {
+    return WebGL2RenderingContext.UNSIGNED_INT;
+  } else {
+    return WebGL2RenderingContext.FLOAT;
   }
-
-  const values: number[] = [];
-
-  for (const element of descriptor.values) {
-    if (typeof element === "number") {
-      values.push(element);
-    } else {
-      for (const value of element) {
-        values.push(value);
-      }
-    }
-  }
-
-  if (values.length % descriptor.componentCount !== 0) {
-    throw new Error(
-      `Vertex data length (${values.length}) is not a multiple of the component count (${descriptor.componentCount})`,
-    );
-  }
-
-  const TypedArray = TYPED_ARRAY_FOR_COMPONENT_TYPE[componentType];
-  return new Uint8Array(new TypedArray(values).buffer);
 }
 
-function toArrayBufferView(
-  values: ArrayBufferView | number[],
-  attribute: VertexAttribute,
-): ArrayBufferView {
-  if (Array.isArray(values)) {
-    const TypedArray = TYPED_ARRAY_FOR_COMPONENT_TYPE[attribute.componentType];
-    return new TypedArray(values);
-  }
-
-  return values;
-}
-
-/** The bytes one vertex of this attribute takes, ignoring any padding after it. */
-function vertexSizeInBytes(attribute: VertexAttribute): number {
-  return (
-    attribute.componentCount * componentSizeInBytes(attribute.componentType)
-  );
-}
-
-/** The size of one component, which is also the alignment the GPU expects for it. */
-function componentSizeInBytes(componentType: VertexComponentType): number {
-  return TYPED_ARRAY_FOR_COMPONENT_TYPE[componentType].BYTES_PER_ELEMENT;
+/** The same values, seen as raw bytes. */
+function toUint8Array(values: VertexAttributeValues): Uint8Array {
+  return new Uint8Array(values.buffer, values.byteOffset, values.byteLength);
 }
 
 function alignTo(value: number, alignment: number): number {

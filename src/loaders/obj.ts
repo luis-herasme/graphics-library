@@ -64,25 +64,37 @@ export class OBJ {
 
   /** Expands the faces into one vertex per corner, with position, normal and uv. */
   toGeometry(): Geometry {
-    const positions: number[][] = [];
-    const normals: number[][] = [];
-    const uvs: number[][] = [];
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const uvs: number[] = [];
 
     for (const face of this.faces) {
       const positionIndex = face[0] - 1;
       const uvIndex = face[1] - 1;
       const normalIndex = face[2] - 1;
 
-      positions.push(this.positions[positionIndex]);
-      normals.push(this.normals[normalIndex]);
-      uvs.push(this.uvs[uvIndex]);
+      positions.push(...this.positions[positionIndex]);
+      normals.push(...this.normals[normalIndex]);
+      uvs.push(...this.uvs[uvIndex]);
     }
 
     const vertexBuffer = new VertexBuffer({
       attributes: [
-        { name: "position", values: positions, componentCount: 3 },
-        { name: "normal", values: normals, componentCount: 3 },
-        { name: "uv", values: uvs, componentCount: 2 },
+        {
+          name: "position",
+          values: new Float32Array(positions),
+          componentCount: 3,
+        },
+        {
+          name: "normal",
+          values: new Float32Array(normals),
+          componentCount: 3,
+        },
+        {
+          name: "uv",
+          values: new Float32Array(uvs),
+          componentCount: 2,
+        },
       ],
     });
 

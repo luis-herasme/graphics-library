@@ -24,18 +24,18 @@ void main() {
 `;
 
 // prettier-ignore
-const POSITIONS = [
-  [0, 0.75],      // Top
-  [-0.75, -0.75], // Bottom left
-  [0.75, -0.75],  // Bottom right
-];
+const POSITIONS = new Float32Array([
+  0, 0.75,      // Top
+  -0.75, -0.75, // Bottom left
+  0.75, -0.75,  // Bottom right
+]);
 
 // prettier-ignore
-const COLORS = [
-  [255, 0, 0], // Top
-  [0, 255, 0], // Bottom left
-  [0, 0, 255], // Bottom right
-];
+const COLORS = new Uint8Array([
+  255, 0, 0, // Top
+  0, 255, 0, // Bottom left
+  0, 0, 255, // Bottom right
+]);
 
 // Passing both attributes to one buffer interleaves them: each vertex's
 // position and color sit next to each other in memory. Passing them to two
@@ -51,7 +51,6 @@ const vertexBuffer = new VertexBuffer({
       name: "color",
       values: COLORS,
       componentCount: 3,
-      componentType: WebGL2RenderingContext.UNSIGNED_BYTE,
       normalize: true,
     },
   ],

@@ -39,7 +39,7 @@ export class Geometry {
   setVertex(
     attributeName: string,
     vertexIndex: number,
-    values: ArrayBufferView | number[],
+    values: ArrayBufferView,
   ): void {
     for (const vertexBuffer of this.vertexBuffers) {
       for (const attribute of vertexBuffer.attributes) {

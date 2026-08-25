@@ -4,28 +4,28 @@ import { Transform2D } from "../math";
 import { VertexAttributeDescriptor, VertexBuffer } from "./vertex-buffer";
 
 // prettier-ignore
-const QUAD_POSITIONS = [
-  [0.5, 0.5],   // Top right
-  [0.5, -0.5],  // Bottom right
-  [-0.5, -0.5], // Bottom left
-  [-0.5, 0.5],  // Top left
-];
+const QUAD_POSITIONS = new Float32Array([
+  0.5, 0.5,   // Top right
+  0.5, -0.5,  // Bottom right
+  -0.5, -0.5, // Bottom left
+  -0.5, 0.5,  // Top left
+]);
 
 // prettier-ignore
-const QUAD_COLORS = [
-  [255, 0, 0], // Top right
-  [0, 255, 0], // Bottom right
-  [0, 0, 255], // Bottom left
-  [0, 255, 0], // Top left
-];
+const QUAD_COLORS = new Uint8Array([
+  255, 0, 0, // Top right
+  0, 255, 0, // Bottom right
+  0, 0, 255, // Bottom left
+  0, 255, 0, // Top left
+]);
 
 // prettier-ignore
-const QUAD_UVS = [
-  [1, 1], // Top right
-  [1, 0], // Bottom right
-  [0, 0], // Bottom left
-  [0, 1], // Top left
-];
+const QUAD_UVS = new Float32Array([
+  1, 1, // Top right
+  1, 0, // Bottom right
+  0, 0, // Bottom left
+  0, 1, // Top left
+]);
 
 // prettier-ignore
 const QUAD_INDICES = new Uint16Array([
@@ -43,7 +43,6 @@ const QUAD_ATTRIBUTES: VertexAttributeDescriptor[] = [
     name: "color",
     values: QUAD_COLORS,
     componentCount: 3,
-    componentType: WebGL2RenderingContext.UNSIGNED_BYTE,
     normalize: true,
   },
   {
@@ -102,70 +101,70 @@ export function quadInstancedAndInterleaved(count: number): Geometry {
 
 export function box(): Geometry {
   // prettier-ignore
-  const positions = [
+  const positions = new Float32Array([
     // Front face (z = 0.5)
-    [0.5, 0.5, 0.5],   // 0: Top-right
-    [0.5, -0.5, 0.5],  // 1: Bottom-right
-    [-0.5, -0.5, 0.5], // 2: Bottom-left
-    [-0.5, 0.5, 0.5],  // 3: Top-left
+    0.5, 0.5, 0.5,   // 0: Top-right
+    0.5, -0.5, 0.5,  // 1: Bottom-right
+    -0.5, -0.5, 0.5, // 2: Bottom-left
+    -0.5, 0.5, 0.5,  // 3: Top-left
     // Back face (z = -0.5)
-    [0.5, 0.5, -0.5],   // 4: Top-right
-    [-0.5, 0.5, -0.5],  // 5: Top-left
-    [-0.5, -0.5, -0.5], // 6: Bottom-left
-    [0.5, -0.5, -0.5],  // 7: Bottom-right
+    0.5, 0.5, -0.5,   // 4: Top-right
+    -0.5, 0.5, -0.5,  // 5: Top-left
+    -0.5, -0.5, -0.5, // 6: Bottom-left
+    0.5, -0.5, -0.5,  // 7: Bottom-right
     // Top face (y = 0.5)
-    [0.5, 0.5, -0.5],  // 8: Back-right
-    [0.5, 0.5, 0.5],   // 9: Front-right
-    [-0.5, 0.5, 0.5],  // 10: Front-left
-    [-0.5, 0.5, -0.5], // 11: Back-left
+    0.5, 0.5, -0.5,  // 8: Back-right
+    0.5, 0.5, 0.5,   // 9: Front-right
+    -0.5, 0.5, 0.5,  // 10: Front-left
+    -0.5, 0.5, -0.5, // 11: Back-left
     // Bottom face (y = -0.5)
-    [0.5, -0.5, 0.5],   // 12: Front-right
-    [0.5, -0.5, -0.5],  // 13: Back-right
-    [-0.5, -0.5, -0.5], // 14: Back-left
-    [-0.5, -0.5, 0.5],  // 15: Front-left
+    0.5, -0.5, 0.5,   // 12: Front-right
+    0.5, -0.5, -0.5,  // 13: Back-right
+    -0.5, -0.5, -0.5, // 14: Back-left
+    -0.5, -0.5, 0.5,  // 15: Front-left
     // Right face (x = 0.5)
-    [0.5, 0.5, -0.5],  // 16: Top-back
-    [0.5, -0.5, -0.5], // 17: Bottom-back
-    [0.5, -0.5, 0.5],  // 18: Bottom-front
-    [0.5, 0.5, 0.5],   // 19: Top-front
+    0.5, 0.5, -0.5,  // 16: Top-back
+    0.5, -0.5, -0.5, // 17: Bottom-back
+    0.5, -0.5, 0.5,  // 18: Bottom-front
+    0.5, 0.5, 0.5,   // 19: Top-front
     // Left face (x = -0.5)
-    [-0.5, 0.5, 0.5],   // 20: Top-front
-    [-0.5, -0.5, 0.5],  // 21: Bottom-front
-    [-0.5, -0.5, -0.5], // 22: Bottom-back
-    [-0.5, 0.5, -0.5],  // 23: Top-back
-  ];
+    -0.5, 0.5, 0.5,   // 20: Top-front
+    -0.5, -0.5, 0.5,  // 21: Bottom-front
+    -0.5, -0.5, -0.5, // 22: Bottom-back
+    -0.5, 0.5, -0.5,  // 23: Top-back
+  ]);
 
   // prettier-ignore
-  const normals = [
+  const normals = new Float32Array([
     // Front face
-    [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1],
+    0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
     // Back face
-    [0, 0, -1], [0, 0, -1], [0, 0, -1], [0, 0, -1],
+    0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
     // Top face
-    [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0],
+    0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
     // Bottom face
-    [0, -1, 0], [0, -1, 0], [0, -1, 0], [0, -1, 0],
+    0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
     // Right face
-    [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0],
+    1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
     // Left face
-    [-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [-1, 0, 0],
-  ];
+    -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
+  ]);
 
   // prettier-ignore
-  const uvs = [
+  const uvs = new Float32Array([
     // Front face
-    [1, 1], [1, 0], [0, 0], [0, 1],
+    1, 1, 1, 0, 0, 0, 0, 1,
     // Back face
-    [0, 1], [1, 1], [1, 0], [0, 0],
+    0, 1, 1, 1, 1, 0, 0, 0,
     // Top face
-    [1, 1], [1, 0], [0, 0], [0, 1],
+    1, 1, 1, 0, 0, 0, 0, 1,
     // Bottom face
-    [1, 0], [1, 1], [0, 1], [0, 0],
+    1, 0, 1, 1, 0, 1, 0, 0,
     // Right face
-    [0, 1], [0, 0], [1, 0], [1, 1],
+    0, 1, 0, 0, 1, 0, 1, 1,
     // Left face
-    [1, 1], [1, 0], [0, 0], [0, 1],
-  ];
+    1, 1, 1, 0, 0, 0, 0, 1,
+  ]);
 
   // prettier-ignore
   const indices = new Uint16Array([
@@ -214,10 +213,11 @@ export function box(): Geometry {
 
 /** One identity `mat3` per instance, spread over three attribute locations by the shader. */
 function instanceTransforms(count: number): VertexAttributeDescriptor {
-  const values: Float32Array[] = [];
+  const values = new Float32Array(count * 9);
+  const identity = new Transform2D().toMatrix3().elements;
 
   for (let index = 0; index < count; index++) {
-    values.push(new Transform2D().toMatrix3().elements);
+    values.set(identity, index * 9);
   }
 
   return {
