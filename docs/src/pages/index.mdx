@@ -1,0 +1,43 @@
+# suricato [A small WebGL2 graphics library written in TypeScript]
+
+suricato is a port of [suricato.rs](https://github.com/luis-herasme/suricato.rs) from Rust/WASM. It has no runtime dependencies: math types live in a small built-in math module, and models load through a minimal OBJ parser and binary glTF reader.
+
+## What it gives you
+
+- **Renderer**: canvas and context setup, depth testing, window resize handling, and scene rendering with a perspective camera
+- **Geometry**: plain, interleaved, and instanced vertex buffers with automatic layout computation; u8/u16/u32 index buffers; built-in quad and box shapes
+- **Materials**: shader compilation with cached uniform and attribute locations; texture uniforms with automatic texture-unit assignment
+- **Uniform buffer objects**: `std140` uniform blocks shared across draws
+- **Textures**: from images, URLs, or raw pixel data
+- **Transforms**: 2D (`Matrix3`) and 3D (scale/rotation/translation → `Matrix4`)
+- **Loaders**: a Wavefront OBJ parser and a minimal binary glTF (`.glb`) reader
+
+## How the pieces fit
+
+A `Geometry` gives meaning to GPU buffers (vertex attributes and indices), and a `Material` gives meaning to a shader program (sources and uniform values). A `Mesh` pairs them and adds a transform, and a `Renderer` draws the pair:
+
+```ts
+import { quad, Material, Mesh, Renderer } from "suricato";
+
+const renderer = new Renderer(); // Creates a full-window canvas
+const material = new Material({ vertexShaderSource, fragmentShaderSource });
+const mesh = new Mesh({ geometry: quad(), material });
+
+function frame() {
+  renderer.clear();
+  renderer.render(mesh);
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+```
+
+The library owns no frame loop; you decide when to draw and when to stop.
+
+## Conventions
+
+Every class with more than one setting takes a single descriptor object, and each descriptor has a matching exported type (`MaterialDescriptor`, `MeshDescriptor`, and so on). Optional settings have defaults, so a camera that fills the window is just `new PerspectiveCamera()`. The math types (`Vector3`, `Quaternion`, `Matrix4`) take positional arguments instead, since their components are already ordered.
+
+WebGL constants are never redefined: anywhere a WebGL constant is expected, you pass it directly, e.g. `WebGL2RenderingContext.STATIC_DRAW`.
+
+Next: [Getting started](/getting-started).

@@ -1,0 +1,68 @@
+# Math [Vectors, quaternions, matrices, and transforms]
+
+The math module is pure values with no WebGL in it. Unlike the rest of the library, math types take positional arguments instead of descriptor objects, since their components are already ordered.
+
+## Vectors
+
+`Vector2` and `Vector3` are plain `x`/`y`/`z` fields with the usual helpers:
+
+```ts
+import { Vector3 } from "suricato";
+
+const v = new Vector3(1, 2, 3); // components default to 0
+Vector3.zero(); // (0, 0, 0)
+Vector3.one(); // (1, 1, 1)
+
+v.add(other); // mutates and returns v
+v.multiplyScalar(2);
+v.lerp(other, 0.5); // returns a new vector
+v.clone();
+v.toArray(); // [x, y, z]
+```
+
+## Quaternions
+
+Rotations are quaternions. Build one from an axis rotation and compose by multiplying:
+
+```ts
+import { Quaternion } from "suricato";
+
+Quaternion.identity();
+Quaternion.fromRotationY(0.01); // angle in radians
+
+mesh.transform.rotation.multiply(Quaternion.fromRotationY(0.01)); // spin a bit each frame
+```
+
+## Matrices
+
+`Matrix3` and `Matrix4` store their elements column-major in a `Float32Array`, so `elements` is exactly what a `matrix3` or `matrix4` uniform wants.
+
+```ts
+import { Matrix4 } from "suricato";
+
+Matrix4.identity();
+Matrix4.perspective(fov, aspect, near, far);
+matrix.multiply(other); // returns a new matrix
+matrix.inverse();
+matrix.elements; // Float32Array(16), column-major
+```
+
+## Transforms
+
+A transform is scale + rotation + translation, and turns into a matrix on demand. `Transform3D` is what meshes and cameras carry; `Transform2D` (scale, angle in radians, translation) is its 2D counterpart.
+
+```ts
+import { Transform3D } from "suricato";
+
+const transform = new Transform3D(); // identity: scale 1, no rotation, at the origin
+transform.translation.z = -5;
+transform.scale.multiplyScalar(0.25);
+transform.rotation.multiply(Quaternion.fromRotationX(0.003));
+
+material.setUniform("transform", {
+  kind: "matrix4",
+  value: transform.toMatrix4().elements,
+});
+```
+
+`Transform3D.fromMatrix4(matrix)` goes the other way, decomposing a matrix into scale, rotation, and translation.

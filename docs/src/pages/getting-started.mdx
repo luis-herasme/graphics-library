@@ -1,0 +1,90 @@
+# Getting started [Run the examples and draw your first quad]
+
+## Run the examples
+
+The library is not published to a package registry yet; clone the repository and import from `src/index.ts`.
+
+```bash
+git clone https://github.com/luis-herasme/graphics-library
+cd graphics-library
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 to browse the examples: a minimal quad, textures, instancing, a lit and textured cube with a camera, OBJ and glTF loading, uniform buffer objects, and a wireframe fox with its skeleton.
+
+```bash
+npm run check   # typecheck
+npm run build   # typecheck + production build of the examples
+```
+
+## Your first quad
+
+::::steps
+
+### Create a renderer
+
+With no arguments, `Renderer` creates a full-window canvas, appends it to the document body, keeps it at the window's size, and enables depth testing. Pass your own canvas to opt out of all of that.
+
+```ts
+import { Renderer } from "suricato";
+
+const renderer = new Renderer();
+```
+
+### Write a material
+
+A material is just the two shader sources. Compilation happens on the first draw.
+
+```ts
+import { Material } from "suricato";
+
+const material = new Material({
+  vertexShaderSource: `#version 300 es
+in vec3 position;
+
+void main() {
+    gl_Position = vec4(position, 1.0);
+}
+`,
+  fragmentShaderSource: `#version 300 es
+precision mediump float;
+
+out vec4 fragment_color;
+
+void main() {
+    fragment_color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+`,
+});
+```
+
+### Pair geometry and material in a mesh
+
+`quad()` is a built-in unit quad with `position`, `color`, and `uv` attributes. Attributes are matched to shader inputs by name: the shader above only reads `position`, and the unused attributes are silently skipped.
+
+```ts
+import { quad, Mesh } from "suricato";
+
+const mesh = new Mesh({ geometry: quad(), material });
+```
+
+### Drive the frame loop
+
+The library owns no frame loop; you call `render` when you want a frame.
+
+```ts
+function frame() {
+  renderer.clear();
+  renderer.render(mesh);
+  requestAnimationFrame(frame);
+}
+
+requestAnimationFrame(frame);
+```
+
+::::
+
+:::note
+Everything can be constructed before a WebGL context exists. GPU resources (buffers, programs, textures, vertex array objects) are created lazily on the first draw, and CPU-side edits are uploaded automatically before the next draw. See [Rendering](/rendering).
+:::
