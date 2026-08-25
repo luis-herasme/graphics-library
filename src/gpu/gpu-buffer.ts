@@ -47,7 +47,6 @@ export class GpuBuffer {
     return webglBuffer;
   }
 
-  /** Refills an existing GPU copy with the current CPU bytes. */
   uploadTo(gl: WebGL2RenderingContext, webglBuffer: WebGLBuffer): void {
     gl.bindBuffer(this.target, webglBuffer);
     gl.bufferSubData(this.target, 0, this.bytes);

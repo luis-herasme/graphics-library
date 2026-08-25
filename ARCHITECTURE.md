@@ -91,13 +91,12 @@ sequenceDiagram
   participant Maps as Renderer's resource maps
   participant Mat as Material
 
-  R->>Maps: get vertex buffers (created once, re-uploaded only when the version changed)
+  R->>Maps: get vertex buffers (created once, re-uploaded when the version changed)
   R->>Maps: get shader program (compiled once, then cached)
-  R->>Maps: get index buffer (created once, re-uploaded only when the version changed)
   R->>Mat: read uniforms and uniform blocks
   Note over R: use program, upload uniforms,<br/>assign texture units and binding points
   R->>Maps: get vertex array object (built once, then cached)
-  R->>R: bind index buffer (if the geometry has one)
+  R->>Maps: get and bind index buffer (if the geometry has one)
   R->>R: drawElements / drawArrays<br/>(instanced variant if instanceCount is set)
 ```
 

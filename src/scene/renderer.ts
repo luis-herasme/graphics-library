@@ -132,20 +132,13 @@ export class Renderer {
   render(mesh: Mesh): void {
     const gl = this.gl;
 
-    // Resources are created and updated in the required order: vertex data
-    // first, then the material's shader program (the vertex bindings created
-    // later in getWebGLVertexArrayObject depend on it), then index data.
+    // The vertex array object records where the vertex data lives, not the
+    // bytes themselves, so edited buffers are re-uploaded through this lookup.
     for (const vertexBuffer of mesh.geometry.vertexBuffers) {
       this.getWebGLBuffer(vertexBuffer.buffer);
     }
 
-    const shaderProgram = this.getShaderProgram(mesh.material);
-
-    if (mesh.geometry.indices !== null) {
-      this.getWebGLBuffer(mesh.geometry.indices.buffer);
-    }
-
-    this.applyUniforms(mesh.material, shaderProgram);
+    this.applyUniforms(mesh.material);
 
     gl.bindVertexArray(this.getWebGLVertexArrayObject(mesh));
 
@@ -195,9 +188,7 @@ export class Renderer {
         version: buffer.version,
       };
       this.buffers.set(buffer, entry);
-    }
-
-    if (entry.version !== buffer.version) {
+    } else if (entry.version !== buffer.version) {
       buffer.uploadTo(this.gl, entry.webglBuffer);
       entry.version = buffer.version;
     }
@@ -233,53 +224,42 @@ export class Renderer {
   }
 
   private getWebGLVertexArrayObject(mesh: Mesh): WebGLVertexArrayObject {
-    let webglVertexArrayObject = this.vertexArrayObjects.get(mesh);
+    const existing = this.vertexArrayObjects.get(mesh);
 
-    if (webglVertexArrayObject === undefined) {
-      webglVertexArrayObject = this.createWebGLVertexArrayObject(mesh);
-      this.vertexArrayObjects.set(mesh, webglVertexArrayObject);
+    if (existing !== undefined) {
+      return existing;
     }
 
-    return webglVertexArrayObject;
-  }
-
-  private createWebGLVertexArrayObject(mesh: Mesh): WebGLVertexArrayObject {
     const gl = this.gl;
-
-    // The shader program and every buffer must be fetched before binding the
-    // vertex array object: creating or uploading a buffer binds it, which
-    // would leak into the vertex array object's recorded state.
     const shaderProgram = this.getShaderProgram(mesh.material);
-    const webglBuffers = mesh.geometry.vertexBuffers.map((vertexBuffer) =>
-      this.getWebGLBuffer(vertexBuffer.buffer),
-    );
-
     const webglVertexArrayObject = gl.createVertexArray();
 
     if (webglVertexArrayObject === null) {
       throw new Error("Failed to create WebGL vertex array object");
     }
 
+    // A vertex array object records only attribute pointers and the index
+    // buffer binding, so vertex buffers can safely be created while it is
+    // bound.
     gl.bindVertexArray(webglVertexArrayObject);
 
-    for (let index = 0; index < mesh.geometry.vertexBuffers.length; index++) {
-      mesh.geometry.vertexBuffers[index].bindAttributes(
+    for (const vertexBuffer of mesh.geometry.vertexBuffers) {
+      vertexBuffer.bindAttributes(
         gl,
-        webglBuffers[index],
+        this.getWebGLBuffer(vertexBuffer.buffer),
         shaderProgram,
       );
     }
 
     gl.bindVertexArray(null);
+    this.vertexArrayObjects.set(mesh, webglVertexArrayObject);
     return webglVertexArrayObject;
   }
 
   /** Activates the shader program and uploads every uniform value. Runs on every draw. */
-  private applyUniforms(
-    material: Material,
-    shaderProgram: ShaderProgram,
-  ): void {
+  private applyUniforms(material: Material): void {
     const gl = this.gl;
+    const shaderProgram = this.getShaderProgram(material);
 
     gl.useProgram(shaderProgram.webglProgram);
 
@@ -319,7 +299,7 @@ export class Renderer {
     }
   }
 
-  /** Frees this renderer's GPU buffers for the geometry. The geometry stays valid; the next draw recreates them. */
+  /** Frees this renderer's buffers for the geometry; the next draw recreates them. */
   deleteGeometry(geometry: Geometry): void {
     for (const vertexBuffer of geometry.vertexBuffers) {
       this.deleteBuffer(vertexBuffer.buffer);
@@ -330,7 +310,7 @@ export class Renderer {
     }
   }
 
-  /** Frees this renderer's GPU texture. The texture stays valid; the next draw recreates it. */
+  /** Frees this renderer's texture; the next draw recreates it. */
   deleteTexture(texture: Texture): void {
     const webglTexture = this.textures.get(texture);
 
@@ -341,9 +321,9 @@ export class Renderer {
   }
 
   /**
-   * Frees this renderer's shader program for the material; the next draw
-   * compiles it again. Textures and uniform buffer objects can be shared
-   * between materials, so they are not deleted here.
+   * Frees this renderer's shader program; the next draw compiles it again.
+   * Textures and uniform buffer objects can be shared between materials, so
+   * they are not deleted here.
    */
   deleteMaterial(material: Material): void {
     const shaderProgram = this.shaderPrograms.get(material);
@@ -355,9 +335,9 @@ export class Renderer {
   }
 
   /**
-   * Frees this renderer's vertex array object for the mesh; the next draw
-   * rebuilds it. The geometry and material can be shared between meshes, so
-   * they are not deleted here.
+   * Frees this renderer's vertex array object; the next draw rebuilds it. The
+   * geometry and material can be shared between meshes, so they are not
+   * deleted here.
    */
   deleteMesh(mesh: Mesh): void {
     const webglVertexArrayObject = this.vertexArrayObjects.get(mesh);
@@ -368,7 +348,7 @@ export class Renderer {
     }
   }
 
-  /** Frees this renderer's GPU buffer for the uniform buffer object. The object stays valid; the next draw recreates it. */
+  /** Frees this renderer's buffer for the uniform buffer object; the next draw recreates it. */
   deleteUniformBufferObject(uniformBufferObject: UniformBufferObject): void {
     this.deleteBuffer(uniformBufferObject.buffer);
   }
