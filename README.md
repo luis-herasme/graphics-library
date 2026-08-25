@@ -44,11 +44,11 @@ npm run build   # typecheck + production build of the examples
 ## Usage
 
 ```ts
-import { Geometry, Material, Mesh, Renderer } from "./src/index";
+import { quad, Material, Mesh, Renderer } from "./src/index";
 
 const renderer = new Renderer(); // Creates a full-window canvas
 const material = new Material({ vertexShaderSource, fragmentShaderSource });
-const mesh = new Mesh({ geometry: Geometry.quad(), material });
+const mesh = new Mesh({ geometry: quad(), material });
 
 function frame() {
   renderer.clear();
