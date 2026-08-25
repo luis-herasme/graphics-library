@@ -19,8 +19,10 @@ export type MeshDescriptor = {
 
 export class Mesh {
   transform = new Transform3D();
-  geometry: Geometry;
-  material: Material;
+  // The renderer builds the mesh's vertex array object from this pair, so
+  // swapping either one means making a new mesh.
+  readonly geometry: Geometry;
+  readonly material: Material;
   renderPrimitive: RenderPrimitive = WebGL2RenderingContext.TRIANGLES;
 
   constructor(descriptor: MeshDescriptor) {
