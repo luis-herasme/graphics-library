@@ -1,0 +1,75 @@
+# Rendering [The renderer, meshes, cameras, and who owns the GPU]
+
+## Renderer
+
+```ts
+import { Renderer } from "suricato";
+
+const renderer = new Renderer(); // full-window canvas, opaque black clear color
+
+// Or, with your own canvas:
+const renderer = new Renderer({
+  canvas: document.querySelector("canvas")!,
+  clearColor: [0.1, 0.1, 0.1, 1], // red, green, blue, alpha in [0, 1]
+});
+```
+
+A canvas the renderer created is kept at the window's size; a canvas you passed in is left alone. Depth testing is enabled at construction. The raw context is available as `renderer.gl`.
+
+## Drawing one mesh
+
+A `Mesh` pairs a geometry with a material and adds a `Transform3D` and a render primitive (`TRIANGLES` by default; set `mesh.renderPrimitive = WebGL2RenderingContext.LINES` for wireframes).
+
+```ts
+const mesh = new Mesh({ geometry, material });
+mesh.transform.translation.z = -5;
+
+renderer.clear();
+renderer.render(mesh);
+```
+
+`render(mesh)` draws one mesh and nothing else: no clearing, no camera, no resize handling. The mesh's `geometry` and `material` are `readonly` because the vertex array object is built from that pair; to draw the same geometry with another material, make a new mesh.
+
+## Drawing a scene with a camera
+
+`renderScene(scene, camera)` adds the frame housekeeping: it clears, keeps the canvas size, the camera's aspect ratio, and the viewport in sync, and sets three uniforms on every mesh's material before drawing it.
+
+```ts
+import { PerspectiveCamera } from "suricato";
+
+const camera = new PerspectiveCamera(); // fov 45°, window aspect, near 0.1, far 100
+const scene = [mesh]; // a scene is just an array of meshes
+
+function frame() {
+  renderer.renderScene(scene, camera);
+  requestAnimationFrame(frame);
+}
+```
+
+The camera has a `transform` you can move and rotate. If you change `fov`, `near`, or `far`, call `camera.updateProjectionMatrix()`.
+
+:::warning
+`renderScene` sets three uniforms **by name** on every material: `transform` (the mesh's model matrix), `projection_matrix`, and `camera_inverse_matrix` (the view matrix). A shader that spells them differently silently gets no camera. A typical vertex shader position looks like:
+
+```glsl
+gl_Position = projection_matrix * camera_inverse_matrix * transform * vec4(position, 1.0);
+```
+:::
+
+## Who owns the GPU
+
+Scene objects (`Geometry`, `Material`, `Texture`, `Mesh`) are pure CPU data. Each renderer keeps the GPU resources it created for them in weak maps keyed by the object:
+
+- **First draw**: buffers are uploaded, the shader program is compiled and linked (with every uniform and attribute location cached), and the mesh's vertex array object is built.
+- **Later draws**: a buffer is re-uploaded only when its version counter says the bytes changed. Editing calls like `Geometry.setVertex` or `UniformBufferObject.setBytes` write the CPU copy and bump the counter; the change reaches the GPU before the next draw.
+- **Garbage collection**: because the maps are weak, dropping every reference to an object lets the browser free its GPU resources.
+
+Sharing objects between two renderers just works: each renderer creates its own GPU copy for its own context.
+
+## Freeing and rebuilding resources
+
+`deleteGeometry`, `deleteTexture`, `deleteMaterial`, `deleteMesh`, and `deleteUniformBufferObject` free the renderer's copy while leaving the object valid. The next draw recreates it, so there is no "disposed" state and no use-after-free.
+
+This is also the lever for changed settings: after changing a `Texture`'s filter settings, call `renderer.deleteTexture(texture)` and the next draw rebuilds it.
+
+The delete methods never reach into things that can be shared: `deleteMesh` does not delete the mesh's geometry or material, and `deleteMaterial` does not delete the material's textures or uniform buffer objects.

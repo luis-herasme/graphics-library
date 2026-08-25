@@ -1,0 +1,96 @@
+# Geometry [Vertex buffers, index buffers, instancing, and built-in shapes]
+
+A `Geometry` groups vertex buffers, an optional index buffer, and an optional instance count:
+
+```ts
+import { Geometry, IndexBuffer, VertexBuffer } from "suricato";
+
+const geometry = new Geometry({
+  vertexCount: 4,
+  indices: new IndexBuffer({ data: new Uint16Array([0, 1, 2, 2, 3, 0]) }),
+  vertexBuffers: [
+    new VertexBuffer({
+      attributes: [
+        {
+          name: "position", // the name the shader sees
+          values: new Float32Array([0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5]),
+          componentCount: 2, // 2 for a vec2, 3 for a vec3, 9 for a mat3...
+        },
+      ],
+    }),
+  ],
+});
+```
+
+## Two rules about data
+
+**Attribute and index values must arrive as flat typed arrays**, one value after another. There is no `number[]`, no array-of-arrays, no matrix-of-numbers input: whoever has the data in another shape converts it before calling in. This keeps the library free of conversion machinery.
+
+**The array type decides the GPU type.** `Float32Array` means float, `Uint16Array` means unsigned short, and so on, for both vertex attributes and indices. There is no separate "component type" option, so the array and the declared type can never disagree.
+
+## One vertex buffer, one layout choice
+
+- **Several attributes in one `VertexBuffer`** are interleaved: each attribute gets an offset inside a shared stride, so everything one vertex needs sits together. All attributes must describe the same number of vertices; this is checked at construction.
+- **One attribute per `VertexBuffer`** is stored as-is: your array is used directly, with no copy.
+- To keep attributes in separate regions, use separate vertex buffers. A "several attributes, not interleaved, same buffer" layout is deliberately unsupported.
+
+An attribute descriptor also takes:
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `numberOfColumns` | `1` | Matrices occupy one attribute location per column, e.g. `3` for a `mat3` with `componentCount: 9` |
+| `divisor` | `0` | How many instances share one value; `0` means a value per vertex, `1` means a value per instance |
+| `normalize` | `false` | Whether integer values are scaled to `[0, 1]` in the shader |
+
+## Index buffers
+
+`IndexBuffer` accepts `Uint8Array`, `Uint16Array`, or `Uint32Array`; the array type picks the element type of the draw call.
+
+```ts
+const indices = new IndexBuffer({ data: new Uint16Array([0, 1, 2, 2, 3, 0]) });
+```
+
+## Built-in shapes
+
+- `quad()`: a unit quad with `position` (vec2), `color` (u8 vec3, normalized), and `uv` (vec2) attributes
+- `box()`: a unit cube with `position`, `normal`, and `uv` attributes
+- `quadInstanced(count)`: the quad plus a per-instance `mat3` attribute named `transform`
+
+## Instancing
+
+Set `instanceCount` on the geometry and give per-instance attributes a `divisor` of `1`. The renderer picks the instanced draw call automatically.
+
+```ts
+const geometry = new Geometry({
+  vertexCount: 4,
+  instanceCount: 100,
+  indices,
+  vertexBuffers: [
+    positionsBuffer,
+    new VertexBuffer({
+      attributes: [
+        {
+          name: "transform",
+          values: matrices, // Float32Array with 9 floats per instance
+          componentCount: 9,
+          numberOfColumns: 3, // a mat3 spans three attribute locations
+          divisor: 1, // one matrix per instance
+        },
+      ],
+      usage: WebGL2RenderingContext.DYNAMIC_DRAW,
+    }),
+  ],
+});
+```
+
+## Editing vertices after construction
+
+`setVertex` overwrites one vertex of one attribute in the CPU copy; the change reaches the GPU before the next draw.
+
+```ts
+mesh.geometry.setVertex("transform", instanceIndex, transform.toMatrix3().elements);
+```
+
+:::note
+`vertexCount` is caller-supplied and `setVertex` does not range-check, because the platform already fails safely: WebGL never reads vertices out of range, and a write past the end of a buffer throws a `RangeError`.
+:::

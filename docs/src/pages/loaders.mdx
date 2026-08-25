@@ -1,0 +1,49 @@
+# Loaders [Wavefront OBJ and binary glTF]
+
+Loaders return data, not scenes: `OBJ.toGeometry()` returns a `Geometry`, and `GLTF` returns typed arrays. You build the meshes and materials.
+
+## OBJ
+
+A minimal Wavefront OBJ parser. It supports the `v`, `vn`, `vt`, and `f` commands, and faces must use the `position/uv/normal` index format. Anything else in the file is ignored; malformed data throws `OBJParseError`.
+
+```ts
+import { OBJ, Material, Mesh } from "suricato";
+
+const response = await fetch("/chair.obj");
+const obj = OBJ.parse(await response.text());
+const geometry = obj.toGeometry();
+
+const mesh = new Mesh({ geometry, material });
+```
+
+`toGeometry()` expands the faces into one vertex per corner, with three attributes: `position` (vec3), `normal` (vec3), and `uv` (vec2). The V texture coordinate is flipped for you (OBJ uses a bottom-left origin, WebGL textures use top-left).
+
+## Binary glTF
+
+A minimal reader for binary glTF (`.glb`) files with an embedded binary chunk. It parses the container and reads accessors, including interleaved and misaligned ones, into flat typed arrays.
+
+```ts
+import { GLTF, Geometry, IndexBuffer, VertexBuffer } from "suricato";
+
+const response = await fetch("/model.glb");
+const gltf = GLTF.fromBytes(new Uint8Array(await response.arrayBuffer()));
+
+const positions = gltf.readPositions(); // Float32Array
+const normals = gltf.readNormals(); // Float32Array
+const indices = gltf.readIndices(); // Uint32Array
+
+const geometry = new Geometry({
+  vertexCount: positions.length / 3,
+  indices: new IndexBuffer({ data: indices }),
+  vertexBuffers: [
+    new VertexBuffer({
+      attributes: [{ name: "position", values: positions, componentCount: 3 }],
+    }),
+    new VertexBuffer({
+      attributes: [{ name: "normal", values: normals, componentCount: 3 }],
+    }),
+  ],
+});
+```
+
+Beyond the shortcuts, `readAttribute("TEXCOORD_0")` reads any named vertex attribute of a primitive, `readAccessor(index)` reads any accessor, and the raw parsed JSON is available as `gltf.json` (with the binary chunk as `gltf.bin`). Malformed files throw `GLTFParseError`.

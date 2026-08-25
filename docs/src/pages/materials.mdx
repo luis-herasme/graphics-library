@@ -1,0 +1,85 @@
+# Materials [Shaders, uniforms, textures, and uniform buffer objects]
+
+A `Material` is the two shader sources plus the uniform values to draw with. Compilation and linking happen on the first draw, once per renderer, with every uniform and attribute location cached.
+
+```ts
+import { Material } from "suricato";
+
+const material = new Material({ vertexShaderSource, fragmentShaderSource });
+```
+
+## Setting uniforms
+
+A uniform value is a tagged object: a `kind` and a `value`. Vector and matrix values may be plain number arrays or typed arrays; matrices are column-major.
+
+```ts
+material.setUniform("translation", { kind: "vector2", value: [0.25, 0.25] });
+material.setUniform("color_index", { kind: "unsigned-int", value: 2 });
+material.setUniform("transform", {
+  kind: "matrix4",
+  value: mesh.transform.toMatrix4().elements,
+});
+```
+
+The kinds are: `float`, `vector2`, `vector3`, `vector4`, `int`, `int-vector2`, `int-vector3`, `int-vector4`, `unsigned-int`, `unsigned-int-vector2`, `unsigned-int-vector3`, `unsigned-int-vector4`, `matrix2`, `matrix3`, `matrix4`, and `texture`.
+
+:::note
+Setting a uniform the shader does not use, or binding an attribute the shader does not read, is silently skipped. Shaders often optimize inputs away, and drawing the same geometry with a simpler shader should just work.
+:::
+
+## Textures
+
+A `Texture` holds settings and pixel data; the renderer owns the GPU texture. Build one from an image element, a URL, or raw pixels:
+
+```ts
+import { Texture } from "suricato";
+
+const texture = await Texture.fromImageUrl("/bob.png"); // waits for decoding
+
+// Or from raw pixel data:
+const texture = new Texture({ width: 2, height: 2, bytes });
+```
+
+Attach it as a uniform; texture units are assigned automatically, in insertion order:
+
+```ts
+material.setUniform("texture_sampler", { kind: "texture", value: texture });
+```
+
+Filter, wrap, and format settings are plain fields with WebGL constant values. The defaults are `NEAREST` filtering, `REPEAT` wrapping, and `RGBA`:
+
+```ts
+texture.minificationFilter = WebGL2RenderingContext.LINEAR;
+texture.wrapHorizontal = WebGL2RenderingContext.CLAMP_TO_EDGE;
+```
+
+To apply settings changed after the first draw, ask the renderer to delete its copy, and the next draw recreates it:
+
+```ts
+renderer.deleteTexture(texture);
+```
+
+## Uniform buffer objects
+
+A `UniformBufferObject` is a buffer for a shader `uniform` block, useful for values shared across draws. You pack the bytes; the block must use `std140` layout so the byte layout is predictable.
+
+```glsl
+layout(std140) uniform Colors {
+    vec4 colors[3];
+};
+```
+
+```ts
+import { UniformBufferObject } from "suricato";
+
+const colors = new Float32Array([
+  1, 0, 0, 1, // colors[0]
+  0, 1, 0, 1, // colors[1]
+  0, 0, 1, 1, // colors[2]
+]);
+const palette = new UniformBufferObject(new Uint8Array(colors.buffer));
+
+material.setUniformBlock("Colors", palette); // the name must match the block in the shader
+```
+
+Binding points are assigned in insertion order on every draw, the way texture units are. `setBytes(byteOffset, data)` edits the CPU copy; the GPU copy is updated before the next draw. Two materials can share one uniform buffer object, and one material can swap between several (for example, two color palettes).
